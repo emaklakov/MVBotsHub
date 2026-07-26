@@ -1,0 +1,37 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Role;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+
+class RolePermissionSeeder extends Seeder
+{
+    public function run(): void
+    {
+//        $permissions = [
+//            'organizations.view',
+//            'organizations.create',
+//            'organizations.update',
+//            'organizations.delete',
+//            'categories.view',
+//            'categories.create',
+//            'categories.update',
+//            'categories.delete',
+//        ];
+//
+//        foreach ($permissions as $permission) {
+//            Permission::firstOrCreate(['name' => $permission]);
+//        }
+//
+//        $admin = Role::firstOrCreate(['name' => 'admin']);
+//        $admin->syncPermissions($permissions);
+//
+//        Role::firstOrCreate(['name' => 'editor'])
+//            ->syncPermissions(['organizations.view', 'organizations.update']);
+
+        Role::firstOrCreate(['name' => 'super-admin']);
+        Role::firstOrCreate(['name' => 'user']);
+    }
+}
