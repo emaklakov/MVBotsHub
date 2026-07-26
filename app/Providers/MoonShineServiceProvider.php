@@ -11,6 +11,7 @@ use MoonShine\Laravel\DependencyInjection\MoonShineConfigurator;
 use App\MoonShine\Resources\Role\RoleResource;
 use App\MoonShine\Resources\User\UserResource;
 use App\MoonShine\Resources\Session\SessionResource;
+use App\MoonShine\Resources\UserLog\UserLogResource;
 
 class MoonShineServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 PermissionResource::class,
                 UserResource::class,
                 SessionResource::class,
+                UserLogResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
+use App\Models\Admin\UserLog;
 use App\Models\Session;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Resources\Permission\PermissionResource;
@@ -22,6 +23,7 @@ use App\MoonShine\Resources\User\UserResource;
 use Spatie\Permission\Models\Permission;
 use MoonShine\AssetManager\InlineJs;
 use App\MoonShine\Resources\Session\SessionResource;
+use App\MoonShine\Resources\UserLog\UserLogResource;
 
 /**
  * Класс MoonShineLayout расширяет AppLayout и предоставляет пользовательский макет для админ-панели.
@@ -89,6 +91,8 @@ final class MoonShineLayout extends AppLayout
                     ->canSee(fn () => Gate::allows('viewAny', Permission::class)),
                 MenuItem::make(SessionResource::class,'Сессии', 'arrow-right-end-on-rectangle')
                     ->canSee(fn () => Gate::allows('viewAny', Session::class)),
+                MenuItem::make(UserLogResource::class, 'Логи действий', 'cursor-arrow-rays')
+                    ->canSee(fn () => Gate::allows('viewAny', UserLog::class)),
             ], 'cpu-chip'),
         ];
     }
