@@ -17,8 +17,16 @@ use MoonShine\Support\Enums\ToastType;
 use MoonShine\UI\Enums\HtmlMode;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Контроллер для управления данными профиля пользователя:
+ * обработка запросов на сохранение данных профиля, логирование смены пароля и возврат соответствующих ответов.
+ */
 class ProfileController extends MoonShineController
 {
+    /**
+     * Обрабатывает сохранение данных профиля пользователя.
+     * Сохраняет изменения, логирует смену пароля и возвращает соответствующий ответ.
+     */
     public function store(ProfileFormRequest $request): Response
     {
         $page = moonshineConfig()->getPage('profile', ProfilePage::class);

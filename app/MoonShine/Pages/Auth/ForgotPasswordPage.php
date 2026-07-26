@@ -14,6 +14,10 @@ use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FlexibleRender;
 use App\Forms\ForgotPasswordForm;
 
+/**
+ * Класс ForgotPasswordPage представляет страницу запроса сброса пароля.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 #[SkipMenu]
 #[Layout(LoginLayout::class)]
 final class ForgotPasswordPage extends Page

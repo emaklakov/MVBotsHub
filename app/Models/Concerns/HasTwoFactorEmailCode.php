@@ -5,6 +5,10 @@ namespace App\Models\Concerns;
 use App\Models\UserCode;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Трейт для работы с двухфакторной аутентификацией через электронную почту:
+ * генерация кода, проверка кода, очистка кода и взаимодействие с моделями пользователей.
+ */
 trait HasTwoFactorEmailCode
 {
     protected string $twoFactorCodeType = 'two_factor_email';

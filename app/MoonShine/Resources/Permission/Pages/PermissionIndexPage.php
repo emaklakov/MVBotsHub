@@ -14,6 +14,10 @@ use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Text;
 
+/**
+ * Класс PermissionIndexPage представляет страницу индекса для работы с разрешениями пользователей.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 class PermissionIndexPage extends IndexPage
 {
     protected bool $isLazy = true;

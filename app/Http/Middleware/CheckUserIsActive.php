@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware для проверки активности пользователя:
+ * если пользователь не активен, выполняется выход из системы и перенаправление на страницу входа.
+ */
 class CheckUserIsActive
 {
     public function handle(Request $request, Closure $next): Response

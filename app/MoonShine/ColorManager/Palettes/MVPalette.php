@@ -4,6 +4,10 @@ namespace App\MoonShine\ColorManager\Palettes;
 
 use MoonShine\Contracts\ColorManager\PaletteContract;
 
+/**
+ * Класс MVPalette реализует интерфейс PaletteContract
+ * и содержит светлую и тёмную цветовые палитры для приложения.
+ */
 class MVPalette implements PaletteContract
 {
     public function getDescription(): string

@@ -4,6 +4,10 @@ namespace App\Services;
 
 use Jenssegers\Agent\Agent;
 
+/**
+ * Сервис для определения типа устройства пользователя:
+ * определяет тип устройства пользователя на основе User-Agent строки.
+ */
 class DeviceDetector
 {
     public static function detect(?string $userAgent): string

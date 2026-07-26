@@ -7,15 +7,13 @@ use Illuminate\Http\Response;
 use MoonShine\Crud\Exceptions\NotFoundException;
 use MoonShine\Laravel\Pages\ErrorPage;
 
+// Класс для обработки ошибок 404 (страница не найдена).
 class MVNotFoundException extends NotFoundException
 {
-    public function report(): void
-    {
-        //
-    }
-
+    // Метод, отвечающий за отображение пользовательской страницы ошибки 404.
     public function render(Request $request): Response
     {
+        // Получаем страницу ошибки 404 из конфигурации MoonShine
         $page = moonshineConfig()->getPage(
             'error',
             ErrorPage::class,

@@ -14,7 +14,8 @@ use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Contracts\Core\PageContract;
 
 /**
- * @extends ModelResource<User, UserIndexPage, UserFormPage, UserDetailPage>
+ * Класс UserResource представляет ресурс для работы с пользователями.
+ * Определяет заголовок, компоненты и другие параметры ресурса.
  */
 class UserResource extends ModelResource
 {

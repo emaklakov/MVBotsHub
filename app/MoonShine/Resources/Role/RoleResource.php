@@ -14,7 +14,8 @@ use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Contracts\Core\PageContract;
 
 /**
- * @extends ModelResource<Role, RoleIndexPage, RoleFormPage>
+ * Класс RoleResource представляет ресурс для работы с ролями пользователей.
+ * Определяет заголовок, компоненты и другие параметры ресурса.
  */
 class RoleResource extends ModelResource
 {

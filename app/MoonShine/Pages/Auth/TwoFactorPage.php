@@ -15,6 +15,10 @@ use MoonShine\Laravel\Pages\Page;
 use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FlexibleRender;
 
+/**
+ * Класс TwoFactorPage представляет страницу двухфакторной аутентификации.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 #[SkipMenu]
 #[Layout(LoginLayout::class)]
 final class TwoFactorPage extends Page

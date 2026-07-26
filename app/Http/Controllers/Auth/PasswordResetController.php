@@ -16,8 +16,17 @@ use Illuminate\Support\Facades\Password;
 use MoonShine\Laravel\MoonShineAuth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Контроллер для управления процессом сброса пароля пользователя:
+ * отображение страницы запроса сброса пароля, отправка ссылки для сброса пароля,
+ * отображение страницы сброса пароля и обработка запроса на сброс пароля.
+ */
 class PasswordResetController extends Controller
 {
+    /**
+     * Отображает страницу запроса сброса пароля.
+     * Проверяет, включен ли функционал сброса пароля и есть ли активная сессия пользователя.
+     */
     public function create(): Renderable|Response|string
     {
         abort_unless(config('moonshine-register.enabled', true) && config('moonshine-register.password_reset.enabled', true), 404);
@@ -36,6 +45,10 @@ class PasswordResetController extends Controller
         return $page->render();
     }
 
+    /**
+     * Обрабатывает запрос на отправку ссылки для сброса пароля.
+     * Отправляет ссылку на электронную почту пользователя для сброса пароля.
+     */
     public function store(ForgotPasswordRequest $request): RedirectResponse
     {
         abort_unless(config('moonshine-register.enabled', true) && config('moonshine-register.password_reset.enabled', true), 404);
@@ -48,6 +61,10 @@ class PasswordResetController extends Controller
             ->with('status', __('register.reset_link_sent'));
     }
 
+    /**
+     * Отображает страницу сброса пароля.
+     * Проверяет, включен ли функционал сброса пароля и есть ли активная сессия пользователя.
+     */
     public function reset(string $token): Renderable|Response|string
     {
         abort_unless(config('moonshine-register.enabled', true) && config('moonshine-register.password_reset.enabled', true), 404);
@@ -66,6 +83,10 @@ class PasswordResetController extends Controller
         return $page->render();
     }
 
+    /**
+     * Обрабатывает запрос на сброс пароля.
+     * Сбрасывает пароль пользователя и возвращает соответствующий ответ.
+     */
     public function update(ResetPasswordRequest $request): RedirectResponse
     {
         abort_unless(config('moonshine-register.enabled', true) && config('moonshine-register.password_reset.enabled', true), 404);

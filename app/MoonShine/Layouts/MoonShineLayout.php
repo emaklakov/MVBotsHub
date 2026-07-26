@@ -23,6 +23,10 @@ use Spatie\Permission\Models\Permission;
 use MoonShine\AssetManager\InlineJs;
 use App\MoonShine\Resources\Session\SessionResource;
 
+/**
+ * Класс MoonShineLayout расширяет AppLayout и предоставляет пользовательский макет для админ-панели.
+ * Определяет цветовую палитру, ресурсы, меню и другие элементы макета.
+ */
 final class MoonShineLayout extends AppLayout
 {
     /**

@@ -14,6 +14,10 @@ use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FlexibleRender;
 use App\Forms\RegisterForm;
 
+/**
+ * Класс RegisterPage представляет страницу регистрации пользователя.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 #[SkipMenu]
 #[Layout(LoginLayout::class)]
 final class RegisterPage extends Page

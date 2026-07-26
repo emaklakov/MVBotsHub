@@ -5,6 +5,10 @@ namespace App\Http\Middleware;
 use Carbon\Carbon;
 use Closure;
 
+/**
+ * Middleware для проверки срока действия пароля пользователя:
+ * если пароль истек, выполняется выход из системы и перенаправление на страницу запроса сброса пароля.
+ */
 class CheckExpiredPassword
 {
     /**

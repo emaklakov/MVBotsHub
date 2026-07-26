@@ -11,6 +11,10 @@ use MoonShine\Laravel\Pages\Page;
 use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FlexibleRender;
 
+/**
+ * Класс ErrorPage представляет страницу ошибки.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 #[SkipMenu]
 #[Layout(BlankLayout::class)]
 class ErrorPage extends Page

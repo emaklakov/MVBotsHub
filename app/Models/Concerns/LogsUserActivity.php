@@ -4,6 +4,10 @@ namespace App\Models\Concerns;
 
 use App\Services\ActivityLogger;
 
+/**
+ * Трейт для логирования действий пользователей:
+ * логирует создание, обновление и удаление моделей пользователей в системе.
+ */
 trait LogsUserActivity
 {
     /**

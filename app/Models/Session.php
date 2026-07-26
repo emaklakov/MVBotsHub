@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Модель для работы с пользовательскими сессиями:
+ * предоставляет доступ к данным сессии и связывает с пользователем.
+ */
 class Session extends Model
 {
     public $incrementing = false;

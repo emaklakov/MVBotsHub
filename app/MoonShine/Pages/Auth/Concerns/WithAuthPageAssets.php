@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Vite;
 use MoonShine\AssetManager\Css;
 use MoonShine\AssetManager\InlineJs;
 
+/**
+ * Трейт WithAuthPageAssets предоставляет функциональность для добавления ресурсов на страницы аутентификации.
+ * Определяет обработку отправки форм и другие действия на страницах входа, регистрации и сброса пароля.
+ */
 trait WithAuthPageAssets
 {
     protected function onLoad(): void

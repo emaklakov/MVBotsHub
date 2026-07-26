@@ -10,11 +10,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Контроллер для управления процессом двухфакторной аутентификации пользователя:
+ * отображение страницы проверки, проверка кода, повторная отправка кода и лимитирование попыток.
+ */
 class TwoFactorController
 {
     protected int $maxAttempts = 5;
     protected int $decaySeconds = 900; // 15 минут
 
+    /**
+     * Отображает страницу двухфакторной аутентификации.
+     * Проверяет, включен ли функционал двухфакторной аутентификации и есть ли активная сессия пользователя.
+     */
     public function show()
     {
         $page = moonshine()->getContainer(TwoFactorPage::class);
@@ -26,6 +34,10 @@ class TwoFactorController
         return $page->render();
     }
 
+    /**
+     * Обрабатывает запрос на двухфакторную аутентификацию.
+     * Проверяет код двухфакторной аутентификации и возвращает соответствующий ответ.
+     */
     public function verify(Request $request): RedirectResponse
     {
         $request->validate([
@@ -64,6 +76,10 @@ class TwoFactorController
         return redirect()->route('moonshine.index');
     }
 
+    /**
+     * Обрабатывает запрос на повторную отправку кода двухфакторной аутентификации.
+     * Отправляет новый код на электронную почту пользователя.
+     */
     public function resend(): RedirectResponse
     {
         $user = Auth::guard('moonshine')->user();

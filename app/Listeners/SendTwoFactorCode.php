@@ -6,6 +6,10 @@ use App\Notifications\TwoFactorCodeNotification;
 use App\Services\ActivityLogger;
 use Illuminate\Auth\Events\Login;
 
+/**
+ * Слушатель для отправки кода двухфакторной аутентификации пользователю:
+ * отправляет код на электронную почту пользователя и устанавливает флаг двухфакторной аутентификации в сессии.
+ */
 class SendTwoFactorCode
 {
     public function handle(Login $event): void

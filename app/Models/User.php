@@ -16,6 +16,10 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Concerns\HasTwoFactorEmailCode;
 
+/**
+ * Модель для работы с пользователями:
+ * наследуется от Authenticatable и использует трейты LogsUserActivity и HasTwoFactorEmailCode для логирования действий пользователей и работы с двухфакторной аутентификацией.
+ */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable

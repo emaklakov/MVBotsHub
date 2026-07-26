@@ -9,6 +9,10 @@ use MoonShine\Laravel\Pages\Page;
 
 #[\MoonShine\MenuManager\Attributes\SkipMenu]
 
+/**
+ * Класс Dashboard представляет главную страницу админ-панели.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 class Dashboard extends Page
 {
     /**

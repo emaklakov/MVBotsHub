@@ -14,7 +14,8 @@ use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Contracts\Core\PageContract;
 
 /**
- * @extends ModelResource<Session, SessionIndexPage, SessionDetailPage>
+ * Класс SessionResource представляет ресурс для работы с пользовательскими сессиями.
+ * Определяет заголовок, компоненты и другие параметры ресурса.
  */
 class SessionResource extends ModelResource
 {

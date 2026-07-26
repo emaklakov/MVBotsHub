@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * Модель для логирования действий пользователей:
+ * логирует действия пользователей в системе, включая вход, выход, изменения данных и другие события.
+ */
 class UserLog extends Model
 {
     public $timestamps = false;

@@ -6,6 +6,10 @@ use App\Models\Admin\UserLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Сервис для логирования действий пользователей:
+ * логирует действия пользователей в системе, включая вход, выход, изменения данных и другие события.
+ */
 class ActivityLogger
 {
     public static function log(

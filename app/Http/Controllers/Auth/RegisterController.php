@@ -12,8 +12,16 @@ use Illuminate\Support\Facades\Hash;
 use MoonShine\Laravel\MoonShineAuth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Контроллер для управления процессом регистрации пользователя:
+ * отображение страницы регистрации, обработка запроса на регистрацию и перенаправление после успешной регистрации.
+ */
 class RegisterController extends Controller
 {
+    /**
+     * Отображает страницу регистрации пользователя.
+     * Проверяет, включен ли функционал регистрации и есть ли активная сессия пользователя.
+     */
     public function create(): Renderable|Response|string
     {
         abort_unless(config('moonshine-register.enabled', true), 404);
@@ -32,6 +40,10 @@ class RegisterController extends Controller
         return $page->render();
     }
 
+    /**
+     * Обрабатывает запрос на регистрацию пользователя.
+     * Создает нового пользователя, назначает роль и возвращает соответствующий ответ.
+     */
     public function store(RegisterFormRequest $request): RedirectResponse
     {
         abort_unless(config('moonshine-register.enabled', true), 404);

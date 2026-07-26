@@ -15,12 +15,19 @@ use MoonShine\Laravel\Http\Requests\LoginFormRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Контроллер для аутентификации пользователя:
+ * обработка запросов на вход, управление сессиями и завершение всех остальных сессий при необходимости.
+ */
 class AuthenticateController extends BaseAuthenticateController
 {
     /**
      * @param  ConfiguratorContract<MoonShineConfigurator>  $config
      *
      * @throws ValidationException
+     */
+    /**
+     * Аутентификация пользователя, обработка через пайплайны, завершение всех остальных сессий при необходимости.
      */
     public function authenticate(LoginFormRequest $request, ConfiguratorContract $config, RouterContract $router): Response
     {

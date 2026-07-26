@@ -9,6 +9,10 @@ use MoonShine\Support\Enums\Action;
 use MoonShine\Support\ListOf;
 use Spatie\Permission\Models\Permission;
 
+/**
+ * Класс PermissionResource представляет ресурс для работы с разрешениями пользователей.
+ * Определяет заголовок, компоненты и другие параметры ресурса.
+ */
 class PermissionResource extends ModelResource
 {
     protected bool $withPolicy = true;

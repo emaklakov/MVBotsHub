@@ -6,6 +6,10 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware для проверки двухфакторной аутентификации пользователя:
+ * если пользователь не прошел двухфакторную аутентификацию, выполняется перенаправление на страницу проверки.
+ */
 class TwoFactorVerified
 {
     protected array $allowedRoutes = [

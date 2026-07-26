@@ -13,6 +13,10 @@ use MoonShine\UI\Components\FormBuilder;
 use MoonShine\UI\Components\Layout\Box;
 use MoonShine\UI\Fields\Text;
 
+/**
+ * Класс PermissionFormPage представляет страницу формы для работы с разрешениями пользователей.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 class PermissionFormPage extends FormPage
 {
     /**

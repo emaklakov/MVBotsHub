@@ -27,6 +27,10 @@ use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\PasswordRepeat;
 use MoonShine\UI\Fields\Text;
 
+/**
+ * Класс ProfilePage представляет страницу профиля пользователя в админ-панели.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 #[SkipMenu]
 class ProfilePage extends Page
 {

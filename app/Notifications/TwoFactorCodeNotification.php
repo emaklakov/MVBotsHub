@@ -6,6 +6,10 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+/**
+ * Уведомление для отправки кода двухфакторной аутентификации пользователю:
+ * отправляет код на электронную почту пользователя для входа в админ-панель.
+ */
 class TwoFactorCodeNotification extends Notification
 {
     use Queueable;

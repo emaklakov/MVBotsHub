@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Модель для работы с кодами двухфакторной аутентификации пользователей:
+ * генерация кодов, проверка срока действия кодов и взаимодействие с моделями пользователей.
+ */
 class UserCode extends Model
 {
     protected $fillable = [

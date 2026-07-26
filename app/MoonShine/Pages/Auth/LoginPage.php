@@ -13,6 +13,10 @@ use MoonShine\Laravel\Pages\LoginPage as MoonShineLoginPage;
 use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FlexibleRender;
 
+/**
+ * Класс LoginPage представляет страницу входа в систему.
+ * Определяет заголовок, компоненты и другие параметры страницы.
+ */
 #[SkipMenu]
 #[Layout(LoginLayout::class)]
 final class LoginPage extends MoonShineLoginPage

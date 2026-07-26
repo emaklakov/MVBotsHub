@@ -7,6 +7,10 @@ namespace App\Notifications;
 use Illuminate\Auth\Notifications\ResetPassword as BaseResetPassword;
 use Illuminate\Bus\Queueable;
 
+/**
+ * Уведомление для сброса пароля пользователя:
+ * отправляет ссылку для сброса пароля на электронную почту пользователя.
+ */
 final class ResetPassword extends BaseResetPassword
 {
     use Queueable;
