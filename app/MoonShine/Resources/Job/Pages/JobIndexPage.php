@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\User\Pages;
+namespace App\MoonShine\Resources\Job\Pages;
 
-use App\MoonShine\Resources\Permission\PermissionResource;
-use App\MoonShine\Resources\Role\RoleResource;
 use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
 use MoonShine\Crud\JsonResponse;
-use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Support\AlpineJs;
+use MoonShine\Support\Attributes\AsyncMethod;
 use MoonShine\Support\Enums\JsEvent;
 use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Layout\Div;
@@ -19,24 +17,20 @@ use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\QueryTags\QueryTag;
 use MoonShine\UI\Components\Metrics\Wrapped\Metric;
-use MoonShine\UI\Fields\Checkbox;
 use MoonShine\UI\Fields\Date;
-use MoonShine\UI\Fields\Email;
 use MoonShine\UI\Fields\ID;
-use App\MoonShine\Resources\User\UserResource;
+use App\MoonShine\Resources\Job\JobResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Number;
 use MoonShine\UI\Fields\Select;
-use MoonShine\UI\Fields\Switcher;
 use MoonShine\UI\Fields\Text;
 use Throwable;
-use MoonShine\Support\Attributes\AsyncMethod;
 
 
 /**
- * @extends IndexPage<UserResource>
+ * @extends IndexPage<JobResource>
  */
-class UserIndexPage extends IndexPage
+class JobIndexPage extends IndexPage
 {
     protected bool $isLazy = true;
 
@@ -46,21 +40,12 @@ class UserIndexPage extends IndexPage
     protected function fields(): iterable
     {
         return [
-            ID::make(),
-            Switcher::make('Активный', 'is_active')->sortable(),
-            Text::make(__('moonshine::ui.resource.name'), 'name'),
-            Email::make(__('moonshine::ui.resource.email'), 'email')
-                ->sortable(),
-            BelongsToMany::make('Роли', 'roles', resource: RoleResource::class, formatted: 'name')->inLine(separator: ', '),
-            BelongsToMany::make('Разрешения', 'permissions', resource: PermissionResource::class, formatted: 'name')->inLine(separator: ', '),
-            Switcher::make('Включен: 2FA', 'enabled_2fa')->sortable(),
-            Switcher::make('Включен: Несколько устройств', 'enabled_multi_device_login')->sortable(),
-            Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
-                ->format('d.m.Y H:i:s')
-                ->sortable(),
-            Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
-                ->format('d.m.Y H:i:s')
-                ->sortable(),
+            ID::make()->sortable(),
+            Text::make('Очередь', 'queue'),
+            Number::make('Попытки', 'attempts'),
+            Date::make('Reserved', 'reserved_at')->format('d.m.Y H:i:s'),
+            Date::make('Available', 'available_at')->format('d.m.Y H:i:s'),
+            Date::make('Создана', 'created_at')->format('d.m.Y H:i:s'),
         ];
     }
 
@@ -78,18 +63,7 @@ class UserIndexPage extends IndexPage
     protected function filters(): iterable
     {
         return [
-            Checkbox::make('Активный', 'is_active'),
-            Number::make('ID', 'id'),
-            Text::make(__('moonshine::ui.resource.name'), 'name'),
-            Email::make(__('moonshine::ui.resource.email'), 'email'),
-            BelongsToMany::make('Роли', 'roles', resource: RoleResource::class, formatted: 'name')
-                ->selectMode()
-                ->nullable(),
-            BelongsToMany::make('Разрешения', 'permissions', resource: PermissionResource::class, formatted: 'name')
-                ->selectMode()
-                ->nullable(),
-            Checkbox::make('Включен: 2FA', 'enabled_2fa'),
-            Checkbox::make('Включен: Несколько устройств', 'enabled_multi_device_login'),
+            Text::make('Очередь', 'queue'),
         ];
     }
 

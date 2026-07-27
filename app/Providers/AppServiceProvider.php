@@ -2,12 +2,8 @@
 
 namespace App\Providers;
 
-use App\Listeners\LogUserLogout;
-use App\Listeners\SendTwoFactorCode;
+use App\Models\Job\JobLog;
 use App\Models\User;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Logout;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -15,6 +11,10 @@ use MoonShine\Laravel\Http\Controllers\ProfileController as BaseProfileControlle
 use App\Http\Controllers\Admin\ProfileController;
 use MoonShine\Laravel\Http\Controllers\AuthenticateController as BaseAuthenticateController;
 use App\Http\Controllers\Auth\AuthenticateController;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\Facades\Queue;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,6 +41,36 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;
+        });
+
+        Queue::createPayloadUsing(function ($connection, $queue, $payload) {
+            return ['uuid' => $payload['uuid'] ?? \Illuminate\Support\Str::uuid()->toString()];
+        });
+
+        Queue::before(function (JobProcessing $event) {
+            JobLog::create([
+                'job_id'    => $event->job->uuid(),
+                'name'      => $event->job->resolveName(),
+                'queue'     => $event->job->getQueue(),
+                'payload'   => $event->job->payload(),
+                'attempts'  => $event->job->attempts(),
+                'status'    => 'processing',
+                'started_at' => now(),
+            ]);
+        });
+
+        Queue::after(function (JobProcessed $event) {
+            JobLog::where('job_id', $event->job->uuid())
+                ->update(['status' => 'completed', 'finished_at' => now()]);
+        });
+
+        Queue::failing(function (JobFailed $event) {
+            JobLog::where('job_id', $event->job->uuid())
+                ->update([
+                    'status' => 'failed',
+                    'error'  => $event->exception->getMessage(),
+                    'finished_at' => now(),
+                ]);
         });
     }
 }

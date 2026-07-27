@@ -7,6 +7,9 @@ namespace App\MoonShine\Layouts;
 use App\Models\Admin\User\Session;
 use App\Models\Admin\User\UserLog;
 use App\Models\Admin\User\UserSetting;
+use App\Models\Job\FailedJob;
+use App\Models\Job\Job;
+use App\Models\Job\JobLog;
 use App\Models\Role;
 use App\Models\User;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
@@ -27,6 +30,9 @@ use MoonShine\MenuManager\MenuGroup;
 use MoonShine\MenuManager\MenuItem;
 use Spatie\Permission\Models\Permission;
 use App\MoonShine\Resources\UserSetting\UserSettingResource;
+use App\MoonShine\Resources\JobLog\JobLogResource;
+use App\MoonShine\Resources\Job\JobResource;
+use App\MoonShine\Resources\FailedJob\FailedJobResource;
 
 /**
  * Класс MoonShineLayout расширяет AppLayout и предоставляет пользовательский макет для админ-панели.
@@ -102,6 +108,14 @@ final class MoonShineLayout extends AppLayout
             MenuGroup::make('Система', [
 
             ], 'cpu-chip'),
+            MenuGroup::make('Очередь', [
+                MenuItem::make(JobResource::class, 'Журнал очереди')
+                    ->canSee(fn () => Gate::allows('viewAny', Job::class)),
+                MenuItem::make(FailedJobResource::class, 'Задачи с ошибками')
+                    ->canSee(fn () => Gate::allows('viewAny', FailedJob::class)),
+                MenuItem::make(JobLogResource::class, 'Логи очереди', 'rectangle-stack')
+                    ->canSee(fn () => Gate::allows('viewAny', JobLog::class)),
+            ], 'square-3-stack-3d'),
         ];
     }
 

@@ -13,6 +13,9 @@ use App\MoonShine\Resources\User\UserResource;
 use App\MoonShine\Resources\Session\SessionResource;
 use App\MoonShine\Resources\UserLog\UserLogResource;
 use App\MoonShine\Resources\UserSetting\UserSettingResource;
+use App\MoonShine\Resources\JobLog\JobLogResource;
+use App\MoonShine\Resources\Job\JobResource;
+use App\MoonShine\Resources\FailedJob\FailedJobResource;
 
 class MoonShineServiceProvider extends ServiceProvider
 {
@@ -29,6 +32,9 @@ class MoonShineServiceProvider extends ServiceProvider
                 SessionResource::class,
                 UserLogResource::class,
                 UserSettingResource::class,
+                JobLogResource::class,
+                JobResource::class,
+                FailedJobResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),
