@@ -13,10 +13,10 @@ trait LogsUserActivity
     /**
      * Поля, которые никогда не должны попадать в лог изменений
      */
-//    protected static array $logExcludedFields = [
-//        'password',
-//        'remember_token',
-//    ];
+    protected static array $logExcludedFields = [
+        'password',
+        'remember_token',
+    ];
 
     protected static function bootLogsUserActivity(): void
     {

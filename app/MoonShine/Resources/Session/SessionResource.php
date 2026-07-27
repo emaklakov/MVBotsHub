@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Session;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Session;
 use App\MoonShine\Resources\Session\Pages\SessionIndexPage;
-use App\MoonShine\Resources\Session\Pages\SessionFormPage;
 use App\MoonShine\Resources\Session\Pages\SessionDetailPage;
 
 use MoonShine\Laravel\Resources\ModelResource;

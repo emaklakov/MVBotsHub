@@ -2,10 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\MoonShine\Pages\Errors\ErrorPage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use MoonShine\Crud\Exceptions\NotFoundException;
-use MoonShine\Laravel\Pages\ErrorPage;
 
 // Класс для обработки ошибок 404 (страница не найдена).
 class MVNotFoundException extends NotFoundException

@@ -32,7 +32,7 @@ class SecurityHeaders
             'camera=(self), microphone=(), geolocation=(self), payment=(), usb=()'
         );
 
-        $response->headers->set('Access-Control-Allow-Origin', [config('session.domain')]);
+        $response->headers->set('Access-Control-Allow-Origin', config('session.domain'));
         $response->headers->set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,X-CSRF-Token');
 
@@ -48,7 +48,7 @@ class SecurityHeaders
             );
         }
 
-        $this->removeUnwantedHeaders($this->unwantedHeaders);
+        $this->removeUnwantedHeaders($this->unwantedHeaders, $response);
 
         return $response;
     }
@@ -56,7 +56,7 @@ class SecurityHeaders
     /**
      * @param $headers
      */
-    private function removeUnwantedHeaders($headers): void
+    private function removeUnwantedHeaders($headers, $response): void
     {
         foreach ($headers as $header) {
             header_remove($header);

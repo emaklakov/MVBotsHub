@@ -21,14 +21,14 @@ class CheckExpiredPassword
      */
     public function handle($request, Closure $next)
     {
-        if (auth()->check()) {
+        if (auth('moonshine')->check()) {
 
-            $user = auth()->user();
+            $user = auth('moonshine')->user();
             $expirationDays = config('auth.passwords.expired', 90);
             $passwordChangedAt = new Carbon(($user->password_changed_at) ? $user->password_changed_at : $user->created_at);
 
             if ($passwordChangedAt->lte(now()->subDays($expirationDays))) {
-                auth()->logout();
+                auth('moonshine')->logout();
 
                 $message = 'Срок действия вашего пароля истек, пожалуйста, измените его.';
 

@@ -22,6 +22,10 @@ class SendTwoFactorCode
 
         ActivityLogger::log('login', $user, 'Вход в аккаунт', userId: $user->getAuthIdentifier());
 
+        if (! $user->enabled_2fa) {
+            return;
+        }
+
         $code = $user->generateTwoFactorCode();
 
         if ($code === '') {
