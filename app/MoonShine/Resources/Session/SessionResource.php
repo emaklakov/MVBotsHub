@@ -41,6 +41,7 @@ class SessionResource extends ModelResource
         return [
             'ip_address',
             'user_agent',
+            'user.email'
         ];
     }
 }

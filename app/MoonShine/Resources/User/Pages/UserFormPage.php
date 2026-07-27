@@ -17,7 +17,9 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use App\MoonShine\Resources\User\UserResource;
 use MoonShine\Support\ListOf;
+use MoonShine\UI\Components\Layout\Column;
 use MoonShine\UI\Components\Layout\Divider;
+use MoonShine\UI\Components\Layout\Grid;
 use MoonShine\UI\Fields\Email;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Components\Layout\Box;
@@ -41,15 +43,35 @@ class UserFormPage extends FormPage
         return [
             Box::make([
                 ID::make(),
-                Switcher::make('Активный', 'is_active'),
+                Grid::make([
+                    Column::make(
+                        [
+                            Switcher::make('Активный', 'is_active'),
+                        ],
+                        colSpan: 4,
+                        adaptiveColSpan: 12
+                    ),
+                    Column::make(
+                        [
+                            Switcher::make('2FA', 'enabled_2fa'),
+                        ],
+                        colSpan: 4,
+                        adaptiveColSpan: 6
+                    ),
+                    Column::make(
+                        [
+                            Switcher::make('Несколько устройств', 'enabled_multi_device_login'),
+                        ],
+                        colSpan: 4,
+                        adaptiveColSpan: 6
+                    ),
+                ]),
                 Image::make(__('moonshine::ui.resource.avatar'), 'avatar')
                     ->disk(moonshineConfig()->getDisk())
                     ->dir(moonshineConfig()->getUserAvatarsDir())
                     ->allowedExtensions(['jpg', 'png', 'jpeg', 'gif']),
                 Text::make(__('moonshine::ui.resource.name'), 'name'),
                 Email::make(__('moonshine::ui.resource.email'), 'email')->disabled(),
-                Switcher::make('Включен: 2FA', 'enabled_2fa'),
-                Switcher::make('Включен: Несколько устройств', 'enabled_multi_device_login'),
                 Divider::make('Доступы')->centered(),
                 BelongsToMany::make('Роли', 'roles', resource: RoleResource::class, formatted: 'name')->inLine(separator: ', ')->selectMode(),
                 BelongsToMany::make('Разрешения', 'permissions', resource: PermissionResource::class, formatted: 'name')->selectMode(),

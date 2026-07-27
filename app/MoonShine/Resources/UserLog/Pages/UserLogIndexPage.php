@@ -16,6 +16,7 @@ use App\MoonShine\Resources\UserLog\UserLogResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Text;
 use Throwable;
+use MoonShine\Crud\Handlers\Handler;
 
 
 /**
@@ -31,10 +32,10 @@ class UserLogIndexPage extends IndexPage
     protected function fields(): iterable
     {
         return [
-            ID::make(),
-            Date::make('Дата', 'created_at')->format('d.m.Y H:i:s'),
-            Text::make('Пользователь', 'user.name'),
-            Text::make('Действие', 'action'),
+            ID::make()->sortable(),
+            Date::make('Дата', 'created_at')->format('d.m.Y H:i:s')->sortable(),
+            Text::make('Пользователь', 'user.name')->sortable(),
+            Text::make('Действие', 'action')->sortable(),
             Text::make('Объект', 'subject_type')
                 ->changePreview(fn ($value, $field) => $value
                     ? class_basename($value) . ' #' . $field->getData()->subject_id

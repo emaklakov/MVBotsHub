@@ -26,13 +26,13 @@ use MoonShine\Laravel\Http\Middleware\ChangeLocale;
 
 return [
     'title' => env('MOONSHINE_TITLE', 'MoonShine'),
-    'logo' => '/vendor/moonshine/logo.png',
-    'logo_small' => '/vendor/moonshine/logo.png',
+    'logo' => '/images/logos/logo.png',
+    'logo_small' => '/images/logos/logo-small.png',
 
     'favicons' => [
-        'apple-touch' => '/vendor/moonshine/apple-touch-icon.png',
-        '32' => '/vendor/moonshine/favicon-32x32.png',
-        '16' => '/vendor/moonshine/favicon-16x16.png',
+        'apple-touch' => '/apple-touch-icon.png',
+        '32' => '/favicon-32x32.png',
+        '16' => '/favicon-16x16.png',
         'safari-pinned-tab' => '/vendor/moonshine/safari-pinned-tab.svg',
     ],
 
