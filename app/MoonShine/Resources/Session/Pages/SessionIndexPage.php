@@ -19,6 +19,9 @@ use App\MoonShine\Resources\Session\SessionResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Text;
 use Throwable;
+use MoonShine\Support\AlpineJs;
+use MoonShine\Support\Enums\JsEvent;
+use MoonShine\UI\Components\ActionButton;
 
 
 /**
@@ -95,7 +98,15 @@ class SessionIndexPage extends IndexPage
     protected function topLayer(): array
     {
         return [
-            ...parent::topLayer()
+            ActionButton::make('Обновить', '#')
+                ->icon('arrow-path')
+                ->dispatchEvent(
+                    AlpineJs::event(
+                        JsEvent::TABLE_UPDATED,
+                        $this->getResource()->getListComponentName()
+                    )
+                ),
+            ...parent::topLayer(),
         ];
     }
 

@@ -8,7 +8,10 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\Laravel\QueryTags\QueryTag;
+use MoonShine\Support\AlpineJs;
+use MoonShine\Support\Enums\JsEvent;
 use MoonShine\Support\ListOf;
+use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Metrics\Wrapped\Metric;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\ID;
@@ -83,6 +86,14 @@ class PermissionIndexPage extends IndexPage
     protected function topLayer(): array
     {
         return [
+            ActionButton::make('Обновить', '#')
+                ->icon('arrow-path')
+                ->dispatchEvent(
+                    AlpineJs::event(
+                        JsEvent::TABLE_UPDATED,
+                        $this->getResource()->getListComponentName()
+                    )
+                ),
             ...parent::topLayer()
         ];
     }

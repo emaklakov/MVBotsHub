@@ -6,6 +6,9 @@ namespace App\MoonShine\Resources\UserLog\Pages;
 
 use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Support\AlpineJs;
+use MoonShine\Support\Enums\JsEvent;
+use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\QueryTags\QueryTag;
@@ -95,7 +98,15 @@ class UserLogIndexPage extends IndexPage
     protected function topLayer(): array
     {
         return [
-            ...parent::topLayer()
+            ActionButton::make('Обновить', '#')
+                ->icon('arrow-path')
+                ->dispatchEvent(
+                    AlpineJs::event(
+                        JsEvent::TABLE_UPDATED,
+                        $this->getResource()->getListComponentName()
+                    )
+                ),
+            ...parent::topLayer(),
         ];
     }
 
