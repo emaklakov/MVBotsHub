@@ -7,6 +7,7 @@ namespace App\MoonShine\Resources\User\Pages;
 use App\MoonShine\Resources\Permission\PermissionResource;
 use App\MoonShine\Resources\Role\RoleResource;
 use App\MoonShine\Resources\Session\SessionResource;
+use App\MoonShine\Resources\UserLog\UserLogResource;
 use App\Services\DeviceDetector;
 use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Laravel\Fields\Relationships\HasMany;
@@ -62,7 +63,18 @@ class UserDetailPage extends DetailPage
                     Text::make('User Agent', 'user_agent'),
                     Date::make('Последняя активность', 'last_activity')
                         ->format('d.m.Y H:i:s'),
-                ])
+                ])->tabMode(),
+            HasMany::make( 'Логи', 'logs', resource: UserLogResource::class)
+                ->fields([
+                    ID::make()->sortable(),
+                    Date::make('Дата', 'created_at')->format('d.m.Y H:i:s')->sortable(),
+                    Text::make('Действие', 'action')->sortable(),
+                    Text::make('Объект', 'subject_type')
+                        ->changePreview(fn ($value, $field) => $value
+                            ? class_basename($value) . ' #' . $field->getData()->subject_id
+                            : '—'),
+                    Text::make('IP', 'ip_address'),
+                ])->tabMode(),
         ];
     }
 

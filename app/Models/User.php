@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Admin\UserLog;
 use App\Models\Concerns\LogsUserActivity;
 use App\Notifications\ResetPassword;
 use Database\Factories\UserFactory;
@@ -55,6 +56,11 @@ class User extends Authenticatable
     public function sessions(): HasMany
     {
         return $this->hasMany(Session::class);
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(UserLog::class);
     }
 
     public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
