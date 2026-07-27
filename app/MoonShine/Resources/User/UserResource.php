@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\User;
 
+use App\MoonShine\Resources\Concerns\HasPerPageSession;
 use App\MoonShine\Resources\Permission\PermissionResource;
 use App\MoonShine\Resources\Role\RoleResource;
 use Illuminate\Database\Eloquent\Model;
@@ -30,13 +31,22 @@ use MoonShine\UI\Fields\Text;
  */
 class UserResource extends ModelResource implements HasImportExportContract
 {
-    use ImportExportConcern;
+    use ImportExportConcern, HasPerPageSession;
 
     protected bool $withPolicy = true;
 
     protected string $model = User::class;
 
     protected string $title = 'Пользователи';
+
+    public function perPageValues(): array
+    {
+        return [
+            6 => 6,
+            12 => 12,
+            26 => 26,
+        ];
+    }
 
     /**
      * @return list<class-string<PageContract>>
