@@ -94,6 +94,9 @@ class UserLogIndexPage extends IndexPage
     protected function modifyListComponent(ComponentContract $component): ComponentContract
     {
         return $component
+            //->sticky()
+            //->stickyButtons()
+            ->columnSelection()
             ->topRight(function (): array {
                 return [
                     Div::make([

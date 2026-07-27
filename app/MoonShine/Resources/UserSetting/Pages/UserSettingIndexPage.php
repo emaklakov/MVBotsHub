@@ -98,6 +98,7 @@ class UserSettingIndexPage extends IndexPage
     protected function modifyListComponent(ComponentContract $component): ComponentContract
     {
         return $component
+            ->columnSelection()
             ->topRight(function (): array {
                 return [
                     Div::make([
