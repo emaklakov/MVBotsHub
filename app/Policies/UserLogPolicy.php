@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Admin\UserLog;
-use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Models\Admin\User\UserLog;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserLogPolicy
 {

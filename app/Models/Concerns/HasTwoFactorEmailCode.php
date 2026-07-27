@@ -2,7 +2,7 @@
 
 namespace App\Models\Concerns;
 
-use App\Models\UserCode;
+use App\Models\Admin\User\UserCode;
 use Illuminate\Support\Facades\Hash;
 
 /**

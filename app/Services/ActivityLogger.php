@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Admin\UserLog;
+use App\Models\Admin\User\UserLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 

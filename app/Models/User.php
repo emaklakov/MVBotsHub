@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Admin\UserLog;
+use App\Models\Admin\User\Session;
+use App\Models\Admin\User\UserLog;
+use App\Models\Concerns\HasTwoFactorEmailCode;
 use App\Models\Concerns\LogsUserActivity;
 use App\Notifications\ResetPassword;
 use Database\Factories\UserFactory;
@@ -15,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use App\Models\Concerns\HasTwoFactorEmailCode;
+use App\Models\Concerns\HasUserSettings;
 
 /**
  * Модель для работы с пользователями:
@@ -27,7 +29,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, CanResetPasswordTrait, HasTwoFactorEmailCode;
-    use LogsUserActivity;
+    use LogsUserActivity, HasUserSettings;
 
     /**
      * Поля, которые никогда не должны попадать в лог изменений

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Session;
 
-use App\Models\Session;
-use App\MoonShine\Resources\Session\Pages\SessionIndexPage;
+use App\Models\Admin\User\Session;
 use App\MoonShine\Resources\Session\Pages\SessionDetailPage;
-
-use MoonShine\Laravel\Resources\ModelResource;
+use App\MoonShine\Resources\Session\Pages\SessionIndexPage;
 use MoonShine\Contracts\Core\PageContract;
+use MoonShine\Laravel\Resources\ModelResource;
 
 /**
  * Класс SessionResource представляет ресурс для работы с пользовательскими сессиями.

@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\UserLog;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Admin\UserLog;
-use App\MoonShine\Resources\UserLog\Pages\UserLogIndexPage;
+use App\Models\Admin\User\UserLog;
 use App\MoonShine\Resources\UserLog\Pages\UserLogDetailPage;
-
-use MoonShine\Crud\Handlers\Handler;
-use MoonShine\Laravel\Resources\ModelResource;
+use App\MoonShine\Resources\UserLog\Pages\UserLogIndexPage;
 use MoonShine\Contracts\Core\PageContract;
-
+use MoonShine\Crud\Handlers\Handler;
 use MoonShine\ImportExport\Contracts\HasImportExportContract;
 use MoonShine\ImportExport\Traits\ImportExportConcern;
+use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Text;

@@ -12,6 +12,7 @@ use App\MoonShine\Resources\Role\RoleResource;
 use App\MoonShine\Resources\User\UserResource;
 use App\MoonShine\Resources\Session\SessionResource;
 use App\MoonShine\Resources\UserLog\UserLogResource;
+use App\MoonShine\Resources\UserSetting\UserSettingResource;
 
 class MoonShineServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 UserResource::class,
                 SessionResource::class,
                 UserLogResource::class,
+                UserSettingResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

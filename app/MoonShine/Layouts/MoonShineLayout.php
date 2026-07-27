@@ -4,26 +4,27 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
-use App\Models\Admin\UserLog;
-use App\Models\Session;
+use App\Models\Admin\User\Session;
+use App\Models\Admin\User\UserLog;
+use App\Models\Admin\User\UserSetting;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Resources\Permission\PermissionResource;
+use App\MoonShine\Resources\Role\RoleResource;
+use App\MoonShine\Resources\Session\SessionResource;
+use App\MoonShine\Resources\User\UserResource;
+use App\MoonShine\Resources\UserLog\UserLogResource;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use MoonShine\AssetManager\Css;
 use MoonShine\AssetManager\Js;
-use MoonShine\Laravel\Layouts\AppLayout;
 use MoonShine\ColorManager\ColorManager;
 use MoonShine\Contracts\ColorManager\ColorManagerContract;
 use MoonShine\Contracts\ColorManager\PaletteContract;
-use App\MoonShine\Resources\Role\RoleResource;
+use MoonShine\Laravel\Layouts\AppLayout;
 use MoonShine\MenuManager\MenuGroup;
 use MoonShine\MenuManager\MenuItem;
-use App\MoonShine\Resources\User\UserResource;
 use Spatie\Permission\Models\Permission;
-use MoonShine\AssetManager\InlineJs;
-use App\MoonShine\Resources\Session\SessionResource;
-use App\MoonShine\Resources\UserLog\UserLogResource;
+use App\MoonShine\Resources\UserSetting\UserSettingResource;
 
 /**
  * Класс MoonShineLayout расширяет AppLayout и предоставляет пользовательский макет для админ-панели.
@@ -93,6 +94,8 @@ final class MoonShineLayout extends AppLayout
                     ->canSee(fn () => Gate::allows('viewAny', Session::class)),
                 MenuItem::make(UserLogResource::class, 'Логи действий', 'cursor-arrow-rays')
                     ->canSee(fn () => Gate::allows('viewAny', UserLog::class)),
+                MenuItem::make(UserSettingResource::class, 'Настройки пользователей', 'cog-8-tooth')
+                    ->canSee(fn () => Gate::allows('viewAny', UserSetting::class)),
             ], 'cpu-chip'),
         ];
     }
