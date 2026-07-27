@@ -28,19 +28,32 @@ class SendTwoFactorCode
 
         $code = $user->generateTwoFactorCode();
 
-        if ($code === '') {
-            session([
-                'needs_2fa' => true,
-                'needs_2fa_user_id' => $user->getAuthIdentifier(),
-            ]);
-            return;
-        }
-
-        $user->notify(new TwoFactorCodeNotification($code));
-
+        // Сессию выставляем всегда, независимо от того, был ли сгенерирован
+        // новый код или сработал антидубль-дебаунс (код уже отправлен недавно).
         session([
             'needs_2fa' => true,
             'needs_2fa_user_id' => $user->getAuthIdentifier(),
         ]);
+
+        // Пустая строка означает "код уже отправляли в последние 5 секунд" —
+        // письмо повторно слать не нужно.
+        if ($code === '') {
+            return;
+        }
+
+        try {
+            $user->notify(new TwoFactorCodeNotification($code));
+        } catch (\Throwable $e) {
+            report($e);
+
+            // Отправка не удалась — удаляем только что созданный код,
+            // чтобы пользователь мог сразу инициировать повторную отправку
+            // (иначе 5-секундный дебаунс заблокирует повтор без всякого смысла).
+            $user->userCodes()
+                ->where('type_code', $user->twoFactorCodeType)
+                ->latest('id')
+                ->limit(1)
+                ->delete();
+        }
     }
 }

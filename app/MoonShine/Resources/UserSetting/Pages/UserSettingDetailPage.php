@@ -15,7 +15,6 @@ use App\MoonShine\Resources\UserSetting\UserSettingResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Checkbox;
 use MoonShine\UI\Fields\ID;
-use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\Text;
 use Throwable;
 

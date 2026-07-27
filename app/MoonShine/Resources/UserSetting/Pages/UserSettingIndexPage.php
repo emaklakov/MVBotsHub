@@ -17,7 +17,6 @@ use MoonShine\UI\Fields\Checkbox;
 use MoonShine\UI\Fields\ID;
 use App\MoonShine\Resources\UserSetting\UserSettingResource;
 use MoonShine\Support\ListOf;
-use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\Text;
 use Throwable;
 
@@ -34,8 +33,6 @@ class UserSettingIndexPage extends IndexPage
      */
     protected function fields(): iterable
     {
-        $isEncrypted = (bool) ($this->getResource()->getItem()?->encrypted ?? false);
-
         return [
             ID::make(),
             BelongsTo::make('Пользователь', 'user', resource: UserResource::class, formatted: 'email'),
@@ -45,7 +42,6 @@ class UserSettingIndexPage extends IndexPage
             Text::make('Значение', 'value', function (UserSetting $item) {
                 return $item->encrypted ? '••••••••' : $item->value;
             }),
-
         ];
     }
 

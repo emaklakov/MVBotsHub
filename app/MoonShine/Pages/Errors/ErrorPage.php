@@ -19,11 +19,11 @@ use MoonShine\UI\Components\FlexibleRender;
 #[Layout(BlankLayout::class)]
 class ErrorPage extends Page
 {
-    private int $code;
+    private int $code = 500;
 
-    private string $message;
+    private string $message = '';
 
-    private string $message_en;
+    private string $message_en = '';
 
     public function message(string $message): static
     {

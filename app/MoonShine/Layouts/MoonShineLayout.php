@@ -7,6 +7,8 @@ namespace App\MoonShine\Layouts;
 use App\Models\Admin\User\Session;
 use App\Models\Admin\User\UserLog;
 use App\Models\Admin\User\UserSetting;
+use App\Models\Role;
+use App\Models\User;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Resources\Permission\PermissionResource;
 use App\MoonShine\Resources\Role\RoleResource;
@@ -83,11 +85,11 @@ final class MoonShineLayout extends AppLayout
     {
         return [
             //...parent::menu(),
-            MenuGroup::make('Система', [
+            MenuGroup::make('Пользователи', [
                 MenuItem::make(UserResource::class,'Пользователи', 'users')
-                    ->canSee(fn () => Gate::allows('viewAny', \App\Models\User::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', User::class)),
                 MenuItem::make(RoleResource::class,'Роли', 'shield-exclamation')
-                    ->canSee(fn () => Gate::allows('viewAny', \App\Models\Role::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Role::class)),
                 MenuItem::make(PermissionResource::class,'Разрешения', 'shield-check')
                     ->canSee(fn () => Gate::allows('viewAny', Permission::class)),
                 MenuItem::make(SessionResource::class,'Сессии', 'arrow-right-end-on-rectangle')
@@ -96,6 +98,9 @@ final class MoonShineLayout extends AppLayout
                     ->canSee(fn () => Gate::allows('viewAny', UserLog::class)),
                 MenuItem::make(UserSettingResource::class, 'Настройки пользователей', 'cog-8-tooth')
                     ->canSee(fn () => Gate::allows('viewAny', UserSetting::class)),
+            ], 'user-group'),
+            MenuGroup::make('Система', [
+
             ], 'cpu-chip'),
         ];
     }

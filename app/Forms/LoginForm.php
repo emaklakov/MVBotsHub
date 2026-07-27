@@ -38,7 +38,7 @@ class LoginForm implements FormContract
 
                 Password::make($this->core->getTranslator()->get('moonshine::ui.login.password'), 'password')
                     ->customAttributes([
-                        'autofocus' => true,
+                        'autofocus' => false,
                         'autocomplete' => 'off',
                     ])
                     ->required()->eye(),

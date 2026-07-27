@@ -93,10 +93,7 @@ class ProfileController extends MoonShineController
                 ]);
         }
 
-        $this->toast(
-            __('moonshine::ui.saved'),
-            $type
-        );
+        $this->toast($message, $type);
 
         return back();
     }

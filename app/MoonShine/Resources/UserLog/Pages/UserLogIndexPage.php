@@ -16,7 +16,6 @@ use App\MoonShine\Resources\UserLog\UserLogResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Text;
 use Throwable;
-use MoonShine\Crud\Handlers\Handler;
 
 
 /**

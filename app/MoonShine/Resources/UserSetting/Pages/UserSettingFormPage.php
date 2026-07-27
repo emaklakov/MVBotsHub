@@ -20,10 +20,8 @@ use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Checkbox;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Components\Layout\Box;
-use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\Text;
 use Throwable;
-use Illuminate\Support\Facades\Request;
 
 /**
  * @extends FormPage<UserSettingResource>

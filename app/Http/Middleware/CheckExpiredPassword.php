@@ -32,7 +32,7 @@ class CheckExpiredPassword
 
                 $message = 'Срок действия вашего пароля истек, пожалуйста, измените его.';
 
-                return redirect()->route('password.request')->withMessage($message);
+                return redirect()->route('moonshine.password.request')->with('status', $message);
             }
         }
 

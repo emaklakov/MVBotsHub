@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Models\Admin\User\UserCode;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -15,30 +16,32 @@ trait HasTwoFactorEmailCode
 
     public function generateTwoFactorCode(): string
     {
-        $existing = $this->userCodes()
-            ->where('type_code', $this->twoFactorCodeType)
-            ->where('created_at', '>=', now()->subSeconds(5))
-            ->latest('id')
-            ->first();
+        return DB::transaction(function () {
+            $existing = $this->userCodes()
+                ->where('type_code', $this->twoFactorCodeType)
+                ->where('created_at', '>=', now()->subSeconds(5))
+                ->lockForUpdate()
+                ->latest('id')
+                ->first();
 
-        if ($existing) {
-            // уже отправляли код только что — не плодим новые
-            return '';
-        }
+            if ($existing) {
+                return '';
+            }
 
-        $this->userCodes()
-            ->where('type_code', $this->twoFactorCodeType)
-            ->delete();
+            $this->userCodes()
+                ->where('type_code', $this->twoFactorCodeType)
+                ->delete();
 
-        $code = (string) random_int(100000, 999999);
+            $code = (string) random_int(100000, 999999);
 
-        $this->userCodes()->create([
-            'type_code' => $this->twoFactorCodeType,
-            'code' => Hash::make($code),
-            'expires_at' => now()->addMinutes(10),
-        ]);
+            $this->userCodes()->create([
+                'type_code' => $this->twoFactorCodeType,
+                'code' => Hash::make($code),
+                'expires_at' => now()->addMinutes(10),
+            ]);
 
-        return $code;
+            return $code;
+        });
     }
 
     public function checkTwoFactorCode(string $code): bool
