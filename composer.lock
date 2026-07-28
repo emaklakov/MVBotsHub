@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b885bccaa608639461126728006c6dfe",
+    "content-hash": "cb0cbb0683afab8112186290bed6ed1a",
     "packages": [
         {
             "name": "brick/math",
@@ -2428,6 +2428,69 @@
                 }
             ],
             "time": "2026-01-02T08:56:05+00:00"
+        },
+        {
+            "name": "moonshine/advanced",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/moonshine-software/advanced.git",
+                "reference": "108d4bd84be570531bd008d2955bf3c4d64615ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/moonshine-software/advanced/zipball/108d4bd84be570531bd008d2955bf3c4d64615ca",
+                "reference": "108d4bd84be570531bd008d2955bf3c4d64615ca",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": "^8.2|^8.3|^8.4"
+            },
+            "conflict": {
+                "moonshine/moonshine": "<3.0"
+            },
+            "require-dev": {
+                "moonshine/moonshine": "^3.0|^4.0",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0",
+                "rector/rector": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MoonShine\\Advanced\\Providers\\AdvancedServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MoonShine\\Advanced\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Danil Shutsky",
+                    "email": "info@cutcode.dev",
+                    "homepage": "https://cutcode.dev"
+                }
+            ],
+            "description": "Description",
+            "homepage": "https://moonshine-laravel.com",
+            "keywords": [
+                "keyword"
+            ],
+            "support": {
+                "issues": "https://github.com/moonshine/advanced/issues",
+                "source": "https://github.com/moonshine/advanced"
+            },
+            "time": "2026-04-18T10:29:09+00:00"
         },
         {
             "name": "moonshine/import-export",

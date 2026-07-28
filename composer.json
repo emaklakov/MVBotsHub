@@ -13,6 +13,7 @@
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
+        "moonshine/advanced": "^2.1",
         "moonshine/import-export": "^2.1",
         "moonshine/moonshine": "^4.18",
         "spatie/laravel-permission": "^8.3"
