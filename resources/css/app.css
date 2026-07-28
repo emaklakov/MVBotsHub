@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+/*@import '@fortawesome/fontawesome-free/css/all.css';*/
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -8,4 +9,19 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+:root:not(.dark) {
+    --ms-layout-page-bg-color: #ffffff !important;
+    /* если хотите просто поменять сам base, а не только фон страницы: */
+    /* --color-base: oklch(1 0 0); */
+}
+
+.menu-submenu {
+    background: #ffffff;
+}
+
+.menu-button._is-active {
+    border: 1px solid var(--color-base-stroke);
+    background: #ffffff;
 }

@@ -18,7 +18,7 @@ class MVPalette implements PaletteContract
     public function getColors(): array
     {
         return [
-            'body' => '0.99 0 0',
+            'body' => '98.4% 0.003 247.858',
             'primary' => '0.65 0.13 242.7',
             'primary-text' => '1 0 0',
             'secondary' => '0.58 0.15 315.31',

@@ -113,9 +113,9 @@ final class MoonShineLayout extends AppLayout
 
             ], 'cpu-chip'),
             MenuGroup::make('Очередь', [
-                MenuItem::make(JobResource::class, 'Журнал очереди')
+                MenuItem::make(JobResource::class, 'Журнал очереди', 'square-3-stack-3d')
                     ->canSee(fn () => Gate::allows('viewAny', Job::class)),
-                MenuItem::make(FailedJobResource::class, 'Задачи с ошибками')
+                MenuItem::make(FailedJobResource::class, 'Задачи с ошибками', 'exclamation-triangle')
                     ->canSee(fn () => Gate::allows('viewAny', FailedJob::class)),
                 MenuItem::make(JobLogResource::class, 'Логи очереди', 'rectangle-stack')
                     ->canSee(fn () => Gate::allows('viewAny', JobLog::class)),
@@ -129,6 +129,9 @@ final class MoonShineLayout extends AppLayout
     protected function colors(ColorManagerContract $colorManager): void
     {
         parent::colors($colorManager);
+
+        //$colorManager->box('#ffffff');
+        //$colorManager->form('#ffffff');
 
         // $colorManager->primary('#00000');
     }
