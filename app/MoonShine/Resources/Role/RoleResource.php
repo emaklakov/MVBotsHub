@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Role;
 
 use App\Models\Role;
+use App\MoonShine\Resources\Concerns\HasPerPageSession;
 use App\MoonShine\Resources\Role\Pages\RoleIndexPage;
 use App\MoonShine\Resources\Role\Pages\RoleFormPage;
 
@@ -17,11 +18,22 @@ use MoonShine\Contracts\Core\PageContract;
  */
 class RoleResource extends ModelResource
 {
+    use HasPerPageSession;
+
     protected bool $withPolicy = true;
 
     protected string $model = Role::class;
 
     protected string $title = 'Роли';
+
+    public function perPageValues(): array
+    {
+        return [
+            6 => 6,
+            12 => 12,
+            26 => 26,
+        ];
+    }
 
     /**
      * @return list<class-string<PageContract>>

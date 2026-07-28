@@ -105,6 +105,17 @@ class UserLogIndexPage extends IndexPage
             ->topRight(function (): array {
                 return [
                     Div::make([
+                        ActionButton::make('', '#')
+                            ->icon('arrow-path')
+                            ->class('py-3')
+                            ->dispatchEvent(
+                                AlpineJs::event(
+                                    JsEvent::TABLE_UPDATED,
+                                    $this->getResource()->getListComponentName()
+                                )
+                            ),
+                    ]),
+                    Div::make([
                         Select::make('Per page')
                             ->onChangeMethod(
                                 'changeListingComponentState',
@@ -175,14 +186,6 @@ class UserLogIndexPage extends IndexPage
     protected function topLayer(): array
     {
         return [
-            ActionButton::make('Обновить', '#')
-                ->icon('arrow-path')
-                ->dispatchEvent(
-                    AlpineJs::event(
-                        JsEvent::TABLE_UPDATED,
-                        $this->getResource()->getListComponentName()
-                    )
-                ),
             ...parent::topLayer(),
         ];
     }

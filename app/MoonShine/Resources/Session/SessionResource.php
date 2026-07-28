@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Session;
 
 use App\Models\Admin\User\Session;
+use App\MoonShine\Resources\Concerns\HasPerPageSession;
 use App\MoonShine\Resources\Session\Pages\SessionDetailPage;
 use App\MoonShine\Resources\Session\Pages\SessionIndexPage;
 use MoonShine\Contracts\Core\PageContract;
@@ -16,11 +17,22 @@ use MoonShine\Laravel\Resources\ModelResource;
  */
 class SessionResource extends ModelResource
 {
+    use HasPerPageSession;
+
     protected bool $withPolicy = true;
 
     protected string $model = Session::class;
 
     protected string $title = 'Сессии';
+
+    public function perPageValues(): array
+    {
+        return [
+            6 => 6,
+            12 => 12,
+            26 => 26,
+        ];
+    }
 
     /**
      * @return list<class-string<PageContract>>

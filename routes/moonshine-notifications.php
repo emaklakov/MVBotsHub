@@ -1,20 +1,18 @@
 <?php
-// routes/moonshine-notifications.php
+// routes/notifications-api.php
 
 use App\Http\Controllers\Admin\NotificationApiController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('moonshine-api/notifications')
-    ->middleware(['web', 'moonshine'])
+Route::prefix('api/notifications')
+    ->middleware(['web', 'auth:' . config('moonshine.auth.guard', 'moonshine')])
     ->group(function () {
         Route::get('/unread', [NotificationApiController::class, 'unread'])
-            ->name('moonshine.notifications.unread');
+            ->name('notifications.unread');
         Route::post('/{id}/read', [NotificationApiController::class, 'markAsRead'])
-            ->name('moonshine.notifications.read');
+            ->name('notifications.read');
         Route::post('/opened', [NotificationApiController::class, 'markManyAsOpened'])
-            ->name('moonshine.notifications.opened');
+            ->name('notifications.opened');
         Route::post('/read-all', [NotificationApiController::class, 'markAllAsRead'])
-            ->name('moonshine.notifications.read-all');
-        Route::post('/category/{category}/read', [NotificationApiController::class, 'markCategoryAsRead'])
-            ->name('moonshine.notifications.read-category');
+            ->name('notifications.read-all');
     });

@@ -47,7 +47,7 @@ final class QueuedMoonShineNotification implements EnhancedMoonShineNotification
      */
     public function getReadAllRoute(): string
     {
-        return route('moonshine.notifications.read-all');
+        return route('notifications.read-all');
     }
 
     /**

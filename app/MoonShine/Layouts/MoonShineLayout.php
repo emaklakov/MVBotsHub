@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
+use App\Models\Admin\Notification;
 use App\Models\Admin\User\Session;
 use App\Models\Admin\User\UserLog;
 use App\Models\Admin\User\UserSetting;
@@ -33,6 +34,7 @@ use App\MoonShine\Resources\UserSetting\UserSettingResource;
 use App\MoonShine\Resources\JobLog\JobLogResource;
 use App\MoonShine\Resources\Job\JobResource;
 use App\MoonShine\Resources\FailedJob\FailedJobResource;
+use App\MoonShine\Resources\Notification\NotificationResource;
 
 /**
  * Класс MoonShineLayout расширяет AppLayout и предоставляет пользовательский макет для админ-панели.
@@ -104,6 +106,8 @@ final class MoonShineLayout extends AppLayout
                     ->canSee(fn () => Gate::allows('viewAny', UserLog::class)),
                 MenuItem::make(UserSettingResource::class, 'Настройки пользователей', 'cog-8-tooth')
                     ->canSee(fn () => Gate::allows('viewAny', UserSetting::class)),
+                MenuItem::make(NotificationResource::class, 'Уведомления', 'bell-alert')
+                    ->canSee(fn () => Gate::allows('viewAny', Notification::class)),
             ], 'user-group'),
             MenuGroup::make('Система', [
 

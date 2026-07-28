@@ -84,25 +84,20 @@
                 lastFetch: null,
                 pollingInterval: null,
                 openedTracked: new Set(),
-                initialized: false, // ← защита от двойного init
+                initialized: false,
 
                 init() {
-                    // Не инициализируемся дважды
                     if (this.initialized) return;
                     this.initialized = true;
 
-                    // Первый запрос через 1 сек после загрузки (не сразу, чтобы не гонять с другими ресурсами)
                     setTimeout(() => this.fetchUnread(true), 1000);
 
-                    // Строго 30 сек, один interval
                     this.pollingInterval = setInterval(() => {
                         this.fetchUnread(false);
                     }, 30000);
 
-                    // При возвращении на вкладку — запрос только если прошло > 25 сек с последнего
                     document.addEventListener('visibilitychange', () => {
                         if (document.hidden) return;
-
                         const sinceLast = this.lastFetch ? Date.now() - this.lastFetch : Infinity;
                         if (sinceLast > 25000) {
                             this.fetchUnread(false);
@@ -112,17 +107,13 @@
 
                 async fetchUnread(force = false) {
                     if (this.loading) return;
-
-                    // Throttle: не чаще 1 раза в 5 сек (кроме force)
-                    if (!force && this.lastFetch && (Date.now() - this.lastFetch) < 5000) {
-                        return;
-                    }
+                    if (!force && this.lastFetch && (Date.now() - this.lastFetch) < 5000) return;
 
                     this.loading = true;
 
                     try {
                         const response = await fetch(
-                            '{{ route("moonshine.notifications.unread") }}',
+                            '{{ route("notifications.unread") }}',
                             {
                                 headers: {
                                     'Accept': 'application/json',
@@ -154,7 +145,7 @@
 
                     ids.forEach(id => this.openedTracked.add(id));
 
-                    fetch('{{ route("moonshine.notifications.opened") }}', {
+                    fetch('{{ route("notifications.opened") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -168,7 +159,7 @@
 
                 async markAsRead(id) {
                     try {
-                        const response = await fetch(`/moonshine-api/notifications/${id}/read`, {
+                        const response = await fetch(`/api/notifications/${id}/read`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -189,7 +180,7 @@
 
                 async markAllAsRead() {
                     try {
-                        const response = await fetch('{{ route("moonshine.notifications.read-all") }}', {
+                        const response = await fetch('{{ route("notifications.read-all") }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

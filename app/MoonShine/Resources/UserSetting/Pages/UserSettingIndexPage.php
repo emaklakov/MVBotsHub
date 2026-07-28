@@ -7,6 +7,7 @@ namespace App\MoonShine\Resources\UserSetting\Pages;
 use App\Models\Admin\User\UserSetting;
 use App\MoonShine\Resources\User\UserResource;
 use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
+use MoonShine\Contracts\UI\TableRowContract;
 use MoonShine\Crud\JsonResponse;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
@@ -14,6 +15,8 @@ use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Support\AlpineJs;
 use MoonShine\Support\Attributes\AsyncMethod;
 use MoonShine\Support\Enums\JsEvent;
+use MoonShine\UI\Collections\TableCells;
+use MoonShine\UI\Collections\TableRows;
 use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Layout\Div;
 use MoonShine\UI\Components\Table\TableBuilder;
@@ -102,6 +105,17 @@ class UserSettingIndexPage extends IndexPage
             ->topRight(function (): array {
                 return [
                     Div::make([
+                        ActionButton::make('', '#')
+                            ->icon('arrow-path')
+                            ->class('py-3')
+                            ->dispatchEvent(
+                                AlpineJs::event(
+                                    JsEvent::TABLE_UPDATED,
+                                    $this->getResource()->getListComponentName()
+                                )
+                            ),
+                    ]),
+                    Div::make([
                         Select::make('Per page')
                             ->onChangeMethod(
                                 'changeListingComponentState',
@@ -114,7 +128,24 @@ class UserSettingIndexPage extends IndexPage
                             ->setValue($this->getResource()->getItemsPerPage()),
                     ]),
                 ];
-            });
+            })
+            ->footRows(
+                function (?TableRowContract $default) use ($component) {
+                    $paginator = $component->getPaginator();
+                    $total = $paginator?->getTotal() ?? 0;
+
+                    return TableRows::make([$default])->pushRow(
+                        TableCells::make()
+                            ->pushCell('')
+                            ->pushCell("Всего: {$total}")
+                            ->pushCell('')
+                            ->pushCell('')
+                            ->pushCell('')
+                            ->pushCell('')
+                            ->pushCell('')
+                    );
+                }
+            );
     }
 
     #[AsyncMethod]
@@ -156,14 +187,6 @@ class UserSettingIndexPage extends IndexPage
     protected function topLayer(): array
     {
         return [
-            ActionButton::make('Обновить', '#')
-                ->icon('arrow-path')
-                ->dispatchEvent(
-                    AlpineJs::event(
-                        JsEvent::TABLE_UPDATED,
-                        $this->getResource()->getListComponentName()
-                    )
-                ),
             ...parent::topLayer()
         ];
     }

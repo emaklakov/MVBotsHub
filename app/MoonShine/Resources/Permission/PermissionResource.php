@@ -2,6 +2,7 @@
 
 namespace App\MoonShine\Resources\Permission;
 
+use App\MoonShine\Resources\Concerns\HasPerPageSession;
 use App\MoonShine\Resources\Permission\Pages\PermissionFormPage;
 use App\MoonShine\Resources\Permission\Pages\PermissionIndexPage;
 use MoonShine\Laravel\Resources\ModelResource;
@@ -15,11 +16,22 @@ use Spatie\Permission\Models\Permission;
  */
 class PermissionResource extends ModelResource
 {
+    use HasPerPageSession;
+
     protected bool $withPolicy = true;
 
     protected string $model = Permission::class;
 
     protected string $title = 'Разрешения';
+
+    public function perPageValues(): array
+    {
+        return [
+            6 => 6,
+            12 => 12,
+            26 => 26,
+        ];
+    }
 
     protected function activeActions(): ListOf
     {

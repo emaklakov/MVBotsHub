@@ -16,6 +16,7 @@ use App\MoonShine\Resources\UserSetting\UserSettingResource;
 use App\MoonShine\Resources\JobLog\JobLogResource;
 use App\MoonShine\Resources\Job\JobResource;
 use App\MoonShine\Resources\FailedJob\FailedJobResource;
+use App\MoonShine\Resources\Notification\NotificationResource;
 
 class MoonShineServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 JobLogResource::class,
                 JobResource::class,
                 FailedJobResource::class,
+                NotificationResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

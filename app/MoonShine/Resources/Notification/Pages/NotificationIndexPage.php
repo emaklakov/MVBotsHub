@@ -2,19 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Session\Pages;
+namespace App\MoonShine\Resources\Notification\Pages;
 
-use App\MoonShine\Resources\User\UserResource;
-use App\Services\DeviceDetector;
 use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
 use MoonShine\Contracts\UI\TableRowContract;
 use MoonShine\Crud\JsonResponse;
-use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Support\AlpineJs;
 use MoonShine\Support\Attributes\AsyncMethod;
+use MoonShine\Support\Enums\JsEvent;
 use MoonShine\UI\Collections\TableCells;
 use MoonShine\UI\Collections\TableRows;
+use MoonShine\UI\Components\ActionButton;
+use MoonShine\UI\Components\Badge;
+use MoonShine\Support\Enums\Color;
 use MoonShine\UI\Components\Layout\Div;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
@@ -22,20 +24,19 @@ use MoonShine\Laravel\QueryTags\QueryTag;
 use MoonShine\UI\Components\Metrics\Wrapped\Metric;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\ID;
-use App\MoonShine\Resources\Session\SessionResource;
+use App\MoonShine\Resources\Notification\NotificationResource;
 use MoonShine\Support\ListOf;
+use MoonShine\UI\Fields\Preview;
 use MoonShine\UI\Fields\Select;
+use MoonShine\UI\Fields\Switcher;
 use MoonShine\UI\Fields\Text;
 use Throwable;
-use MoonShine\Support\AlpineJs;
-use MoonShine\Support\Enums\JsEvent;
-use MoonShine\UI\Components\ActionButton;
 
 
 /**
- * @extends IndexPage<SessionResource>
+ * @extends IndexPage<NotificationResource>
  */
-class SessionIndexPage extends IndexPage
+class NotificationIndexPage extends IndexPage
 {
     protected bool $isLazy = true;
 
@@ -45,15 +46,44 @@ class SessionIndexPage extends IndexPage
     protected function fields(): iterable
     {
         return [
-            BelongsTo::make('Пользователь', 'user', formatted: 'email', resource: UserResource::class)->sortable(),
             ID::make(),
-            Text::make('IP', 'ip_address')->sortable(),
-            Text::make('Устройство', 'user_agent')
-                ->changePreview(fn (?string $value, Text $field) => DeviceDetector::detect($value)),
-            Text::make('User Agent', 'user_agent'),
-            Date::make('Последняя активность', 'last_activity')
-                ->sortable()
-                ->format('d.m.Y H:i:s'),
+            Text::make('Получатель', 'notifiable_type')
+                ->changePreview(fn(string $type) => class_basename($type)),
+
+            Text::make('ID получателя', 'notifiable_id'),
+
+            Text::make('Приоритет', 'priority')
+                ->badge(fn(string $priority) => match($priority) {
+                    'critical' => Color::RED,
+                    'high' => Color::WARNING,
+                    'normal' => Color::PRIMARY,
+                    'low' => Color::GRAY,
+                    default => Color::GRAY,
+                }),
+
+            Text::make('Категория', 'category'),
+
+            Preview::make('Сообщение', 'data')
+                ->changePreview(fn(array $data) => $data['message'] ?? '-'),
+
+            Preview::make('Статус', 'read_at')
+                ->changePreview(fn($readAt) => $readAt ? '✅ Прочитано' : '🔔 Новое'),
+
+            Date::make('Создано', 'created_at')
+                ->format('d.m.Y H:i')
+                ->sortable(),
+
+            Date::make('Прочитано', 'read_at')
+                ->format('d.m.Y H:i')
+                ->sortable(),
+
+            Date::make('Открыто', 'opened_at')
+                ->format('d.m.Y H:i')
+                ->sortable(),
+
+            Date::make('Истекает', 'expires_at')
+                ->format('d.m.Y H:i')
+                ->sortable(),
         ];
     }
 
@@ -70,7 +100,42 @@ class SessionIndexPage extends IndexPage
      */
     protected function filters(): iterable
     {
-        return [];
+        return [
+            Select::make('Приоритет', 'priority')
+                ->options([
+                    'critical' => 'Критический',
+                    'high' => 'Высокий',
+                    'normal' => 'Обычный',
+                    'low' => 'Низкий',
+                ])
+                ->nullable(),
+
+            Select::make('Категория', 'category')
+                ->options([
+                    'orders.new' => 'Заказы',
+                    'users.registered' => 'Пользователи',
+                    'system.errors' => 'Система',
+                ])
+                ->nullable(),
+
+            Select::make('Статус', 'read_at')
+                ->options([
+                    '1' => 'Прочитано',
+                    '0' => 'Не прочитано',
+                ])
+                ->nullable()
+                ->onApply(function ($query, $value) {
+                    return $value === '1'
+                        ? $query->whereNotNull('read_at')
+                        : $query->whereNull('read_at');
+                }),
+
+            Date::make('Создано с', 'created_at')
+                ->onApply(fn($query, $value) => $query->whereDate('created_at', '>=', $value)),
+
+            Date::make('Создано по', 'created_at')
+                ->onApply(fn($query, $value) => $query->whereDate('created_at', '<=', $value)),
+        ];
     }
 
     /**
@@ -140,7 +205,6 @@ class SessionIndexPage extends IndexPage
                             ->pushCell('')
                             ->pushCell('')
                             ->pushCell('')
-                            ->pushCell('')
                     );
                 }
             );
@@ -185,7 +249,7 @@ class SessionIndexPage extends IndexPage
     protected function topLayer(): array
     {
         return [
-            ...parent::topLayer(),
+            ...parent::topLayer()
         ];
     }
 
