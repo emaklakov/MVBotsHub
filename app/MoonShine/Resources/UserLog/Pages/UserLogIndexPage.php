@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\UserLog\Pages;
 
+use App\Models\Admin\User\UserLog;
 use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
+use MoonShine\Contracts\UI\Collection\TableRowsContract;
+use MoonShine\Contracts\UI\TableRowContract;
 use MoonShine\Crud\JsonResponse;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Support\AlpineJs;
 use MoonShine\Support\Attributes\AsyncMethod;
 use MoonShine\Support\Enums\JsEvent;
+use MoonShine\UI\Collections\TableCells;
+use MoonShine\UI\Collections\TableRows;
 use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Layout\Div;
 use MoonShine\UI\Components\Table\TableBuilder;
@@ -112,7 +117,23 @@ class UserLogIndexPage extends IndexPage
                             ->setValue($this->getResource()->getItemsPerPage()),
                     ]),
                 ];
-            });
+            })
+            ->footRows(
+                function (?TableRowContract $default) use ($component) {
+                    $paginator = $component->getPaginator();
+                    $total = $paginator?->getTotal() ?? 0;
+
+                    return TableRows::make([$default])->pushRow(
+                        TableCells::make()
+                            ->pushCell('')
+                            ->pushCell("Всего записей: {$total}")
+                            ->pushCell('')
+                            ->pushCell('')
+                            ->pushCell('')
+                            ->pushCell('')
+                    );
+                }
+            );
     }
 
     #[AsyncMethod]

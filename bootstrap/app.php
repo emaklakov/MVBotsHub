@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             require base_path('routes/moonshine-register.php');
+            require base_path('routes/moonshine-services.php');
+            require base_path('routes/moonshine-notifications.php');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

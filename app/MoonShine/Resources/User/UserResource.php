@@ -39,6 +39,8 @@ class UserResource extends ModelResource implements HasImportExportContract
 
     protected string $title = 'Пользователи';
 
+    protected array $with = ['roles', 'permissions'];
+
     public function perPageValues(): array
     {
         return [
