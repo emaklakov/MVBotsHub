@@ -11,6 +11,7 @@ use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\Laravel\QueryTags\QueryTag;
 use MoonShine\Support\AlpineJs;
 use MoonShine\Support\Attributes\AsyncMethod;
+use MoonShine\Support\Enums\ClickAction;
 use MoonShine\Support\Enums\JsEvent;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Collections\TableCells;
@@ -20,11 +21,13 @@ use MoonShine\UI\Components\Layout\Div;
 use MoonShine\UI\Components\Metrics\Wrapped\Metric;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\Select;
+use Illuminate\Database\Eloquent\Builder;
 use Throwable;
 
 class BaseIndexPage extends IndexPage
 {
     protected bool $isLazy = true;
+    protected bool $searchable = true;
 
     /**
      * @return ListOf<ActionButtonContract>
@@ -95,28 +98,17 @@ class BaseIndexPage extends IndexPage
 
     protected function topLeftButtons(): ListOf
     {
-        return parent::topLeftButtons()
-            ->add(
-                ActionButton::make('', '#')
-                    ->class('min-h-[32px]')
-                    ->icon('arrow-path')
-                    ->dispatchEvent(
-                        AlpineJs::event(
-                            JsEvent::TABLE_UPDATED,
-                            $this->getResource()->getListComponentName()
-                        )
-                    ),
-            );
+        return parent::topLeftButtons();
     }
 
     protected function modifyCreateButton(ActionButtonContract $button): ActionButtonContract
     {
-        return $button->setLabel('');
+        return $button;
     }
 
     protected function modifyFiltersButton(ActionButtonContract $button): ActionButtonContract
     {
-        return $button->icon('funnel')->setLabel('');
+        return $button->icon('funnel');
     }
 
     /**
@@ -127,9 +119,20 @@ class BaseIndexPage extends IndexPage
     protected function modifyListComponent(ComponentContract $component): ComponentContract
     {
         return $component
+            ->searchable()
             ->columnSelection()
+            ->clickAction(ClickAction::EDIT)
             ->topRight(function (): array {
                 return [
+                    ActionButton::make('', '#')
+                        ->class('btn-square')
+                        ->icon('arrow-path')
+                        ->dispatchEvent(
+                            AlpineJs::event(
+                                JsEvent::TABLE_UPDATED,
+                                $this->getResource()->getListComponentName()
+                            )
+                        ),
                     Div::make([
                         Select::make('Per page')
                             ->onChangeMethod(
