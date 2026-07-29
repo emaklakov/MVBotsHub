@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\UserLog;
 
 use App\Models\Admin\User\UserLog;
+use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Concerns\HasPerPageSession;
 use App\MoonShine\Resources\UserLog\Pages\UserLogDetailPage;
 use App\MoonShine\Resources\UserLog\Pages\UserLogIndexPage;
@@ -20,24 +21,11 @@ use MoonShine\UI\Fields\Text;
 /**
  * @extends ModelResource<UserLog, UserLogIndexPage, UserLogDetailPage>
  */
-class UserLogResource extends ModelResource implements HasImportExportContract
+class UserLogResource extends BaseResource
 {
-    use ImportExportConcern, HasPerPageSession;
-
-    protected bool $withPolicy = true;
-
     protected string $model = UserLog::class;
 
     protected string $title = 'Логи действий';
-
-    public function perPageValues(): array
-    {
-        return [
-            6 => 6,
-            12 => 12,
-            26 => 26,
-        ];
-    }
 
     /**
      * @return list<class-string<PageContract>>
@@ -70,10 +58,5 @@ class UserLogResource extends ModelResource implements HasImportExportContract
 
             Text::make('IP', 'ip_address'),
         ];
-    }
-
-    protected function import(): ?Handler
-    {
-        return null;
     }
 }

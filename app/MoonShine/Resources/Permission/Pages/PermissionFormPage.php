@@ -2,6 +2,7 @@
 
 namespace App\MoonShine\Resources\Permission\Pages;
 
+use App\MoonShine\Resources\Base\BaseFormPage;
 use App\MoonShine\Resources\Role\RoleResource;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use MoonShine\Contracts\UI\ComponentContract;
@@ -17,7 +18,7 @@ use MoonShine\UI\Fields\Text;
  * Класс PermissionFormPage представляет страницу формы для работы с разрешениями пользователей.
  * Определяет заголовок, компоненты и другие параметры страницы.
  */
-class PermissionFormPage extends FormPage
+class PermissionFormPage extends BaseFormPage
 {
     /**
      * @return list<ComponentContract|FieldContract>
@@ -29,64 +30,6 @@ class PermissionFormPage extends FormPage
                 Text::make('Название', 'name')->required(),
                 BelongsToMany::make('Роли', 'roles', resource: RoleResource::class, formatted: 'name')->selectMode(),
             ]),
-        ];
-    }
-
-    protected function buttons(): ListOf
-    {
-        return parent::buttons();
-    }
-
-    protected function formButtons(): ListOf
-    {
-        return parent::formButtons();
-    }
-
-    protected function rules(DataWrapperContract $item): array
-    {
-        return [];
-    }
-
-    /**
-     * @param  FormBuilder  $component
-     *
-     * @return FormBuilder
-     */
-    protected function modifyFormComponent(FormBuilderContract $component): FormBuilderContract
-    {
-        return $component;
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function topLayer(): array
-    {
-        return [
-            ...parent::topLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function mainLayer(): array
-    {
-        return [
-            ...parent::mainLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function bottomLayer(): array
-    {
-        return [
-            ...parent::bottomLayer()
         ];
     }
 }

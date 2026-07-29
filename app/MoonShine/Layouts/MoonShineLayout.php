@@ -102,7 +102,8 @@ final class MoonShineLayout extends AppLayout
                     ->canSee(fn () => Gate::allows('viewAny', Permission::class)),
                 MenuItem::make(SessionResource::class,'Сессии', 'arrow-right-end-on-rectangle')
                     ->canSee(fn () => Gate::allows('viewAny', Session::class)),
-                MenuItem::make(UserLogResource::class, 'Логи действий', 'cursor-arrow-rays')
+                MenuItem::make(UserLogResource::class, 'Логи действий')
+                    ->icon('shoe-prints', path: 'icons')
                     ->canSee(fn () => Gate::allows('viewAny', UserLog::class)),
                 MenuItem::make(UserSettingResource::class, 'Настройки пользователей', 'cog-8-tooth')
                     ->canSee(fn () => Gate::allows('viewAny', UserSetting::class)),

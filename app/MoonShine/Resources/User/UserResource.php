@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\User;
 
-use App\MoonShine\Resources\Concerns\HasPerPageSession;
+use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Permission\PermissionResource;
 use App\MoonShine\Resources\Role\RoleResource;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\MoonShine\Resources\User\Pages\UserIndexPage;
 use App\MoonShine\Resources\User\Pages\UserFormPage;
 use App\MoonShine\Resources\User\Pages\UserDetailPage;
 
-use MoonShine\Crud\Handlers\Handler;
-use MoonShine\ImportExport\Contracts\HasImportExportContract;
-use MoonShine\ImportExport\Traits\ImportExportConcern;
 use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
-use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Contracts\Core\PageContract;
+use MoonShine\Support\Enums\Action;
+use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\Email;
 use MoonShine\UI\Fields\ID;
@@ -29,25 +26,18 @@ use MoonShine\UI\Fields\Text;
  * Класс UserResource представляет ресурс для работы с пользователями.
  * Определяет заголовок, компоненты и другие параметры ресурса.
  */
-class UserResource extends ModelResource implements HasImportExportContract
+class UserResource extends BaseResource
 {
-    use ImportExportConcern, HasPerPageSession;
-
-    protected bool $withPolicy = true;
-
     protected string $model = User::class;
 
     protected string $title = 'Пользователи';
 
     protected array $with = ['roles', 'permissions'];
 
-    public function perPageValues(): array
+    // Отключаем массовое удаление
+    protected function activeActions(): ListOf
     {
-        return [
-            6 => 6,
-            12 => 12,
-            26 => 26,
-        ];
+        return parent::activeActions()->except(Action::MASS_DELETE);
     }
 
     /**
@@ -96,11 +86,6 @@ class UserResource extends ModelResource implements HasImportExportContract
             Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
                 ->modifyRawValue(static fn (mixed $raw, User $data, Date $ctx) => $data->updated_at?->format('d.m.Y H:i:s') ?? ''),
         ];
-    }
-
-    protected function import(): ?Handler
-    {
-        return null;
     }
 
     protected function search(): array

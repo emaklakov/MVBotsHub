@@ -17,11 +17,22 @@
     /* --color-base: oklch(1 0 0); */
 }
 
-.menu-submenu {
+:root:not(.dark) .menu-submenu {
     background: #ffffff;
 }
 
-.menu-button._is-active {
+:root:not(.dark) .menu-button._is-active {
     border: 1px solid var(--color-base-stroke);
     background: #ffffff;
+}
+
+.layout-metrics:empty,
+.layout-metrics:not(:has(> *)) {
+    display: none;
+}
+
+@media (width >= 1024px) {
+    .layout-menu._is-minimized .menu-text {
+        display: none;
+    }
 }

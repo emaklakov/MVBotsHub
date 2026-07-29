@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\User\Pages;
 
 use App\Models\Admin\User\UserSetting;
+use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Permission\PermissionResource;
 use App\MoonShine\Resources\Role\RoleResource;
 use App\MoonShine\Resources\Session\SessionResource;
@@ -14,11 +15,8 @@ use App\Services\DeviceDetector;
 use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Laravel\Fields\Relationships\HasMany;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
 use App\MoonShine\Resources\User\UserResource;
-use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\Checkbox;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\Email;
@@ -26,13 +24,13 @@ use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Image;
 use MoonShine\UI\Fields\Switcher;
 use MoonShine\UI\Fields\Text;
-use Throwable;
+
 
 
 /**
  * @extends DetailPage<UserResource>
  */
-class UserDetailPage extends DetailPage
+class UserDetailPage extends BaseDetailPage
 {
     /**
      * @return list<FieldContract>
@@ -88,54 +86,6 @@ class UserDetailPage extends DetailPage
                             : '—'),
                     Text::make('IP', 'ip_address'),
                 ])->tabMode(),
-        ];
-    }
-
-    protected function buttons(): ListOf
-    {
-        return parent::buttons();
-    }
-
-    /**
-     * @param  TableBuilder  $component
-     *
-     * @return TableBuilder
-     */
-    protected function modifyDetailComponent(ComponentContract $component): ComponentContract
-    {
-        return $component;
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function topLayer(): array
-    {
-        return [
-            ...parent::topLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function mainLayer(): array
-    {
-        return [
-            ...parent::mainLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function bottomLayer(): array
-    {
-        return [
-            ...parent::bottomLayer()
         ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Role\Pages;
 
+use App\MoonShine\Resources\Base\BaseFormPage;
 use App\MoonShine\Resources\Permission\PermissionResource;
 use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Laravel\Pages\Crud\FormPage;
@@ -23,7 +24,7 @@ use Throwable;
 /**
  * @extends FormPage<RoleResource>
  */
-class RoleFormPage extends FormPage
+class RoleFormPage extends BaseFormPage
 {
     /**
      * @return list<ComponentContract|FieldContract>
@@ -36,64 +37,6 @@ class RoleFormPage extends FormPage
                 BelongsToMany::make('Права', 'permissions', resource: PermissionResource::class, formatted: 'name')
                     ->selectMode(),
             ]),
-        ];
-    }
-
-    protected function buttons(): ListOf
-    {
-        return parent::buttons();
-    }
-
-    protected function formButtons(): ListOf
-    {
-        return parent::formButtons();
-    }
-
-    protected function rules(DataWrapperContract $item): array
-    {
-        return [];
-    }
-
-    /**
-     * @param  FormBuilder  $component
-     *
-     * @return FormBuilder
-     */
-    protected function modifyFormComponent(FormBuilderContract $component): FormBuilderContract
-    {
-        return $component;
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function topLayer(): array
-    {
-        return [
-            ...parent::topLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function mainLayer(): array
-    {
-        return [
-            ...parent::mainLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function bottomLayer(): array
-    {
-        return [
-            ...parent::bottomLayer()
         ];
     }
 }
