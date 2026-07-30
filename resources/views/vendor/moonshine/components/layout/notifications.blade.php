@@ -24,7 +24,7 @@
                     x-cloak
                     class="notifications-trigger-dot"
             ></span>
-            <x-moonshine::icon icon="bell" />
+            <x-moonshine::icon icon="bell" class="size-6!" />
         </x-slot:toggler>
 
         <template x-if="items.length === 0">

@@ -37,6 +37,17 @@
     }
 }
 
-.menu-burger .btn-fit {
-    font-size: 20px;
+.menu-logo img.block {
+    height: auto !important;
+}
+
+.layout-menu-horizontal .menu-button {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.layout-menu-horizontal .menu-button .menu-icon .icon-wrapper {
+    width: calc(0.25rem * 6);
+    height: calc(0.25rem * 6);
 }

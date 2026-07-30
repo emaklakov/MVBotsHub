@@ -144,14 +144,14 @@ final class MoonShineLayout extends AppLayout
     protected function topBarSlot(): array
     {
         return [
-            Locales::make(),
+            Locales::make()->class('text-xl mt-2 mr-2'),
             When::make(
                 fn (): bool => $this->hasThemes() && ! $this->isAlwaysDark(),
-                static fn (): array => [ThemeSwitcher::make()],
+                static fn (): array => [ThemeSwitcher::make()->class('text-xl mt-2 mr-2')],
             ),
             When::make(
                 fn (): bool => $this->isUseNotifications(),
-                static fn (): array => [Notifications::make()],
+                static fn (): array => [Notifications::make()->class('text-xl mt-2')],
             ),
             Div::make()->class('menu-divider menu-divider--vertical'),
         ];
@@ -181,10 +181,10 @@ final class MoonShineLayout extends AppLayout
                 ),
                 Div::make()->class('menu-divider menu-divider--vertical'),
                 Div::make(array_filter([
-                    $this->mobileMode ? null : Burger::make()->topbar()->class('text-2xl!'),
+                    $this->mobileMode ? null : Burger::make()->topbar()->class('text-3xl!'),
                 ]))->class('menu-burger'),
             ])->class('menu-actions')->name('topbar-actions'),
-        ])->class('top-bat-test lg:hidden!');
+        ])->class('lg:hidden! h-15! shadow-md!');
     }
 
     protected function sidebarTopSlot(): array
@@ -245,7 +245,7 @@ final class MoonShineLayout extends AppLayout
                 fn (): array
                 => [
                     Fragment::make([
-                        ThemeSwitcher::make(),
+                        ThemeSwitcher::make()->class('text-xl mt-2 mr-2'),
                     ])->class('hidden! lg:flex!'),
                 ],
             ),
@@ -286,7 +286,6 @@ final class MoonShineLayout extends AppLayout
                 ),
             )->icon('user'),
         ])
-            ->class('test')
             ->avatarPlaceholder(asset('images/default-avatar.png'));
     }
 
