@@ -2,19 +2,19 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Auth\AuthenticateController;
+use App\Models\Admin\User\User;
 use App\Models\Job\JobLog;
-use App\Models\User;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use MoonShine\Laravel\Http\Controllers\ProfileController as BaseProfileController;
-use App\Http\Controllers\Admin\ProfileController;
 use MoonShine\Laravel\Http\Controllers\AuthenticateController as BaseAuthenticateController;
-use App\Http\Controllers\Auth\AuthenticateController;
-use Illuminate\Queue\Events\JobProcessing;
-use Illuminate\Queue\Events\JobProcessed;
-use Illuminate\Queue\Events\JobFailed;
-use Illuminate\Support\Facades\Queue;
+use MoonShine\Laravel\Http\Controllers\ProfileController as BaseProfileController;
 
 class AppServiceProvider extends ServiceProvider
 {

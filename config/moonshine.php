@@ -7,7 +7,7 @@ use App\Http\Middleware\CheckExpiredPassword;
 use App\Http\Middleware\CheckUserIsActive;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TwoFactorVerified;
-use App\Models\User;
+use App\Models\Admin\User\User;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Pages\Auth\LoginPage;
 use App\MoonShine\Pages\Errors\ErrorPage;
@@ -20,7 +20,6 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use MoonShine\Crud\Forms\FiltersForm;
-use MoonShine\Laravel\Exceptions\MoonShineNotFoundException;
 use MoonShine\Laravel\Http\Middleware\Authenticate;
 use MoonShine\Laravel\Http\Middleware\ChangeLocale;
 
@@ -99,7 +98,7 @@ return [
     'palette' => MVPalette::class,
 
     'forms' => [
-        'login' => App\Forms\LoginForm::class,
+        'login' => \App\Forms\Auth\LoginForm::class,
         'filters' => FiltersForm::class,
     ],
 

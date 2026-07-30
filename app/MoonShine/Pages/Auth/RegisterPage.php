@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Pages\Auth;
 
+use App\Forms\Auth\RegisterForm;
 use App\MoonShine\Pages\Auth\Concerns\WithAuthPageAssets;
-use MoonShine\AssetManager\InlineJs;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Core\Attributes\Layout;
 use MoonShine\Laravel\Layouts\LoginLayout;
 use MoonShine\Laravel\Pages\Page;
 use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FlexibleRender;
-use App\Forms\RegisterForm;
 
 /**
  * Класс RegisterPage представляет страницу регистрации пользователя.

@@ -2,7 +2,7 @@
 
 namespace App\MoonShine\Pages\Admin;
 
-use App\MoonShine\Resources\Session\SessionResource;
+use App\MoonShine\Resources\Users\Session\SessionResource;
 use App\Services\DeviceDetector;
 use MoonShine\AssetManager\InlineJs;
 use MoonShine\Contracts\UI\ComponentContract;
@@ -14,7 +14,6 @@ use MoonShine\Laravel\MoonShineAuth;
 use MoonShine\Laravel\Pages\Page;
 use MoonShine\Laravel\TypeCasts\ModelCaster;
 use MoonShine\MenuManager\Attributes\SkipMenu;
-use MoonShine\UI\Components\FlexibleRender;
 use MoonShine\UI\Components\FormBuilder;
 use MoonShine\UI\Components\Heading;
 use MoonShine\UI\Components\Layout\Box;

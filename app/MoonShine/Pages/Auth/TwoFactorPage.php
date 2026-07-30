@@ -2,11 +2,10 @@
 
 namespace App\MoonShine\Pages\Auth;
 
-use App\Forms\TwoFactorForm;
+use App\Forms\Auth\TwoFactorForm;
 use App\MoonShine\Pages\Auth\Concerns\WithAuthPageAssets;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use MoonShine\AssetManager\InlineJs;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Contracts\UI\LayoutContract;
 use MoonShine\Core\Attributes\Layout;

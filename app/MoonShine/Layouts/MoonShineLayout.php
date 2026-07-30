@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace App\MoonShine\Layouts;
 
 use App\Models\Admin\Notification;
+use App\Models\Admin\User\Role;
 use App\Models\Admin\User\Session;
+use App\Models\Admin\User\User;
 use App\Models\Admin\User\UserLog;
 use App\Models\Admin\User\UserSetting;
 use App\Models\Job\FailedJob;
 use App\Models\Job\Job;
 use App\Models\Job\JobLog;
-use App\Models\Role;
-use App\Models\User;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
-use App\MoonShine\Resources\Permission\PermissionResource;
-use App\MoonShine\Resources\Role\RoleResource;
-use App\MoonShine\Resources\Session\SessionResource;
-use App\MoonShine\Resources\User\UserResource;
-use App\MoonShine\Resources\UserLog\UserLogResource;
+use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
+use App\MoonShine\Resources\Jobs\Job\JobResource;
+use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
+use App\MoonShine\Resources\Users\Notification\NotificationResource;
+use App\MoonShine\Resources\Users\Permission\PermissionResource;
+use App\MoonShine\Resources\Users\Role\RoleResource;
+use App\MoonShine\Resources\Users\Session\SessionResource;
+use App\MoonShine\Resources\Users\User\UserResource;
+use App\MoonShine\Resources\Users\UserLog\UserLogResource;
+use App\MoonShine\Resources\Users\UserSetting\UserSettingResource;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use MoonShine\AssetManager\Css;
@@ -43,14 +48,8 @@ use MoonShine\UI\Components\Layout\Menu;
 use MoonShine\UI\Components\Layout\Sidebar;
 use MoonShine\UI\Components\Layout\ThemeSwitcher;
 use MoonShine\UI\Components\Layout\TopBar;
-use MoonShine\UI\Components\Link;
 use MoonShine\UI\Components\When;
 use Spatie\Permission\Models\Permission;
-use App\MoonShine\Resources\UserSetting\UserSettingResource;
-use App\MoonShine\Resources\JobLog\JobLogResource;
-use App\MoonShine\Resources\Job\JobResource;
-use App\MoonShine\Resources\FailedJob\FailedJobResource;
-use App\MoonShine\Resources\Notification\NotificationResource;
 
 /**
  * Класс MoonShineLayout расширяет AppLayout и предоставляет пользовательский макет для админ-панели.

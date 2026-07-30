@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\MoonShine\Pages\Auth\TwoFactorPage;
-use App\Notifications\TwoFactorCodeNotification;
+use App\Notifications\Auth\TwoFactorCodeNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Контроллер для управления процессом двухфакторной аутентификации пользователя:

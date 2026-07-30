@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Models\Admin\User\User;
 use App\MoonShine\Pages\Auth\ForgotPasswordPage;
 use App\MoonShine\Pages\Auth\LoginPage;
 use App\MoonShine\Pages\Auth\RegisterPage;

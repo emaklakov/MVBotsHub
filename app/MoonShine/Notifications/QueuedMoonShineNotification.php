@@ -6,15 +6,15 @@ declare(strict_types=1);
 namespace App\MoonShine\Notifications;
 
 use App\Enums\NotificationPriority;
-use App\Jobs\SendMoonShineNotificationJob;
+use App\Jobs\Admin\SendMoonShineNotificationJob;
 use App\MoonShine\Contracts\Notifications\EnhancedMoonShineNotificationContract;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use MoonShine\Crud\Contracts\Notifications\NotificationButtonContract;
 use MoonShine\Crud\Notifications\NotificationButton;
 use MoonShine\Support\Enums\Color;
-use Illuminate\Support\Str;
 
 final class QueuedMoonShineNotification implements EnhancedMoonShineNotificationContract
 {
