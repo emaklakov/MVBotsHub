@@ -8,6 +8,8 @@ use MoonShine\Contracts\Core\DependencyInjection\CoreContract;
 use MoonShine\Contracts\UI\FormBuilderContract;
 use MoonShine\Support\Traits\Makeable;
 use MoonShine\UI\Components\FormBuilder;
+use MoonShine\UI\Components\Layout\Flex;
+use MoonShine\UI\Components\Link;
 use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\Switcher;
 use MoonShine\UI\Fields\Text;
@@ -43,7 +45,13 @@ class LoginForm implements FormContract
                     ])
                     ->required()->eye(),
 
-                Switcher::make($this->core->getTranslator()->get('moonshine::ui.login.remember_me'), 'remember'),
+                Flex::make([
+                    Switcher::make($this->core->getTranslator()->get('moonshine::ui.login.remember_me'), 'remember')->class('w-auto!'),
+                    Link::make(route('moonshine.password.request'), __('register.forgot_link'))
+                        ->class('text-secondary font-medium form-group items-end!')
+                ])
+                    ->unwrap()
+                    ->justifyAlign('between'),
             ])->submit($this->core->getTranslator()->get('moonshine::ui.login.login'), [
                 'class' => 'btn-primary btn-lg w-full',
             ]);

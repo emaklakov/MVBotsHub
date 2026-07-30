@@ -12,6 +12,7 @@ use MoonShine\Laravel\Layouts\LoginLayout;
 use MoonShine\Laravel\Pages\LoginPage as MoonShineLoginPage;
 use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FlexibleRender;
+use MoonShine\UI\Components\Layout\Divider;
 
 /**
  * Класс LoginPage представляет страницу входа в систему.
@@ -30,13 +31,13 @@ final class LoginPage extends MoonShineLoginPage
     {
         $footerLinks = [];
 
-        if (config('moonshine-register.password_reset.enabled', true)) {
-            $footerLinks[] = '<div><a href="'
-                . e(route('moonshine.password.request'))
-                . '" class="btn btn-secondary btn-lg w-full">'
-                . e(__('register.forgot_link'))
-                . '</a></div>';
-        }
+//        if (config('moonshine-register.password_reset.enabled', true)) {
+//            $footerLinks[] = '<div><a href="'
+//                . e(route('moonshine.password.request'))
+//                . '" class="btn btn-secondary btn-lg w-full">'
+//                . e(__('register.forgot_link'))
+//                . '</a></div>';
+//        }
 
         if (config('moonshine-register.login_link.enabled', true)) {
             $footerLinks[] = '<div><a href="'
@@ -48,6 +49,7 @@ final class LoginPage extends MoonShineLoginPage
 
         $components = [
             ...parent::components(),
+            Divider::make()->class('mt-6!'),
         ];
 
         if (session()->has('status')) {
@@ -60,7 +62,7 @@ final class LoginPage extends MoonShineLoginPage
 
         if ($footerLinks !== []) {
             $components[] = FlexibleRender::make(
-                '<div class="authentication-footer description text-center flex flex-col gap-2">'
+                '<div class="authentication-footer description text-center flex flex-col gap-2 mt-2!">'
                 . implode('', $footerLinks)
                 . '</div>'
             );
