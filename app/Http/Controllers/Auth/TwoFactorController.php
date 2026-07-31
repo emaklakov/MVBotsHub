@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Infrastructure\Notifications\Auth\Email\TwoFactorCodeNotification;
 use App\MoonShine\Pages\Auth\TwoFactorPage;
-use App\Notifications\Auth\TwoFactorCodeNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

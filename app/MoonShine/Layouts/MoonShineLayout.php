@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
-use App\Models\Admin\User\Notification;
-use App\Models\Admin\User\Role;
-use App\Models\Admin\User\Session;
-use App\Models\Admin\User\User;
-use App\Models\Admin\User\UserLog;
-use App\Models\Admin\User\UserSetting;
 use App\Models\Job\FailedJob;
 use App\Models\Job\Job;
 use App\Models\Job\JobLog;
+use App\Models\User\Notification;
+use App\Models\User\Role;
+use App\Models\User\Session;
+use App\Models\User\User;
+use App\Models\User\UserLog;
+use App\Models\User\UserSetting;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
 use App\MoonShine\Resources\Jobs\Job\JobResource;

@@ -3,7 +3,7 @@
 namespace App\MoonShine\Pages\Auth;
 
 use App\Forms\Auth\TwoFactorForm;
-use App\MoonShine\Pages\Auth\Concerns\WithAuthPageAssets;
+use App\MoonShine\Pages\Auth\Traits\WithAuthPageAssets;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use MoonShine\Contracts\UI\ComponentContract;

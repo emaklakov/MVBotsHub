@@ -2,7 +2,7 @@
 
 namespace App\MoonShine\Resources\Base;
 
-use App\MoonShine\Resources\Concerns\HasPerPageSession;
+use App\MoonShine\Resources\Traits\HasPerPageSession;
 use MoonShine\Crud\Handlers\Handler;
 use MoonShine\ImportExport\Contracts\HasImportExportContract;
 use MoonShine\ImportExport\Traits\ImportExportConcern;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Pages\Auth;
 
 use App\Forms\Auth\ResetPasswordForm;
-use App\MoonShine\Pages\Auth\Concerns\WithAuthPageAssets;
+use App\MoonShine\Pages\Auth\Traits\WithAuthPageAssets;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Core\Attributes\Layout;
 use MoonShine\Laravel\Layouts\LoginLayout;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\UserLog\Pages;
 
+use App\Application\Services\User\DeviceDetector;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Users\UserLog\UserLogResource;
-use App\Services\DeviceDetector;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\ID;

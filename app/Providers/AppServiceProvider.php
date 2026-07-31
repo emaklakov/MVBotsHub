@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Auth\AuthenticateController;
-use App\Models\Admin\User\User;
+use App\Http\Controllers\User\ProfileController;
 use App\Models\Job\JobLog;
+use App\Models\User\User;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;

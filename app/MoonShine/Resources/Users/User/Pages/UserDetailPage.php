@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\User\Pages;
 
-use App\Models\Admin\User\UserSetting;
+use App\Application\Services\User\DeviceDetector;
+use App\Models\User\UserSetting;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Users\Permission\PermissionResource;
 use App\MoonShine\Resources\Users\Role\RoleResource;
@@ -12,7 +13,6 @@ use App\MoonShine\Resources\Users\Session\SessionResource;
 use App\MoonShine\Resources\Users\User\UserResource;
 use App\MoonShine\Resources\Users\UserLog\UserLogResource;
 use App\MoonShine\Resources\Users\UserSetting\UserSettingResource;
-use App\Services\DeviceDetector;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Laravel\Fields\Relationships\HasMany;

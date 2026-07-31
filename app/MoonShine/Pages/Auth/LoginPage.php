@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Pages\Auth;
 
-use App\MoonShine\Pages\Auth\Concerns\WithAuthPageAssets;
+use App\MoonShine\Pages\Auth\Traits\WithAuthPageAssets;
 use MoonShine\AssetManager\InlineJs;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Core\Attributes\Layout;

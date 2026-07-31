@@ -2,8 +2,8 @@
 
 namespace App\MoonShine\Pages\Admin;
 
+use App\Application\Services\User\DeviceDetector;
 use App\MoonShine\Resources\Users\Session\SessionResource;
-use App\Services\DeviceDetector;
 use MoonShine\AssetManager\InlineJs;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Contracts\UI\FieldContract;

@@ -7,7 +7,7 @@ use App\Http\Middleware\CheckExpiredPassword;
 use App\Http\Middleware\CheckUserIsActive;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TwoFactorVerified;
-use App\Models\Admin\User\User;
+use App\Models\User\User;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Pages\Auth\LoginPage;
 use App\MoonShine\Pages\Errors\ErrorPage;

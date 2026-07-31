@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Notifications;
 
-use App\Enums\NotificationPriority;
-use App\Jobs\Admin\SendMoonShineNotificationJob;
+use App\Jobs\User\SendNotificationJob;
+use App\Models\User\Enums\NotificationPriority;
 use App\MoonShine\Contracts\Notifications\EnhancedMoonShineNotificationContract;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Collection;
@@ -122,7 +122,7 @@ final class QueuedMoonShineNotification implements EnhancedMoonShineNotification
             return;
         }
 
-        SendMoonShineNotificationJob::dispatch(
+        SendNotificationJob::dispatch(
             message: $message,
             userIds: $ids,
             button: $buttonImpl,

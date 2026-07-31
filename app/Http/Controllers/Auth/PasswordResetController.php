@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Application\Services\User\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\MoonShine\Pages\Auth\ForgotPasswordPage;
 use App\MoonShine\Pages\Auth\ResetPasswordPage;
-use App\Services\ActivityLogger;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;

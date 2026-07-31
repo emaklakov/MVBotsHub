@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Services\ActivityLogger;
+use App\Application\Services\User\ActivityLogger;
 use Illuminate\Auth\Events\Logout;
 
 /**
