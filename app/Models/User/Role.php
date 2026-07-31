@@ -2,7 +2,7 @@
 
 namespace App\Models\User;
 
-use App\Models\Traits\LogsUserActivity;
+use App\Models\User\Traits\LogsUserActivity;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 /**

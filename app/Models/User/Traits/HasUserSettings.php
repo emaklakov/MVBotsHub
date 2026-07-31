@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Traits;
+namespace App\Models\User\Traits;
 
 use App\Models\User\UserSetting;
 use Illuminate\Contracts\Encryption\DecryptException;

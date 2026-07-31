@@ -3,9 +3,9 @@
 namespace App\Models\User;
 
 use App\Infrastructure\Notifications\Auth\Email\ResetPassword;
-use App\Models\Traits\HasTwoFactorEmailCode;
-use App\Models\Traits\HasUserSettings;
-use App\Models\Traits\LogsUserActivity;
+use App\Models\User\Traits\HasTwoFactorEmailCode;
+use App\Models\User\Traits\HasUserSettings;
+use App\Models\User\Traits\LogsUserActivity;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
