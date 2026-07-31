@@ -28,6 +28,8 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles, CanResetPasswordTrait, HasTwoFactorEmailCode;
     use LogsUserActivity, HasUserSettings;
 
+    protected string $guard_name = 'moonshine';
+
     /**
      * Поля, которые никогда не должны попадать в лог изменений
      */

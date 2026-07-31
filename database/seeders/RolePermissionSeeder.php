@@ -30,7 +30,7 @@ class RolePermissionSeeder extends Seeder
 //        Role::firstOrCreate(['name' => 'editor'])
 //            ->syncPermissions(['organizations.view', 'organizations.update']);
 
-        Role::firstOrCreate(['name' => 'super-admin']);
-        Role::firstOrCreate(['name' => 'user']);
+        Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'moonshine']);
+        Role::firstOrCreate(['name' => 'user', 'guard_name' => 'moonshine']);
     }
 }

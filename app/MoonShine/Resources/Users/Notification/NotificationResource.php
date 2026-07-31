@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\Notification;
 
-use App\Models\Admin\Notification;
+use App\Models\Admin\User\Notification;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Users\Notification\Pages\NotificationDetailPage;
 use App\MoonShine\Resources\Users\Notification\Pages\NotificationIndexPage;

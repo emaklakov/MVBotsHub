@@ -115,4 +115,6 @@ return [
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
     'password_expiry' => env('AUTH_PASSWORD_EXPIRY', 90),
+
+    'super_admin_password' => env('AUTH_SUPER_ADMIN_PASSWORD', 'password'),
 ];

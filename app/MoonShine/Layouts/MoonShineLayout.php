@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
-use App\Models\Admin\Notification;
+use App\Models\Admin\User\Notification;
 use App\Models\Admin\User\Role;
 use App\Models\Admin\User\Session;
 use App\Models\Admin\User\User;
