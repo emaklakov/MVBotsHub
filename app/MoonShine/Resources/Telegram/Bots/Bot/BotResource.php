@@ -69,6 +69,6 @@ class BotResource extends BaseResource
 
     protected function search(): array
     {
-        return ['id', 'name', 'title'];
+        return ['id', 'name', 'username'];
     }
 }

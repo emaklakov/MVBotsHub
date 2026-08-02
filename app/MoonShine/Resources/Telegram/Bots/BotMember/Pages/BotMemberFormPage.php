@@ -27,7 +27,7 @@ class BotMemberFormPage extends BaseFormPage
     {
         return [
             ID::make(),
-            BelongsTo::make('Бот', 'bot', resource: UserResource::class, formatted: 'name')->nullable(),
+            BelongsTo::make('Бот', 'bot', resource: UserResource::class, formatted: 'username')->nullable(),
             Enum::make('Роль', 'role')->attach(BotMemberRole::class)->nullable(),
             BelongsTo::make('Пользователь', 'user', resource: UserResource::class, formatted: 'email')->nullable(),
         ];

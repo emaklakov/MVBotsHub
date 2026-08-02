@@ -8,6 +8,7 @@ use App\Domain\Bots\Enums\BotStatus;
 use App\Domain\Bots\Enums\WebhookStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,8 +22,8 @@ class Bot extends Model
     use HasFactory;
 
     protected $fillable = [
+        'username',
         'name',
-        'title',
         'description',
         'token',
         'webhook_token',
@@ -60,14 +61,6 @@ class Bot extends Model
      * Автоматическое шифрование/дешифрование токена
      */
     protected function token(): Attribute
-    {
-        return Attribute::make(
-            get: fn (?string $value) => $value ? Crypt::decryptString($value) : null,
-            set: fn (?string $value) => $value ? Crypt::encryptString($value) : null,
-        );
-    }
-
-    protected function webhookSecretToken(): Attribute
     {
         return Attribute::make(
             get: fn (?string $value) => $value ? Crypt::decryptString($value) : null,

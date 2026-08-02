@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Telegram\BotSubscriber;
+namespace App\MoonShine\Resources\Telegram\Conversations\BotSubscriber;
 
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\MoonShine\Resources\Base\BaseResource;
-use App\MoonShine\Resources\Telegram\BotSubscriber\Pages\BotSubscriberDetailPage;
-use App\MoonShine\Resources\Telegram\BotSubscriber\Pages\BotSubscriberIndexPage;
+use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages\BotSubscriberDetailPage;
+use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages\BotSubscriberIndexPage;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Laravel\Resources\ModelResource;
@@ -41,5 +41,10 @@ class BotSubscriberResource extends BaseResource
             BotSubscriberIndexPage::class,
             BotSubscriberDetailPage::class,
         ];
+    }
+
+    protected function search(): array
+    {
+        return ['telegram_id', 'telegram_username'];
     }
 }

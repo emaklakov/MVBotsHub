@@ -27,6 +27,8 @@ class WebhookController
         // 3. Сохраняем сырой апдейт (опционально, для аудита)
         // TODO: Итерация 1 — диспатчить ProcessTelegramUpdate job
 
+        Log::debug(json_encode($update));
+
         // 4. Мгновенно возвращаем 200 — никакой бизнес-логики синхронно
         return response()->json(['ok' => true]);
     }

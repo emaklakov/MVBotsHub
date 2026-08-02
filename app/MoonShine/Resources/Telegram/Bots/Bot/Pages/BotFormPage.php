@@ -38,10 +38,10 @@ class BotFormPage extends BaseFormPage
         return [
             Box::make([
                 ID::make()->sortable(),
-                Text::make('Имя пользователя', 'name')
+                Text::make('Имя пользователя', 'username')
                     ->placeholder('@username_bot')
                     ->required(),
-                Text::make('Название бота', 'title'),
+                Text::make('Название бота', 'name'),
                 Textarea::make('Описание', 'description'),
                 Preview::make('Статус токена', 'bot_token_status', fn($item) => !empty($item->token)
                     ? 'Установлен (••••' . substr($item->token, -4) . ')'
@@ -63,9 +63,6 @@ class BotFormPage extends BaseFormPage
                     ->customAttributes([
                         'autocomplete' => 'off',
                     ]),
-                Enum::make('Webhook', 'webhook_status')->attach(WebhookStatus::class)->disabled(),
-                Text::make('Webhook URL', 'webhook_url')->disabled(),
-                Text::make('Webhook Secret', 'webhook_secret_token')->disabled(),
                 Json::make('Настройки', 'settings')
                     ->fields([
                         Position::make(),
@@ -91,7 +88,7 @@ class BotFormPage extends BaseFormPage
     protected function rules(DataWrapperContract $item): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255'],
             'token' => [
                 $item->getKey() === null ? 'required' : 'nullable',
                 'string',

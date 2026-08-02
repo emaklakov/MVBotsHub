@@ -24,7 +24,7 @@ abstract class BaseResource extends ModelResource implements HasImportExportCont
 
     public function modifyErrorResponse(Response $response, Throwable $exception): Response
     {
-        Log::error('Ошибка', [
+        Log::error('Ошибка - App\MoonShine\Resources\Base\BaseResource::modifyErrorResponse', [
             'message' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
         ]);

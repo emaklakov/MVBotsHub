@@ -7,14 +7,18 @@ namespace App\MoonShine\Resources\Telegram\Bots\Bot\Pages;
 use App\Domain\Bots\Enums\BotStatus;
 use App\Domain\Bots\Enums\WebhookStatus;
 use App\Domain\Bots\Models\Bot;
-use App\Domain\Bots\Services\WebhookRegistrar;
+use App\Domain\Bots\Services\WebhookService;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
 use Illuminate\Support\Facades\Gate;
+use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
 use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Crud\JsonResponse;
 use MoonShine\Laravel\Fields\Relationships\HasMany;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
+use MoonShine\Support\Attributes\AsyncMethod;
+use MoonShine\Support\Enums\ToastType;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Fields\Date;
@@ -40,8 +44,8 @@ class BotDetailPage extends BaseDetailPage
     {
         return [
             ID::make(),
-            Text::make('Имя пользователя', 'name'),
-            Text::make('Название бота', 'title'),
+            Text::make('Имя пользователя', 'username'),
+            Text::make('Название бота', 'name'),
             Textarea::make('Описание', 'description'),
             Enum::make('Статус', 'status')->attach(BotStatus::class),
             Preview::make('Статус токена', 'bot_token_status', fn($item) => !empty($item->token)
@@ -49,8 +53,6 @@ class BotDetailPage extends BaseDetailPage
                 : 'Не задан'
             )->badge(fn($value) => !empty($value) ? 'green' : 'gray'),
             Enum::make('Webhook', 'webhook_status')->attach(WebhookStatus::class),
-            Text::make('Webhook URL', 'webhook_url'),
-            Text::make('Webhook Secret', 'webhook_secret_token'),
             Json::make('Настройки', 'settings')->fields([
                 Position::make(),
                 Text::make('Имя', 'name'),
@@ -77,21 +79,54 @@ class BotDetailPage extends BaseDetailPage
         return parent::buttons()->add(
             ActionButton::make('Зарегистрировать Webhook')
                 ->method('registerWebhook')
-                ->canSee(fn () => Gate::allows('registerWebhook', Bot::class))
+                ->withConfirm(
+                    title: 'Подтвердить',
+                    content: 'Вы уверены, что хотите Зарегистрировать Webhook?',
+                    button: 'Подтвердить',
+                )
+                ->canSee(fn ($item) => Gate::allows('registerWebhook', Bot::class) && empty($item->webhook_url))
                 ->icon('globe-alt')
-                ->class('py-[10px] ml-4 btn-secondary'),
+                ->class('py-[10px] ml-4 btn-success'),
+            ActionButton::make('Удалить Webhook')
+                ->method('unregisterWebhook')
+                ->withConfirm(
+                    title: 'Подтвердить',
+                    content: 'Вы уверены, что хотите Удалить Webhook?',
+                    button: 'Подтвердить',
+                )
+                ->canSee(fn ($item) => Gate::allows('registerWebhook', Bot::class) && !empty($item->webhook_url))
+                ->icon('globe-alt')
+                ->class('py-[10px] ml-4 btn-error'),
         );
     }
 
-    public function registerWebhook(Bot $bot): void
+    #[AsyncMethod]
+    public function registerWebhook(CrudRequestContract $request, JsonResponse $response): JsonResponse
     {
-        $registrar = app(WebhookRegistrar::class);
-        $success = $registrar->register($bot);
+        $bot = $request->getResource()->getItem();
+
+        $webhookService = app(WebhookService::class);
+        $success = $webhookService->register($bot);
 
         if ($success) {
-            $this->toast('Webhook registered successfully', 'success');
+            return $response->toast('Webhook успешно зарегистрирован.', ToastType::SUCCESS);
         } else {
-            $this->toast('Failed to register webhook. Check bot token.', 'error');
+           return $response->toast('Не удалось зарегистрировать Webhook. Проверьте токен бота и логи.', ToastType::ERROR);
+        }
+    }
+
+    #[AsyncMethod]
+    public function unregisterWebhook(CrudRequestContract $request, JsonResponse $response): JsonResponse
+    {
+        $bot = $request->getResource()->getItem();
+
+        $webhookService = app(WebhookService::class);
+        $success = $webhookService->unregister($bot);
+
+        if ($success) {
+            return $response->toast('Webhook успешно удален.', ToastType::SUCCESS);
+        } else {
+            return $response->toast('Не удалось удалить Webhook. Проверьте логи.', ToastType::ERROR);
         }
     }
 }

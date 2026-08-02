@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\MoonShine\Resources\CRM\Person\PersonResource;
 use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
 use App\MoonShine\Resources\Jobs\Job\JobResource;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
-use App\MoonShine\Resources\Telegram\BotSubscriber\BotSubscriberResource;
+use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Users\Notification\NotificationResource;
 use App\MoonShine\Resources\Users\Permission\PermissionResource;
 use App\MoonShine\Resources\Users\Role\RoleResource;
@@ -43,6 +44,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 BotResource::class,
                 BotSubscriberResource::class,
                 BotMemberResource::class,
+                PersonResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

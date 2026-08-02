@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\CRM\Models;
 
 use App\Domain\Conversations\Models\BotSubscriber;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

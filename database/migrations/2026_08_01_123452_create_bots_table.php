@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('bots', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('title')->nullable();
+            $table->string('username');
+            $table->string('name')->nullable();
             $table->text('description')->nullable();
             $table->text('token'); // encrypted cast в модели
             $table->string('webhook_token', 64)->unique()->nullable(); // публичный ID для URL

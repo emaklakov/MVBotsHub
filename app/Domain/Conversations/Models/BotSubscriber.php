@@ -4,7 +4,7 @@
 namespace App\Domain\Conversations\Models;
 
 use App\Domain\Bots\Models\Bot;
-use App\Models\Person;
+use App\Domain\CRM\Models\Person;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,7 +39,7 @@ class BotSubscriber extends Model
         return $this->belongsTo(Bot::class);
     }
 
-    public function people(): BelongsTo
+    public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
     }
