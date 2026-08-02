@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('bot_subscribers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bot_id')->constrained()->onDelete('cascade');
-            $table->foreignId('people_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('person_id')->nullable()->constrained()->onDelete('set null');
             $table->unsignedBigInteger('telegram_id');
             $table->string('telegram_username')->nullable();
             $table->string('language', 5)->nullable(); // override от people/bot
@@ -26,7 +26,7 @@ return new class extends Migration
 
             $table->unique(['bot_id', 'telegram_id']);
             $table->index(['bot_id', 'status']);
-            $table->index(['bot_id', 'people_id']);
+            $table->index(['bot_id', 'person_id']);
         });
     }
 

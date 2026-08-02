@@ -6,11 +6,13 @@ use App\Http\Controllers\Auth\AuthenticateController;
 use App\Http\Controllers\Users\ProfileController;
 use App\Models\Jobs\JobLog;
 use App\Models\Users\User;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use MoonShine\Laravel\Http\Controllers\AuthenticateController as BaseAuthenticateController;
@@ -41,6 +43,11 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;
+        });
+
+        // Глобальный throttle для всех ботов приложения
+        RateLimiter::for('telegram', function () {
+            return Limit::perSecond(28);
         });
 
         Queue::createPayloadUsing(function ($connection, $queue, $payload) {

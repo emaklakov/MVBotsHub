@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs\User;
+namespace App\Jobs\Users;
 
 use App\Models\Users\Enums\NotificationPriority;
 use Illuminate\Bus\Queueable;

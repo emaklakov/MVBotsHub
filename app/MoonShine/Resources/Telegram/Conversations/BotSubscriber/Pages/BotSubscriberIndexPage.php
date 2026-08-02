@@ -8,7 +8,6 @@ use App\Domain\CRM\Models\Person;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\CRM\Person\PersonResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
-use App\MoonShine\Resources\Telegram\BotSubscriber\Pages\UserResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
@@ -36,15 +35,15 @@ class BotSubscriberIndexPage extends BaseIndexPage
             BelongsTo::make('Bot', 'bot', resource: BotResource::class),
             Text::make('Telegram ID', 'telegram_id'),
             Text::make('Username', 'telegram_username'),
-            BelongsTo::make('Телефон', 'person', resource: PersonResource::class, formatted: 'person.phone'),
-            Text::make('Language', 'language'),
-            Select::make('Status', 'status')
+            BelongsTo::make('Телефон', 'person', resource: PersonResource::class, formatted: 'phone'),
+            Text::make('Язык', 'language'),
+            Select::make('Статус', 'status')
                 ->options([
                     'active' => 'Active',
                     'blocked' => 'Blocked',
                     'merged' => 'Merged',
                 ]),
-            Date::make('Last Activity', 'last_activity_at')
+            Date::make('Последняя активность', 'last_activity_at')
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
                 ->format('d.m.Y H:i:s'),

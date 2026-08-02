@@ -6,6 +6,7 @@ namespace App\MoonShine\Layouts;
 
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Components\MainMenu;
+use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
 use Illuminate\Support\Facades\Vite;
 use MoonShine\AssetManager\Css;
 use MoonShine\AssetManager\Js;
@@ -18,6 +19,7 @@ use MoonShine\Crud\Components\Layout\Notifications;
 use MoonShine\Laravel\Components\Layout\Profile;
 use MoonShine\Laravel\Layouts\AppLayout;
 use MoonShine\Laravel\Pages\ProfilePage;
+use MoonShine\MenuManager\MenuItem;
 use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Breadcrumbs;
 use MoonShine\UI\Components\Layout\Burger;
@@ -56,7 +58,7 @@ final class MoonShineLayout extends AppLayout
     protected function menu(): array
     {
         return [
-            ...MainMenu::menu()
+            ...MainMenu::menu(),
         ];
     }
 

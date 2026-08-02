@@ -11,6 +11,7 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\FormPage;
 use MoonShine\UI\Components\Layout\Box;
 use MoonShine\UI\Fields\ID;
+use MoonShine\UI\Fields\Text;
 
 
 /**
@@ -26,6 +27,7 @@ class PersonFormPage extends BaseFormPage
         return [
             Box::make([
                 ID::make(),
+                Text::make('Телефон', 'phone'),
             ]),
         ];
     }

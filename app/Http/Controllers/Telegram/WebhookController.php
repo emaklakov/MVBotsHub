@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Telegram;
 
 use App\Domain\Bots\Models\Bot;
+use App\Jobs\Telegram\ProcessTelegramUpdate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class WebhookController
 {
@@ -14,7 +14,6 @@ class WebhookController
         // 1. Проверяем секретный токен
         $secret = $request->header('X-Telegram-Bot-Api-Secret-Token');
         if ($secret !== $bot->webhook_secret_token) {
-            Log::warning('Invalid webhook secret', ['bot_id' => $bot->id]);
             return response()->json(['ok' => false], 403);
         }
 
@@ -24,10 +23,8 @@ class WebhookController
             return response()->json(['ok' => false], 400);
         }
 
-        // 3. Сохраняем сырой апдейт (опционально, для аудита)
-        // TODO: Итерация 1 — диспатчить ProcessTelegramUpdate job
-
-        Log::debug(json_encode($update));
+        // Диспатчим job и немедленно возвращаем 200 — Telegram не ждёт
+        ProcessTelegramUpdate::dispatch($bot, $update)->onQueue('telegram');
 
         // 4. Мгновенно возвращаем 200 — никакой бизнес-логики синхронно
         return response()->json(['ok' => true]);

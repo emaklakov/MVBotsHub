@@ -5,6 +5,7 @@ namespace App\Domain\Conversations\Models;
 
 use App\Domain\Bots\Models\Bot;
 use App\Domain\CRM\Models\Person;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,26 @@ class BotSubscriber extends Model
         ];
     }
 
+    public function effectiveSettings(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $botSettings = $this->bot->settings ?? [];
+                $subscriberSettings = $this->settings ?? [];
+                return array_merge($botSettings, $subscriberSettings);
+            }
+        );
+    }
+
+    public function effectiveLanguage(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->language
+                ?? $this->bot->settings['language']
+                ?? config('app.locale')
+        );
+    }
+
     public function bot(): BelongsTo
     {
         return $this->belongsTo(Bot::class);
@@ -46,7 +67,7 @@ class BotSubscriber extends Model
 
     public function conversations(): HasMany
     {
-        return $this->hasMany(Conversation::class);
+        return $this->hasMany(Conversation::class, 'bot_subscriber_id');
     }
 
     public function mergedInto(): BelongsTo

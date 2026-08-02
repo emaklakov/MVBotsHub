@@ -9,6 +9,7 @@ use App\MoonShine\Resources\CRM\Person\PersonResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\ID;
+use MoonShine\UI\Fields\Text;
 
 
 /**
@@ -23,6 +24,7 @@ class PersonDetailPage extends BaseDetailPage
     {
         return [
             ID::make(),
+            Text::make('Телефон', 'phone'),
         ];
     }
 }
