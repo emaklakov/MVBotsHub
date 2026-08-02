@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Auth;
 
-use App\Application\Services\User\ActivityLogger;
+use App\Application\Services\Users\ActivityLogger;
 use App\Infrastructure\Notifications\Auth\Email\TwoFactorCodeNotification;
 use Illuminate\Auth\Events\Login;
 

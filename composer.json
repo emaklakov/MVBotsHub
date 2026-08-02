@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.3",
         "ext-pdo": "*",
+        "defstudio/telegraph": "^1.72",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^13.8",
         "laravel/horizon": "^5.48",

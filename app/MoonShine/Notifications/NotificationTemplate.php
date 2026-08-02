@@ -2,7 +2,7 @@
 
 namespace App\MoonShine\Notifications;
 
-use App\Models\User\Enums\NotificationPriority;
+use App\Models\Users\Enums\NotificationPriority;
 use MoonShine\Crud\Notifications\NotificationButton;
 
 final class NotificationTemplate

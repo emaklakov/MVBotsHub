@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\UserLog;
 
-use App\Models\User\UserLog;
+use App\Models\Users\UserLog;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Users\UserLog\Pages\UserLogDetailPage;
 use App\MoonShine\Resources\Users\UserLog\Pages\UserLogIndexPage;

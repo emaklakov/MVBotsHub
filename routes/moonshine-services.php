@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Job\FailedJobMassRetryController;
+use App\Http\Controllers\Jobs\FailedJobMassRetryController;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 

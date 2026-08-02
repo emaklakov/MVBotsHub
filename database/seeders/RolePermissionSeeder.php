@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User\Role;
+use App\Models\Users\Role;
 use Illuminate\Database\Seeder;
 
 class RolePermissionSeeder extends Seeder

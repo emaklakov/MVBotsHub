@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\User\User;
-use App\Models\User\UserLog;
+use App\Models\Users\User;
+use App\Models\Users\UserLog;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserLogPolicy

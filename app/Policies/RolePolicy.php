@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\User\Role;
-use App\Models\User\User;
+use App\Models\Users\Role;
+use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RolePolicy

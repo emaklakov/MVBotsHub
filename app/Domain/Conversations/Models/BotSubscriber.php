@@ -1,0 +1,56 @@
+<?php
+// app/Domain/Conversations/Models/BotSubscriber.php
+
+namespace App\Domain\Conversations\Models;
+
+use App\Domain\Bots\Models\Bot;
+use App\Models\Person;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class BotSubscriber extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'bot_id',
+        'people_id',
+        'telegram_id',
+        'telegram_username',
+        'language',
+        'settings',
+        'status',
+        'merged_into_id',
+        'last_activity_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'settings' => 'array',
+            'last_activity_at' => 'datetime',
+        ];
+    }
+
+    public function bot(): BelongsTo
+    {
+        return $this->belongsTo(Bot::class);
+    }
+
+    public function people(): BelongsTo
+    {
+        return $this->belongsTo(Person::class);
+    }
+
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class);
+    }
+
+    public function mergedInto(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'merged_into_id');
+    }
+}

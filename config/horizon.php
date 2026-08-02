@@ -246,6 +246,9 @@ return [
 
         'local' => [
             'supervisor-1' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'telegram', 'broadcast'],
+                'balance' => 'auto',
                 'maxProcesses' => 3,
             ],
         ],

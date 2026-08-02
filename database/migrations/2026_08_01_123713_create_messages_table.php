@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('messages', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->onDelete('cascade');
+            $table->string('direction', 3); // in / out
+            $table->string('type', 20)->default('text'); // text, photo, document, voice, contact
+            $table->jsonb('content'); // text, file_id, caption, raw update data
+            $table->unsignedBigInteger('telegram_message_id')->nullable();
+            $table->timestamp('sent_at')->nullable();
+            $table->timestamps();
+
+            $table->index(['conversation_id', 'created_at']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('messages');
+    }
+};

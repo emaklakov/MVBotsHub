@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\UserSetting\Pages;
 
-use App\Models\User\UserSetting;
+use App\Models\Users\UserSetting;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\Users\User\UserResource;
 use App\MoonShine\Resources\Users\UserSetting\UserSettingResource;

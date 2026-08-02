@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\User\Session;
-use App\Models\User\User;
+use App\Models\Users\Session;
+use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class SessionPolicy

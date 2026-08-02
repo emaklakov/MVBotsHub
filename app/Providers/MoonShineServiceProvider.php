@@ -7,6 +7,9 @@ namespace App\Providers;
 use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
 use App\MoonShine\Resources\Jobs\Job\JobResource;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
+use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
+use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
+use App\MoonShine\Resources\Telegram\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Users\Notification\NotificationResource;
 use App\MoonShine\Resources\Users\Permission\PermissionResource;
 use App\MoonShine\Resources\Users\Role\RoleResource;
@@ -37,6 +40,9 @@ class MoonShineServiceProvider extends ServiceProvider
                 JobResource::class,
                 FailedJobResource::class,
                 NotificationResource::class,
+                BotResource::class,
+                BotSubscriberResource::class,
+                BotMemberResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

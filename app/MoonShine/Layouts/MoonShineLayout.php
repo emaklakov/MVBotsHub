@@ -4,19 +4,25 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
-use App\Models\Job\FailedJob;
-use App\Models\Job\Job;
-use App\Models\Job\JobLog;
-use App\Models\User\Notification;
-use App\Models\User\Role;
-use App\Models\User\Session;
-use App\Models\User\User;
-use App\Models\User\UserLog;
-use App\Models\User\UserSetting;
+use App\Domain\Bots\Models\Bot;
+use App\Domain\Bots\Models\BotMember;
+use App\Domain\Conversations\Models\BotSubscriber;
+use App\Models\Jobs\FailedJob;
+use App\Models\Jobs\Job;
+use App\Models\Jobs\JobLog;
+use App\Models\Users\Notification;
+use App\Models\Users\Role;
+use App\Models\Users\Session;
+use App\Models\Users\User;
+use App\Models\Users\UserLog;
+use App\Models\Users\UserSetting;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
 use App\MoonShine\Resources\Jobs\Job\JobResource;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
+use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
+use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
+use App\MoonShine\Resources\Telegram\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Users\Notification\NotificationResource;
 use App\MoonShine\Resources\Users\Permission\PermissionResource;
 use App\MoonShine\Resources\Users\Role\RoleResource;
@@ -111,32 +117,41 @@ final class MoonShineLayout extends AppLayout
             //...parent::menu(),
             MenuGroup::make('Пользователи', [
                 MenuItem::make(UserResource::class,'Пользователи', 'users')
-                    ->canSee(fn () => Gate::allows('viewAny', User::class)),
+                    ->canSee(fn () => Gate::allows('view', User::class)),
                 MenuItem::make(RoleResource::class,'Роли', 'shield-exclamation')
-                    ->canSee(fn () => Gate::allows('viewAny', Role::class)),
+                    ->canSee(fn () => Gate::allows('view', Role::class)),
                 MenuItem::make(PermissionResource::class,'Разрешения', 'shield-check')
-                    ->canSee(fn () => Gate::allows('viewAny', Permission::class)),
+                    ->canSee(fn () => Gate::allows('view', Permission::class)),
                 MenuItem::make(SessionResource::class,'Сессии', 'arrow-right-end-on-rectangle')
-                    ->canSee(fn () => Gate::allows('viewAny', Session::class)),
+                    ->canSee(fn () => Gate::allows('view', Session::class)),
                 MenuItem::make(UserLogResource::class, 'Логи действий')
                     ->icon('shoe-prints', path: 'icons')
-                    ->canSee(fn () => Gate::allows('viewAny', UserLog::class)),
+                    ->canSee(fn () => Gate::allows('view', UserLog::class)),
                 MenuItem::make(UserSettingResource::class, 'Настройки пользователей', 'cog-8-tooth')
-                    ->canSee(fn () => Gate::allows('viewAny', UserSetting::class)),
+                    ->canSee(fn () => Gate::allows('view', UserSetting::class)),
                 MenuItem::make(NotificationResource::class, 'Уведомления', 'bell-alert')
-                    ->canSee(fn () => Gate::allows('viewAny', Notification::class)),
+                    ->canSee(fn () => Gate::allows('view', Notification::class)),
             ], 'user-group'),
             MenuGroup::make('Система', [
 
             ], 'cpu-chip'),
-            MenuGroup::make('Очередь', [
-                MenuItem::make(JobResource::class, 'Журнал очереди', 'square-3-stack-3d')
-                    ->canSee(fn () => Gate::allows('viewAny', Job::class)),
+            MenuGroup::make('Очереди', [
+                MenuItem::make(JobResource::class, 'Журнал очередей', 'square-3-stack-3d')
+                    ->canSee(fn () => Gate::allows('view', Job::class)),
                 MenuItem::make(FailedJobResource::class, 'Задачи с ошибками', 'exclamation-triangle')
-                    ->canSee(fn () => Gate::allows('viewAny', FailedJob::class)),
-                MenuItem::make(JobLogResource::class, 'Логи очереди', 'rectangle-stack')
-                    ->canSee(fn () => Gate::allows('viewAny', JobLog::class)),
+                    ->canSee(fn () => Gate::allows('view', FailedJob::class)),
+                MenuItem::make(JobLogResource::class, 'Логи очередей', 'rectangle-stack')
+                    ->canSee(fn () => Gate::allows('view', JobLog::class)),
             ], 'square-3-stack-3d'),
+            MenuGroup::make('Telegram', [
+                MenuItem::make(BotResource::class, 'Боты')->icon('robot', path: 'icons')
+                    ->canSee(fn () => Gate::allows('view', Bot::class)),
+                MenuItem::make(BotMemberResource::class, 'Доступы к ботам')
+                    ->icon('eye-low-vision', path: 'icons')
+                    ->canSee(fn () => Gate::allows('view', BotMember::class)),
+                MenuItem::make(BotSubscriberResource::class, 'Пользователи бота', 'user-group')
+                    ->canSee(fn () => Gate::allows('view', BotSubscriber::class)),
+            ])->icon('telegram', path: 'icons'),
         ];
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User\Role;
+use App\Models\Users\Role;
 use App\MoonShine\Contracts\Notifications\EnhancedMoonShineNotificationContract;
 use Illuminate\Console\Command;
 

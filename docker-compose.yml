@@ -1,0 +1,75 @@
+# docker-compose.yml
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: mvbots_app
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        networks:
+            - mvbots
+        depends_on:
+            - pgsql
+            - redis
+
+    pgsql:
+        image: postgres:18-alpine
+        container_name: mvbots_pgsql
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: mvbots
+            POSTGRES_USER: mvbots
+            POSTGRES_PASSWORD: secret
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+        networks:
+            - mvbots
+
+    redis:
+        image: redis:7-alpine
+        container_name: mvbots_redis
+        restart: unless-stopped
+        networks:
+            - mvbots
+
+    nginx:
+        image: nginx:alpine
+        container_name: mvbots_nginx
+        restart: unless-stopped
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - mvbots
+        depends_on:
+            - app
+
+    horizon:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: mvbots_horizon
+        restart: unless-stopped
+        working_dir: /var/www
+        command: php artisan horizon
+        volumes:
+            - ./:/var/www
+        networks:
+            - mvbots
+        depends_on:
+            - pgsql
+            - redis
+
+volumes:
+    pgdata:
+
+networks:
+    mvbots:
+        driver: bridge
