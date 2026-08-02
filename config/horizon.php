@@ -232,7 +232,7 @@ return [
             ],
             'default' => [
                 'connection' => 'redis',
-                'queue' => ['default'],
+                'queue' => ['default', 'notifications', 'emails'],
                 'balance' => 'simple',
                 'minProcesses' => 1,
                 'maxProcesses' => 3,
@@ -247,7 +247,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default', 'telegram', 'broadcast'],
+                'queue' => ['default', 'telegram', 'broadcast', 'notifications', 'emails'],
                 'balance' => 'auto',
                 'maxProcesses' => 3,
             ],

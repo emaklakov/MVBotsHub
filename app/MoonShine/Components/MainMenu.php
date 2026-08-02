@@ -60,8 +60,11 @@ class MainMenu
 
             ], 'cpu-chip'),
             MenuGroup::make('Очереди', [
-                MenuItem::make(JobResource::class, 'Журнал очередей', 'square-3-stack-3d')
+                MenuItem::make(JobResource::class, 'Журнал очередей DB', 'square-3-stack-3d')
                     ->canSee(fn () => Gate::allows('view', Job::class)),
+                MenuItem::make(url('/horizon'), 'Horizon (Очереди Redis)')
+                    ->blank()->icon('grip', path: 'icons')
+                    ->canSee(fn () => \Auth::user()->hasRole('admin') || \Auth::user()->hasRole('super-admin')),
                 MenuItem::make(FailedJobResource::class, 'Задачи с ошибками', 'exclamation-triangle')
                     ->canSee(fn () => Gate::allows('view', FailedJob::class)),
                 MenuItem::make(JobLogResource::class, 'Логи очередей', 'rectangle-stack')
