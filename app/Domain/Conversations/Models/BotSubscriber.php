@@ -17,7 +17,7 @@ class BotSubscriber extends Model
 
     protected $fillable = [
         'bot_id',
-        'people_id',
+        'person_id',
         'telegram_id',
         'telegram_username',
         'language',

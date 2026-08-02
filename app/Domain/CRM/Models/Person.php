@@ -14,6 +14,6 @@ class Person extends Model
 
     public function subscribers()
     {
-        return $this->hasMany(BotSubscriber::class, 'people_id');
+        return $this->hasMany(BotSubscriber::class, 'person_id');
     }
 }

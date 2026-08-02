@@ -21,9 +21,9 @@ class PhoneMergeService
                 ['language' => $bot->settings['language'] ?? config('app.locale')]
             );
 
-            // 2. Ищем старого подписчика этого бота с тем же people_id
+            // 2. Ищем старого подписчика этого бота с тем же person_id
             $oldSubscriber = BotSubscriber::where('bot_id', $bot->id)
-                ->where('people_id', $people->id)
+                ->where('person_id', $people->id)
                 ->where('id', '!=', $newSubscriber->id)
                 ->first();
 
@@ -69,7 +69,7 @@ class PhoneMergeService
             }
 
             // Привязываем people
-            $newSubscriber->people_id = $people->id;
+            $newSubscriber->person_id = $people->id;
             $newSubscriber->save();
 
             // СЕССИЮ НЕ ПЕРЕНОСИМ — сбрасываем в начало

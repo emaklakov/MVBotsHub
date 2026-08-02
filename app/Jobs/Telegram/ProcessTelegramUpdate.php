@@ -90,8 +90,8 @@ class ProcessTelegramUpdate implements ShouldQueue
             $type = 'text';
             $content = ['text' => $message['text']];
 
-            // /start без people_id → запрашиваем контакт
-            if ($message['text'] === '/start' && is_null($subscriber->people_id)) {
+            // /start без person_id → запрашиваем контакт
+            if ($message['text'] === '/start' && is_null($subscriber->person_id)) {
                 SendContactRequest::dispatch($this->bot, $subscriber->telegram_id)
                     ->onQueue('telegram');
 
