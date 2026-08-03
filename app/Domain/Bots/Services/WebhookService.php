@@ -2,6 +2,7 @@
 
 namespace App\Domain\Bots\Services;
 
+use App\Application\Services\LogService;
 use App\Domain\Bots\Models\Bot;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Models\TelegraphBot;
@@ -11,6 +12,15 @@ use Illuminate\Support\Str;
 
 class WebhookService
 {
+    /** Максимально допустимое количество одновременных подключений к веб-хуку (по умолчанию 40). */
+    private const MAX_CONNECTIONS = 40;
+
+    /**
+     * Регистрация вебхука на СВОЁМ URL (route('telegram.webhook', ...)).
+     * Telegraph::registerWebhook() тут не подходит: он всегда строит URL
+     * через собственный роут пакета 'telegraph.webhook' (/telegraph/{token}/webhook),
+     * который в проекте не используется — поэтому вызываем Bot API напрямую.
+     */
     public function register(Bot $bot): bool
     {
         try {
@@ -18,37 +28,28 @@ class WebhookService
             $webhookToken = Str::random(32); // публичный ID для URL
 
             $webhookUrl = route('telegram.webhook', ['bot' => $webhookToken]);
-            $dropPendingUpdates = false; // удаляет ожидающие обновления из Telegram
-            $maxConnections = 40; // Максимально допустимое количество одновременных подключений к веб-перехватчику (по умолчанию 40).
 
             $response = Http::post("https://api.telegram.org/bot{$bot->token}/setWebhook", [
                 'url' => $webhookUrl,
                 'secret_token' => $secretToken,
-                'drop_pending_updates' => $dropPendingUpdates,
-                'max_connections' => $maxConnections,
+                'drop_pending_updates' => false, // удаляет ожидающие обновления из Telegram
+                'max_connections' => config('services.telegram.max_connections', self::MAX_CONNECTIONS),
             ]);
 
-            if ($response->json('ok') === true) {
-                $bot->update([
-                    'webhook_token' => $webhookToken,
-                    'webhook_url' => $webhookUrl,
-                    'webhook_secret_token' => $secretToken,
-                ]);
-                return true;
-            } else {
-                Log::error('Ошибка - App\Domain\Bots\Services\WebhookService::register', [
-                    'status' => strval($response->status()),
-                    'json' => $response->json(),
-                ]);
+            if ($response->json('ok') !== true) {
+                LogService::logError('status: '.strval($response->status()), $response->json());
+                return false;
             }
 
-            return false;
-        } catch (\Exception $exception) {
-            Log::error('Ошибка - App\Domain\Bots\Services\WebhookService::register', [
-                'message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
+            $bot->update([
+                'webhook_token' => $webhookToken,
+                'webhook_url' => $webhookUrl,
+                'webhook_secret_token' => $secretToken,
             ]);
 
+            return true;
+        } catch (\Throwable $exception) {
+            LogService::logError($exception->getMessage(), $exception->getTraceAsString());
             return false;
         }
     }
@@ -62,27 +63,20 @@ class WebhookService
                 ->unregisterWebhook($dropPendingUpdates)
                 ->send();
 
-            if ($response->telegraphOk()) {
-                $bot->update([
-                    'webhook_token' => null,
-                    'webhook_url' => null,
-                    'webhook_secret_token' => null,
-                ]);
-                return true;
-            } else {
-                Log::error('Ошибка - App\Domain\Bots\Services\WebhookService::register', [
-                    'status' => strval($response->status()),
-                    'json' => $response->json(),
-                ]);
+            if (!$response->telegraphOk()) {
+                LogService::logError('status: '.strval($response->status()), $response->json());
+                return false;
             }
 
-            return false;
-        } catch (\Exception $exception) {
-            Log::error('Ошибка - App\Domain\Bots\Services\WebhookService::register', [
-                'message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
+            $bot->update([
+                'webhook_token' => null,
+                'webhook_url' => null,
+                'webhook_secret_token' => null,
             ]);
 
+            return true;
+        } catch (\Throwable $exception) {
+            LogService::logError($exception->getMessage(), $exception->getTraceAsString());
             return false;
         }
     }

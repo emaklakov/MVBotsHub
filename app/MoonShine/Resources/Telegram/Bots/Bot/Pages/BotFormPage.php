@@ -43,10 +43,8 @@ class BotFormPage extends BaseFormPage
                     ->required(),
                 Text::make('Название бота', 'name'),
                 Textarea::make('Описание', 'description'),
-                Preview::make('Статус токена', 'bot_token_status', fn($item) => !empty($item->token)
-                    ? 'Установлен (••••' . substr($item->token, -4) . ')'
-                    : 'Не задан'
-                )->badge(fn($value) => !empty($value) ? 'green' : 'gray'),
+                Preview::make('Статус токена', 'bot_token_status', fn($item) => $item->maskedTokenPreview())
+                    ->badge(fn($value) => $value == 'set' ? 'green' : 'gray'),
                 Password::make('Токен Бота', 'token')
                     ->raw(true)
                     ->placeholder('123456:ABC-DEF...')

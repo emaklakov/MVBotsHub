@@ -3,6 +3,7 @@
 
 namespace App\Domain\Bots\Models;
 
+use App\Application\Services\LogService;
 use App\Domain\Bots\Enums\BotChannelType;
 use App\Domain\Bots\Enums\BotStatus;
 use App\Domain\Bots\Enums\WebhookStatus;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 
 class Bot extends Model
 {
@@ -46,7 +48,7 @@ class Bot extends Model
     protected function botTokenStatus(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->token,
+            get: fn () => !empty($this->token) ? 'set' : 'not_set',
         );
     }
 
@@ -58,14 +60,40 @@ class Bot extends Model
     }
 
     /**
-     * Автоматическое шифрование/дешифрование токена
+     * Автоматическое шифрование/дешифрование токена.
+     * Расшифровка защищена от исключений (например, при ротации APP_KEY
+     * или повреждении данных), чтобы не ронять страницу списка/формы бота.
      */
     protected function token(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? Crypt::decryptString($value) : null,
+            get: function (?string $value) {
+                if (!$value) {
+                    return null;
+                }
+
+                try {
+                    return Crypt::decryptString($value);
+                } catch (\Throwable $exception) {
+                    LogService::logError('Не удалось расшифровать токен бота bot_id:'.$this->id.' - '.$exception->getMessage(), $exception->getTraceAsString());
+                    return null;
+                }
+            },
             set: fn (?string $value) => $value ? Crypt::encryptString($value) : null,
         );
+    }
+
+    /**
+     * Безопасное превью токена для UI: последние 4 символа + статус.
+     * Не выбрасывает исключение, если токен не расшифровывается.
+     */
+    public function maskedTokenPreview(): string
+    {
+        $token = $this->token;
+
+        return $token
+            ? 'Установлен (••••' . substr($token, -4) . ')'
+            : 'Не задан';
     }
 
     public function getRouteKeyName(): string

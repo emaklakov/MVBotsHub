@@ -11,9 +11,9 @@ class WebhookController
 {
     public function handle(Request $request, Bot $bot): JsonResponse
     {
-        // 1. Проверяем секретный токен
-        $secret = $request->header('X-Telegram-Bot-Api-Secret-Token');
-        if ($secret !== $bot->webhook_secret_token) {
+        // 1. Проверяем секретный токен (сравнение, устойчивое к timing-атакам)
+        $secret = (string) $request->header('X-Telegram-Bot-Api-Secret-Token');
+        if (!$bot->webhook_secret_token || !hash_equals((string) $bot->webhook_secret_token, $secret)) {
             return response()->json(['ok' => false], 403);
         }
 

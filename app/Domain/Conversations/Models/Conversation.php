@@ -2,6 +2,7 @@
 
 namespace App\Domain\Conversations\Models;
 
+use App\Domain\Conversations\Enums\ConversationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,7 @@ class Conversation extends Model
     {
         return [
             'context' => 'array',
+            'status' => ConversationStatus::class,
         ];
     }
 

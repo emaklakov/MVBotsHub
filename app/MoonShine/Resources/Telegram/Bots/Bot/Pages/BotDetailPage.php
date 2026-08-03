@@ -48,10 +48,8 @@ class BotDetailPage extends BaseDetailPage
             Text::make('Название бота', 'name'),
             Textarea::make('Описание', 'description'),
             Enum::make('Статус', 'status')->attach(BotStatus::class),
-            Preview::make('Статус токена', 'bot_token_status', fn($item) => !empty($item->token)
-                ? 'Установлен (••••' . substr($item->token, -4) . ')'
-                : 'Не задан'
-            )->badge(fn($value) => !empty($value) ? 'green' : 'gray'),
+            Preview::make('Статус токена', 'bot_token_status', fn($item) => $item->maskedTokenPreview())
+                ->badge(fn($value) => $value == 'set' ? 'green' : 'gray'),
             Enum::make('Webhook', 'webhook_status')->attach(WebhookStatus::class),
             Json::make('Настройки', 'settings')->fields([
                 Position::make(),

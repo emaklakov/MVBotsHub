@@ -4,6 +4,7 @@
 namespace App\Domain\Conversations\Models;
 
 use App\Domain\Bots\Models\Bot;
+use App\Domain\Conversations\Enums\SubscriberStatus;
 use App\Domain\CRM\Models\Person;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +32,7 @@ class BotSubscriber extends Model
     {
         return [
             'settings' => 'array',
+            'status' => SubscriberStatus::class,
             'last_activity_at' => 'datetime',
         ];
     }

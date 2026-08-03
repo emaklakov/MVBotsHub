@@ -3,7 +3,10 @@
 
 namespace App\Jobs\Telegram;
 
+use App\Application\Services\LogService;
 use App\Domain\Bots\Models\Bot;
+use App\Domain\Conversations\Enums\ConversationStatus;
+use App\Domain\Conversations\Enums\SubscriberStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Models\Message;
@@ -49,71 +52,46 @@ class ProcessTelegramUpdate implements ShouldQueue
         }
     }
 
+    /**
+     * Вызывается очередью, если задание провалилось на всех попытках ($tries).
+     */
+    public function failed(\Throwable $exception): void
+    {
+        $trace = [
+            'bot_id' => $this->bot->id,
+            'update_id' => $this->update['update_id'] ?? null,
+            'message' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+        ];
+
+        LogService::logError('Не удалось обработать update от Telegram', $trace);
+    }
+
     private function handleMessage(array $message): void
     {
-        $from = $message['from'] ?? [];
-        $telegramId = $from['id'] ?? null;
-        $username = $from['username'] ?? null;
+        $telegramId = $message['from']['id'] ?? null;
 
         if (!$telegramId) {
             return;
         }
 
-        $subscriber = BotSubscriber::firstOrCreate(
-            ['bot_id' => $this->bot->id, 'telegram_id' => $telegramId],
-            [
-                'telegram_username' => $username,
-                'status' => 'active',
-                'settings' => [],
-                'language' => $this->bot->settings['language'] ?? config('app.locale'),
-            ]
-        );
-
+        $subscriber = $this->resolveSubscriber($telegramId, $message['from']['username'] ?? null);
         $subscriber->update(['last_activity_at' => now()]);
 
-        // Обработка контакта
         if (isset($message['contact'])) {
             $this->handleContact($subscriber, $message['contact']);
             return;
         }
 
-        // Conversation
-        $conversation = Conversation::firstOrCreate(
-            ['bot_subscriber_id' => $subscriber->id, 'status' => 'active'],
-            ['bot_id' => $this->bot->id, 'context' => []]
-        );
+        $conversation = $this->resolveActiveConversation($subscriber);
 
-        $type = 'text';
-        $content = [];
-
-        if (isset($message['text'])) {
-            $type = 'text';
-            $content = ['text' => $message['text']];
-
-            // /start без person_id → запрашиваем контакт
-            if ($message['text'] === '/start' && is_null($subscriber->person_id)) {
-                SendContactRequest::dispatch($this->bot, $subscriber->telegram_id)
-                    ->onQueue('telegram');
-
-                Message::create([
-                    'conversation_id' => $conversation->id,
-                    'direction' => 'in',
-                    'type' => 'text',
-                    'content' => ['text' => '/start'],
-                    'telegram_message_id' => $message['message_id'] ?? null,
-                ]);
-                return;
-            }
-        } elseif (isset($message['photo'])) {
-            $type = 'photo';
-            $content = ['file_id' => $message['photo'][array_key_last($message['photo'])]['file_id'] ?? null];
-        } elseif (isset($message['document'])) {
-            $type = 'document';
-            $content = ['file_id' => $message['document']['file_id']];
-        } elseif (isset($message['voice'])) {
-            $type = 'voice';
-            $content = ['file_id' => $message['voice']['file_id']];
+        // /start без привязанного person_id → запрашиваем контакт
+        if (($message['text'] ?? null) === '/start' && is_null($subscriber->person_id)) {
+            $this->requestContact($subscriber, $conversation, $message);
+            return;
         }
+
+        [$type, $content] = $this->extractMessageContent($message);
 
         Message::create([
             'conversation_id' => $conversation->id,
@@ -123,15 +101,80 @@ class ProcessTelegramUpdate implements ShouldQueue
             'telegram_message_id' => $message['message_id'] ?? null,
         ]);
 
-        // Echo
         if ($type === 'text') {
-            SendTelegramMessage::dispatch(
-                $this->bot,
-                $subscriber->telegram_id,
-                "Echo: " . $content['text'],
-                $conversation->id
-            )->onQueue('telegram');
+            $this->echoTextMessage($subscriber, $conversation, $content['text']);
         }
+    }
+
+    private function resolveSubscriber(int $telegramId, ?string $username): BotSubscriber
+    {
+        return BotSubscriber::firstOrCreate(
+            ['bot_id' => $this->bot->id, 'telegram_id' => $telegramId],
+            [
+                'telegram_username' => $username,
+                'status' => SubscriberStatus::ACTIVE,
+                'settings' => [],
+                'language' => $this->bot->settings['language'] ?? config('app.locale'),
+            ]
+        );
+    }
+
+    private function resolveActiveConversation(BotSubscriber $subscriber): Conversation
+    {
+        return Conversation::firstOrCreate(
+            ['bot_subscriber_id' => $subscriber->id, 'status' => ConversationStatus::ACTIVE],
+            ['bot_id' => $this->bot->id, 'context' => []]
+        );
+    }
+
+    /**
+     * Определяет тип и содержимое входящего сообщения.
+     *
+     * @return array{0: string, 1: array}
+     */
+    private function extractMessageContent(array $message): array
+    {
+        if (isset($message['text'])) {
+            return ['text', ['text' => $message['text']]];
+        }
+
+        if (isset($message['photo'])) {
+            return ['photo', ['file_id' => $message['photo'][array_key_last($message['photo'])]['file_id'] ?? null]];
+        }
+
+        if (isset($message['document'])) {
+            return ['document', ['file_id' => $message['document']['file_id']]];
+        }
+
+        if (isset($message['voice'])) {
+            return ['voice', ['file_id' => $message['voice']['file_id']]];
+        }
+
+        return ['text', ['text' => '']];
+    }
+
+    private function requestContact(BotSubscriber $subscriber, Conversation $conversation, array $message): void
+    {
+        SendContactRequest::dispatch($this->bot, $subscriber->telegram_id)
+            ->onQueue('telegram');
+
+        Message::create([
+            'conversation_id' => $conversation->id,
+            'direction' => 'in',
+            'type' => 'text',
+            'content' => ['text' => '/start'],
+            'telegram_message_id' => $message['message_id'] ?? null,
+        ]);
+    }
+
+    private function echoTextMessage(BotSubscriber $subscriber, Conversation $conversation, string $text): void
+    {
+        SendTelegramMessage::dispatch(
+            $this->bot,
+            $subscriber->telegram_id,
+            "Echo: {$text}",
+            $conversation->id
+        )->onQueue('telegram');
     }
 
     private function handleContact(BotSubscriber $subscriber, array $contact): void
@@ -141,10 +184,8 @@ class ProcessTelegramUpdate implements ShouldQueue
             return;
         }
 
-        $mergeService = app(PhoneMergeService::class);
-        $mergeService->merge($subscriber, $phone, $this->bot);
+        app(PhoneMergeService::class)->merge($subscriber, $phone, $this->bot);
 
-        // Приветствие после успешного merge
         $welcomeText = $this->bot->settings['welcome_message']
             ?? 'Добро пожаловать! Вы успешно авторизованы.';
 
@@ -152,7 +193,7 @@ class ProcessTelegramUpdate implements ShouldQueue
         $conversation = Conversation::create([
             'bot_subscriber_id' => $subscriber->id,
             'bot_id' => $this->bot->id,
-            'status' => 'active',
+            'status' => ConversationStatus::ACTIVE,
             'context' => [],
         ]);
 

@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Application\Services;
+
+use Illuminate\Support\Facades\Log;
+
+class LogService
+{
+    public static function logError($message, $trace = null): void
+    {
+        $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
+
+        $location = isset($caller['class'])
+            ? "{$caller['class']}::{$caller['function']}"
+            : $caller['function'];
+
+        Log::error("Error in {$location} {$caller['file']}:{$caller['line']}", [
+            'message' => json_encode($message),
+            'trace' => json_encode($trace),
+        ]);
+    }
+}

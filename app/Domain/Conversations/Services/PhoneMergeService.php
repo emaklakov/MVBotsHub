@@ -3,6 +3,8 @@
 namespace App\Domain\Conversations\Services;
 
 use App\Domain\Bots\Models\Bot;
+use App\Domain\Conversations\Enums\ConversationStatus;
+use App\Domain\Conversations\Enums\SubscriberStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Models\Message;
@@ -15,16 +17,21 @@ class PhoneMergeService
     public function merge(BotSubscriber $newSubscriber, string $phone, Bot $bot): void
     {
         DB::transaction(function () use ($newSubscriber, $phone, $bot) {
-            // 1. Найти или создать People
-            $people = Person::firstOrCreate(
-                ['phone' => $phone],
-                ['language' => $bot->settings['language'] ?? config('app.locale')]
-            );
+            // 1. Найти или создать Person (с блокировкой строки на время транзакции)
+            $person = Person::where('phone', $phone)->lockForUpdate()->first();
 
-            // 2. Ищем старого подписчика этого бота с тем же person_id
+            if (!$person) {
+                $person = Person::create([
+                    'phone' => $phone,
+                    'language' => $bot->settings['language'] ?? config('app.locale'),
+                ]);
+            }
+
+            // 2. Ищем старого подписчика этого бота с тем же person_id, с блокировкой строки
             $oldSubscriber = BotSubscriber::where('bot_id', $bot->id)
-                ->where('person_id', $people->id)
+                ->where('person_id', $person->id)
                 ->where('id', '!=', $newSubscriber->id)
+                ->lockForUpdate()
                 ->first();
 
             if ($oldSubscriber) {
@@ -35,7 +42,7 @@ class PhoneMergeService
                     $newConv = Conversation::create([
                         'bot_subscriber_id' => $newSubscriber->id,
                         'bot_id' => $bot->id,
-                        'status' => 'closed', // старые диалоги закрываем
+                        'status' => ConversationStatus::CLOSED, // старые диалоги закрываем
                         'context' => [],
                     ]);
 
@@ -47,11 +54,11 @@ class PhoneMergeService
 
                 // Переносим настройки и язык
                 $newSubscriber->settings = $oldSubscriber->settings;
-                $newSubscriber->language = $oldSubscriber->language ?? $people->language;
+                $newSubscriber->language = $oldSubscriber->language ?? $person->language;
 
                 // Старый подписчик → merged
                 $oldSubscriber->update([
-                    'status' => 'merged',
+                    'status' => SubscriberStatus::MERGED,
                     'merged_into_id' => $newSubscriber->id,
                 ]);
 
@@ -63,20 +70,20 @@ class PhoneMergeService
                 ]);
             } else {
                 // Новый people — язык из people или бота
-                $newSubscriber->language = $people->language
+                $newSubscriber->language = $person->language
                     ?? $bot->settings['language']
                     ?? config('app.locale');
             }
 
             // Привязываем people
-            $newSubscriber->person_id = $people->id;
+            $newSubscriber->person_id = $person->id;
             $newSubscriber->save();
 
             // СЕССИЮ НЕ ПЕРЕНОСИМ — сбрасываем в начало
             // Закрываем текущую активную conversation
             Conversation::where('bot_subscriber_id', $newSubscriber->id)
-                ->where('status', 'active')
-                ->update(['status' => 'closed']);
+                ->where('status', ConversationStatus::ACTIVE)
+                ->update(['status' => ConversationStatus::CLOSED]);
         });
     }
 }

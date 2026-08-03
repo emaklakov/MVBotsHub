@@ -35,4 +35,7 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'max_connections' => env('TELEGRAM_MAX_CONNECTIONS'),
+    ]
 ];

@@ -6,6 +6,7 @@ namespace App\MoonShine\Resources\Telegram\Bots\BotMember\Pages;
 
 use App\Domain\Bots\Enums\BotMemberRole;
 use App\MoonShine\Resources\Base\BaseIndexPage;
+use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
 use App\MoonShine\Resources\Users\User\UserResource;
 use MoonShine\Contracts\UI\ActionButtonContract;
@@ -31,7 +32,7 @@ class BotMemberIndexPage extends BaseIndexPage
     {
         return [
             ID::make(),
-            BelongsTo::make('Бот', 'bot', resource: UserResource::class, formatted: 'username'),
+            BelongsTo::make('Бот', 'bot', resource: BotResource::class, formatted: 'username'),
             Enum::make('Роль', 'role')->attach(BotMemberRole::class),
             BelongsTo::make('Пользователь', 'user', resource: UserResource::class, formatted: 'email'),
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')->format('d.m.Y H:i:s'),
@@ -47,7 +48,7 @@ class BotMemberIndexPage extends BaseIndexPage
     protected function filters(): iterable
     {
         return [
-            BelongsTo::make('Бот', 'bot', resource: UserResource::class, formatted: 'username')->nullable(),
+            BelongsTo::make('Бот', 'bot', resource: BotResource::class, formatted: 'username')->nullable(),
             Enum::make('Роль', 'role')->attach(BotMemberRole::class)->nullable(),
             BelongsTo::make('Пользователь', 'user', resource: UserResource::class, formatted: 'email')->nullable(),
             BelongsTo::make('Кто создал', 'createdBy', resource: UserResource::class, formatted: 'email')->nullable(),
