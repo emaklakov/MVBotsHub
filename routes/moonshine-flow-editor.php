@@ -1,18 +1,19 @@
 <?php
 
 use App\Http\Controllers\Api\Flows\FlowEditorController;
+use App\MoonShine\Pages\Admin\Flows\FlowEditor;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('flow-editor')
     ->middleware(['web', 'auth:' . config('moonshine.auth.guard', 'moonshine')])
     ->group(function () {
-        Route::get('bots/{bot:id}/flows/{flow}/editor', function ($bot, $flow) {
+        Route::get('bots/{bot:id}/flows/{flow}/editor', function ($bot, $flow, FlowEditor $page) {
             $manifest = json_decode(file_get_contents(public_path('build-flow-editor/.vite/manifest.json')), true);
 
             $js = $manifest['src/main.ts']['file'] ?? 'assets/main.js';
             $css = $manifest['src/main.ts']['css'][0] ?? 'assets/main.css';
 
-            return view('flows.flow-editor', compact('bot', 'flow', 'js', 'css'));
+            return $page->setBot($bot)->setFlow($flow)->setJs($js)->setCss($css);
         })->name('flow.editor');
 
         // API для работы редактора схем

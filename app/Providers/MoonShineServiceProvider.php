@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\MoonShine\Pages\Admin\Flows\FlowEditor;
 use App\MoonShine\Resources\CRM\Person\PersonResource;
 use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
 use App\MoonShine\Resources\Jobs\Job\JobResource;
@@ -56,6 +57,7 @@ class MoonShineServiceProvider extends ServiceProvider
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),
+                FlowEditor::class,
             ])
         ;
     }
