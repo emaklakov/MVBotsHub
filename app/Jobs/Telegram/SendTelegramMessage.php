@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Telegram;
 
+use App\Application\Services\LogService;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Models\Message;
 use DefStudio\Telegraph\Facades\Telegraph;
@@ -71,14 +72,14 @@ class SendTelegramMessage implements ShouldQueue
                 return;
             }
 
-            Log::error('Telegram API error', [
+            LogService::logError('Telegram API error', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
             throw $e;
 
-        } catch (\Exception $e) {
-            Log::error('Send message failed', [
+        } catch (\Throwable $e) {
+            LogService::logError('Send message failed', [
                 'bot_id' => $this->bot->id,
                 'chat_id' => $this->chatId,
                 'error' => $e->getMessage(),

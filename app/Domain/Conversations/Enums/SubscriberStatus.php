@@ -16,4 +16,22 @@ enum SubscriberStatus: string
             self::MERGED => 'Объединён',
         };
     }
+
+    public function getColor(): ?string
+    {
+        return match ($this) {
+            self::ACTIVE => 'green',
+            self::BLOCKED => 'red',
+            self::MERGED => 'yellow',
+        };
+    }
+
+    public function getIcon(): ?string
+    {
+        return match ($this) {
+            self::ACTIVE => 'play-circle',
+            self::BLOCKED => 'stop-circle',
+            self::MERGED => 'x-circle',
+        };
+    }
 }

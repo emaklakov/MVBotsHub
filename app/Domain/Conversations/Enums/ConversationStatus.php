@@ -14,4 +14,20 @@ enum ConversationStatus: string
             self::CLOSED => 'Закрыт',
         };
     }
+
+    public function getColor(): ?string
+    {
+        return match ($this) {
+            self::ACTIVE => 'green',
+            self::CLOSED => 'red',
+        };
+    }
+
+    public function getIcon(): ?string
+    {
+        return match ($this) {
+            self::ACTIVE => 'play-circle',
+            self::CLOSED => 'x-circle',
+        };
+    }
 }

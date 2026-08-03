@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Telegram\Conversations\Conversation\Pages;
 
+use App\Domain\Conversations\Enums\ConversationStatus;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\Date;
+use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Json;
 use MoonShine\UI\Fields\Preview;
@@ -33,9 +35,12 @@ class ConversationDetailPage extends BaseDetailPage
                 ?? $item->subscriber?->telegram_id
                 ?? '—'
             ),
-            Text::make('Status'),
+            Enum::make('Статус', 'status')->attach(ConversationStatus::class),
             Json::make('Context', 'context'),
-            Date::make('Created', 'created_at'),
+            Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
+                ->format('d.m.Y H:i:s'),
+            Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
+                ->format('d.m.Y H:i:s'),
         ];
     }
 }

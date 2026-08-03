@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages;
 
+use App\Domain\Conversations\Enums\SubscriberStatus;
 use App\Domain\CRM\Models\Person;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\CRM\Person\PersonResource;
@@ -13,6 +14,7 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\UI\Fields\Date;
+use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Select;
 use MoonShine\UI\Fields\Text;
@@ -32,17 +34,12 @@ class BotSubscriberIndexPage extends BaseIndexPage
     {
         return [
             ID::make(),
-            BelongsTo::make('Bot', 'bot', resource: BotResource::class),
+            BelongsTo::make('Бот', 'bot', resource: BotResource::class, formatted: 'username'),
             Text::make('Telegram ID', 'telegram_id'),
-            Text::make('Username', 'telegram_username'),
+            Text::make('Имя пользователя', 'telegram_username'),
             BelongsTo::make('Телефон', 'person', resource: PersonResource::class, formatted: 'phone'),
             Text::make('Язык', 'language'),
-            Select::make('Статус', 'status')
-                ->options([
-                    'active' => 'Active',
-                    'blocked' => 'Blocked',
-                    'merged' => 'Merged',
-                ]),
+            Enum::make('Статус', 'status')->attach(SubscriberStatus::class),
             Date::make('Последняя активность', 'last_activity_at')
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
