@@ -14,12 +14,15 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use MoonShine\Laravel\Resources\ModelResource;
+use MoonShine\Support\Enums\PageType;
 
 /**
  * @extends ModelResource<Bot, BotIndexPage, BotFormPage, BotDetailPage>
  */
 class BotResource extends BaseResource
 {
+    protected ?PageType $redirectAfterSave = PageType::DETAIL;
+
     protected string $model = Bot::class;
 
     protected string $title = 'Боты';

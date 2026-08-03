@@ -15,6 +15,7 @@
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^13.8",
         "laravel/horizon": "^5.48",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "moonshine/advanced": "^2.1",
         "moonshine/import-export": "^2.1",

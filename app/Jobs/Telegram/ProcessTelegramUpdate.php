@@ -118,8 +118,6 @@ class ProcessTelegramUpdate implements ShouldQueue
 
         $textInput = $message->text();
 
-        LogService::logInfo($textInput);
-
         // Проверяем активную сессию сценария
         $activeSession = ConversationSession::where('bot_subscriber_id', $this->subscriber->id)
             ->where('status', ConversationSessionStatus::ACTIVE)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Telegram;
 
+use App\Domain\Bots\Enums\BotStatus;
 use App\Domain\Bots\Models\Bot;
 use App\Jobs\Telegram\ProcessTelegramUpdate;
 use Illuminate\Http\JsonResponse;
@@ -11,6 +12,10 @@ class WebhookController
 {
     public function handle(Request $request, Bot $bot): JsonResponse
     {
+        if($bot->status != BotStatus::ACTIVE) {
+            return response()->json(['ok' => false], 404);
+        }
+
         // 1. Проверяем секретный токен (сравнение, устойчивое к timing-атакам)
         $secret = (string) $request->header('X-Telegram-Bot-Api-Secret-Token');
         if (!$bot->webhook_secret_token || !hash_equals((string) $bot->webhook_secret_token, $secret)) {

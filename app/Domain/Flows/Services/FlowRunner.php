@@ -41,7 +41,7 @@ class FlowRunner
             'current_block_id' => $startBlockId,
             'context' => [],
             'status' => ConversationSessionStatus::ACTIVE,
-            'expires_at' => now()->addHours(24),
+            'expires_at' => now()->addHours(24), // Время активности сессии
         ]);
 
         $this->processBlock($session);

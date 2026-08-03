@@ -1,5 +1,4 @@
 <?php
-// routes/notifications-api.php
 
 use App\Http\Controllers\Users\NotificationApiController;
 use Illuminate\Support\Facades\Route;

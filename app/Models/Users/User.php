@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -27,7 +28,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, CanResetPasswordTrait, HasTwoFactorEmailCode;
-    use LogsUserActivity, HasUserSettings;
+    use LogsUserActivity, HasUserSettings, HasApiTokens;
 
     protected string $guard_name = 'moonshine';
 

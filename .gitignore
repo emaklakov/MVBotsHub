@@ -17,6 +17,7 @@
 /auth.json
 /node_modules
 /public/build
+/public/build-flow-editor
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
@@ -24,6 +25,7 @@
 /storage/pail
 /storage/debugbar
 /vendor
+/resources/flow-editor/node_modules
 _ide_helper.php
 Homestead.json
 Homestead.yaml

@@ -64,6 +64,11 @@ class FlowDetailPage extends BaseDetailPage
                 ->icon('upload', path: 'icons')
                 ->canSee(fn(Flow $flow) => $flow->status === FlowStatus::ACTIVE)
                 ->class('py-[10px] ml-4 btn-success'),
+            ActionButton::make('Редактировать', fn($item) => route('flow.editor', ['bot' => $item->bot_id, 'flow' => $item->id]))
+                ->icon('chart-diagram', path: 'icons')
+                ->canSee(fn(Flow $flow) => $flow->status === FlowStatus::DRAFT)
+                ->blank()
+                ->class('py-[10px] ml-4 btn-primary'),
         );
     }
 

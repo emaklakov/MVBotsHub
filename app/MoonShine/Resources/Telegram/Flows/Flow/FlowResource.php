@@ -12,12 +12,15 @@ use App\MoonShine\Resources\Telegram\Flows\Flow\Pages\FlowIndexPage;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Laravel\Resources\ModelResource;
+use MoonShine\Support\Enums\PageType;
 
 /**
  * @extends ModelResource<Flow, FlowIndexPage, FlowFormPage, FlowDetailPage>
  */
 class FlowResource extends BaseResource
 {
+    protected ?PageType $redirectAfterSave = PageType::DETAIL;
+
     protected string $model = Flow::class;
 
     protected string $title = 'Потоки';

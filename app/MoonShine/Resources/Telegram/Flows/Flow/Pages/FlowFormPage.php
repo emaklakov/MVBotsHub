@@ -12,7 +12,6 @@ use App\MoonShine\Resources\Telegram\Flows\Flow\FlowResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\FormPage;
-use MoonShine\Support\Enums\PageType;
 use MoonShine\UI\Components\Layout\Box;
 use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\ID;
@@ -24,8 +23,6 @@ use MoonShine\UI\Fields\Text;
  */
 class FlowFormPage extends BaseFormPage
 {
-    protected ?PageType $redirectAfterSave = PageType::DETAIL;
-
     /**
      * @return FieldContract
      */

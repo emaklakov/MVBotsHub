@@ -18,10 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
             require base_path('routes/moonshine-register.php');
             require base_path('routes/moonshine-services.php');
             require base_path('routes/moonshine-notifications.php');
+            require base_path('routes/moonshine-flow-editor.php');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->api(prepend: [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
