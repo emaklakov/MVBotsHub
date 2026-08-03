@@ -2,6 +2,7 @@
 
 namespace App\Models\Jobs;
 
+use App\Models\Jobs\Enums\JobLogStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,6 +20,7 @@ class JobLog extends Model
         'payload'     => 'array',
         'started_at'  => 'datetime',
         'finished_at' => 'datetime',
+        'status' => JobLogStatus::class
     ];
 
     public function getDurationAttribute(): ?float
@@ -31,11 +33,11 @@ class JobLog extends Model
 
     public function scopeFailed($query)
     {
-        return $query->where('status', 'failed');
+        return $query->where('status', JobLogStatus::FAILED);
     }
 
     public function scopeCompleted($query)
     {
-        return $query->where('status', 'completed');
+        return $query->where('status', JobLogStatus::COMPLETED);
     }
 }

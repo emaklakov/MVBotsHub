@@ -27,6 +27,7 @@ class SendTelegramMessage implements ShouldQueue
         public int|string $chatId,
         public string $text,
         public ?int $conversationId = null,
+        public ?array $replyMarkup = null,
     ) {}
 
     public function middleware(): array
@@ -37,10 +38,18 @@ class SendTelegramMessage implements ShouldQueue
     public function handle(): void
     {
         try {
-            $response = Telegraph::bot($this->bot->token)
+            $telegraph = Telegraph::bot($this->bot->token)
                 ->chat((string) $this->chatId)
-                ->message($this->text)
-                ->send();
+                ->html($this->text);
+
+            if ($this->replyMarkup) {
+                // если $this->replyMarkup — это полный reply_markup вида
+                // ['inline_keyboard' => [...]], достаём саму разметку кнопок;
+                // если это уже голый массив рядов кнопок — используем как есть
+                $telegraph = $telegraph->keyboard($this->replyMarkup['inline_keyboard'] ?? $this->replyMarkup);
+            }
+
+            $response = $telegraph->send();
 
             $telegramMessageId = null;
             if ($response->successful() && $response->json('ok') === true) {
@@ -64,7 +73,7 @@ class SendTelegramMessage implements ShouldQueue
             // Обработка 429 Too Many Requests
             if ($response->status() === 429) {
                 $retryAfter = $response->json('parameters.retry_after', 60);
-                Log::warning('Telegram 429', [
+                LogService::logWarning('Telegram 429', [
                     'bot_id' => $this->bot->id,
                     'retry_after' => $retryAfter,
                 ]);

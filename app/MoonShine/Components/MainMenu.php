@@ -6,7 +6,10 @@ use App\Domain\Bots\Models\Bot;
 use App\Domain\Bots\Models\BotMember;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
+use App\Domain\Conversations\Models\ConversationSession;
 use App\Domain\CRM\Models\Person;
+use App\Domain\Flows\Models\Flow;
+use App\Domain\Flows\Models\FlowVersion;
 use App\Models\Jobs\FailedJob;
 use App\Models\Jobs\Job;
 use App\Models\Jobs\JobLog;
@@ -24,6 +27,9 @@ use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
+use App\MoonShine\Resources\Telegram\Conversations\ConversationSession\ConversationSessionResource;
+use App\MoonShine\Resources\Telegram\Flows\Flow\FlowResource;
+use App\MoonShine\Resources\Telegram\Flows\FlowVersion\FlowVersionResource;
 use App\MoonShine\Resources\Users\Notification\NotificationResource;
 use App\MoonShine\Resources\Users\Permission\PermissionResource;
 use App\MoonShine\Resources\Users\Role\RoleResource;
@@ -81,6 +87,12 @@ class MainMenu
                 MenuItem::make(BotResource::class, 'Боты')
                     ->icon('robot', path: 'icons')
                     ->canSee(fn () => Gate::allows('view', Bot::class)),
+                MenuItem::make(FlowResource::class, 'Потоки')
+                    ->icon('chart-diagram', path: 'icons')
+                    ->canSee(fn () => Gate::allows('view', Flow::class)),
+                MenuItem::make(FlowVersionResource::class, 'Версии потоков')
+                    ->icon('diagram-project', path: 'icons')
+                    ->canSee(fn () => Gate::allows('view', FlowVersion::class)),
                 MenuItem::make(BotMemberResource::class, 'Доступы к ботам')
                     ->icon('eye-low-vision', path: 'icons')
                     ->canSee(fn () => Gate::allows('view', BotMember::class)),
@@ -89,6 +101,9 @@ class MainMenu
                 MenuItem::make(ConversationResource::class, 'Диалоги')
                     ->icon('comments', path: 'icons')
                     ->canSee(fn () => Gate::allows('view', Conversation::class)),
+                MenuItem::make(ConversationSessionResource::class, 'Сессии диалогов')
+                    ->icon('comment-dots', path: 'icons')
+                    ->canSee(fn () => Gate::allows('view', ConversationSession::class)),
             ])->icon('telegram', path: 'icons'),
         ];
     }

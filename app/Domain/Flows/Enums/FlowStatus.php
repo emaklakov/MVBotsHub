@@ -1,20 +1,18 @@
 <?php
 
-namespace App\Domain\Bots\Enums;
+namespace App\Domain\Flows\Enums;
 
-enum BotStatus: string
+enum FlowStatus: string
 {
-    case DISABLED = 'disabled';
     case ACTIVE = 'active';
-    case PAUSED = 'paused';
+    case DRAFT = 'draft';
     case ARCHIVED = 'archived';
 
     public function toString(): ?string
     {
         return match ($this) {
-            self::DISABLED => 'Отключен',
             self::ACTIVE => 'Активен',
-            self::PAUSED => 'Приостановлен',
+            self::DRAFT => 'Черновик',
             self::ARCHIVED => 'Архивирован',
         };
     }
@@ -22,19 +20,17 @@ enum BotStatus: string
     public function getColor(): ?string
     {
         return match ($this) {
-            self::DISABLED => 'gray',
             self::ACTIVE => 'green',
-            self::PAUSED => 'yellow',
-            self::ARCHIVED => 'red',
+            self::DRAFT => 'yellow',
+            self::ARCHIVED => 'gray',
         };
     }
 
     public function getIcon(): ?string
     {
         return match ($this) {
-            self::DISABLED => 'stop-circle',
             self::ACTIVE => 'play-circle',
-            self::PAUSED => 'pause-circle',
+            self::DRAFT => 'pencil-square',
             self::ARCHIVED => 'archive-box-arrow-down',
         };
     }

@@ -28,8 +28,8 @@ class ConversationIndexPage extends BaseIndexPage
     {
         return [
             ID::make()->sortable(),
-            Preview::make('Bot', null, fn($item) => $item->subscriber?->bot?->username ?? '—'),
-            Preview::make('Subscriber', null, fn($item) =>
+            Preview::make('Бот', null, fn($item) => $item->subscriber?->bot?->username ?? '—'),
+            Preview::make('Пользователь', null, fn($item) =>
                 $item->subscriber?->telegram_username
                 ?? $item->subscriber?->telegram_id
                 ?? '—'

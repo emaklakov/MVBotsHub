@@ -55,29 +55,35 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Queue::before(function (JobProcessing $event) {
-            JobLog::create([
-                'job_id'    => $event->job->uuid(),
-                'name'      => $event->job->resolveName(),
-                'queue'     => $event->job->getQueue(),
-                'payload'   => $event->job->payload(),
-                'attempts'  => $event->job->attempts(),
-                'status'    => 'processing',
-                'started_at' => now(),
-            ]);
+            if (!in_array($event->job->getQueue(), ['telegram'], true)) {
+                JobLog::create([
+                    'job_id'    => $event->job->uuid(),
+                    'name'      => $event->job->resolveName(),
+                    'queue'     => $event->job->getQueue(),
+                    'payload'   => $event->job->payload(),
+                    'attempts'  => $event->job->attempts(),
+                    'status'    => 'processing',
+                    'started_at' => now(),
+                ]);
+            }
         });
 
         Queue::after(function (JobProcessed $event) {
-            JobLog::where('job_id', $event->job->uuid())
-                ->update(['status' => 'completed', 'finished_at' => now()]);
+            if (!in_array($event->job->getQueue(), ['telegram'], true)) {
+                JobLog::where('job_id', $event->job->uuid())
+                    ->update(['status' => 'completed', 'finished_at' => now()]);
+            }
         });
 
         Queue::failing(function (JobFailed $event) {
-            JobLog::where('job_id', $event->job->uuid())
-                ->update([
-                    'status' => 'failed',
-                    'error'  => $event->exception->getMessage(),
-                    'finished_at' => now(),
-                ]);
+            if (!in_array($event->job->getQueue(), ['telegram'], true)) {
+                JobLog::where('job_id', $event->job->uuid())
+                    ->update([
+                        'status' => 'failed',
+                        'error'  => $event->exception->getMessage(),
+                        'finished_at' => now(),
+                    ]);
+            }
         });
     }
 }

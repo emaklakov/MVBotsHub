@@ -29,14 +29,14 @@ class ConversationDetailPage extends BaseDetailPage
     {
         return [
             ID::make(),
-            Preview::make('Bot', null, fn($item) => $item->subscriber?->bot?->username ?? '—'),
-            Preview::make('Subscriber', null, fn($item) =>
+            Preview::make('Бот', null, fn($item) => $item->subscriber?->bot?->username ?? '—'),
+            Preview::make('Пользователь', null, fn($item) =>
                 $item->subscriber?->telegram_username
                 ?? $item->subscriber?->telegram_id
                 ?? '—'
             ),
             Enum::make('Статус', 'status')->attach(ConversationStatus::class),
-            Json::make('Context', 'context'),
+            Json::make('Контекст', 'context'),
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')

@@ -24,45 +24,76 @@ class TestCodeCommand extends Command
         //\App\Jobs\TestLogJob::dispatch(1)->onConnection('sync');
         //\App\Jobs\TestLogJob::dispatch(2, shouldFail: true);
 
-        // 1. Всем админам (уходит в очередь notifications)
-        $notification->sendToAll(
-            message: 'Тестовое уведомление из консоли',
-            color: 'green',
-            icon: 'check-circle',
-            priority: NotificationPriority::NORMAL,
-            category: 'system.test',
+        // 1. Создаём бота (если ещё нет) или берём существующего
+        $bot = \App\Domain\Bots\Models\Bot::first();
+
+        // 2. Создаём Flow с триггером /start
+        $flow = \App\Domain\Flows\Models\Flow::create([
+            'bot_id' => $bot->id,
+            'name' => 'Приветствие',
+            'trigger_type' => 'command',
+            'trigger_value' => 'start',
+            'status' => 'active',
+        ]);
+
+        // 3. Сохраняем draft-схему
+        $draft = \App\Domain\Flows\Models\FlowVersion::updateOrCreate(
+            [
+                'flow_id' => $flow->id,
+                'status' => 'draft',
+            ],
+            [
+                'schema' => [
+                    'start_block_id' => 'block_1',
+                    'blocks' => [
+                        'block_1' => [
+                            'id' => 'block_1',
+                            'type' => 'text',
+                            'content' => [
+                                'translations' => [
+                                    'ru' => 'Привет! Как тебя зовут?',
+                                    'en' => "Hi! What's your name?",
+                                ],
+                            ],
+                            'next_id' => 'block_2',
+                        ],
+                        'block_2' => [
+                            'id' => 'block_2',
+                            'type' => 'input',
+                            'config' => [
+                                'variable' => 'user_name',
+                                'hint' => 'Введите ваше имя',
+                            ],
+                            'next_id' => 'block_3',
+                        ],
+                        'block_3' => [
+                            'id' => 'block_3',
+                            'type' => 'text',
+                            'content' => [
+                                'translations' => [
+                                    'ru' => 'Приятно познакомиться!',
+                                    'en' => 'Nice to meet you!',
+                                ],
+                            ],
+                            'next_id' => null,
+                        ],
+                    ],
+                ],
+                'version_number' => 0,
+            ]
         );
 
-        // 2. Конкретным пользователям
-        $notification->sendToMany(
-            message: 'Привет, менеджеры!',
-            ids: [1, 2, 3],
-            button: new NotificationButton(
-                label: 'Открыть панель',
-                link: route('moonshine.index'),
-            ),
-            priority: NotificationPriority::HIGH,
-            category: 'orders.new',
-            groupKey: 'orders.new',
-        );
+        // 4. Публикуем (копируем draft → published)
+        $published = \App\Domain\Flows\Models\FlowVersion::create([
+            'flow_id' => $flow->id,
+            'schema' => $draft->schema,
+            'status' => 'published',
+            'version_number' => 1,
+            'published_at' => now(),
+            'published_by' => 1, // ID админа
+        ]);
 
-        // 3. Через шаблон
-        $notification->sendTemplate(
-            template: NotificationTemplate::systemError('Ошибка в консольной команде'),
-        );
-
-        // 4. С TTL (автоудаление через 24 часа)
-        $notification->sendToAll(
-            message: 'Временное уведомление',
-            priority: NotificationPriority::LOW,
-            expiresAt: now()->addHours(24)->toDateTimeImmutable(),
-        );
-
-        $this->components->info('Уведомления отправлены в очередь.');
-
-        // Проверка: сколько непрочитанных у админа #1
-        $count = $notification->countUnreadForUser(1);
-        $this->components->info("Не прочитано у админа #1: {$count}");
+        $this->info("Flow ID: {$flow->id}, Published version: {$published->version_number}\n");
 
         $this->newLine();
         $this->info("Готово.");

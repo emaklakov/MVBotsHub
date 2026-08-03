@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Jobs\JobLog\Pages;
 
+use App\Models\Jobs\Enums\JobLogStatus;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\Date;
+use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Json;
 use MoonShine\UI\Fields\Text;
@@ -28,15 +30,7 @@ class JobLogDetailPage extends BaseDetailPage
             Text::make('ID Задачи', 'job_id'),
             Text::make('Задача', 'name'),
             Text::make('Очередь', 'queue'),
-
-            Text::make('Статус', 'status')
-                ->badge(fn(string $status) => match($status) {
-                    'completed'  => 'success',
-                    'failed'     => 'error',
-                    'processing' => 'warning',
-                    default      => 'gray',
-                }),
-
+            Enum::make('Статус', 'status')->attach(JobLogStatus::class),
             Text::make('Попытки', 'attempts'),
             Text::make('Продолжительность (сек)', 'duration'),
             Json::make('Полезная нагрузка', 'payload'),
