@@ -23,7 +23,7 @@ const { toVueFlow, toSchema } = useFlowSerializer()
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 const selectedNode = ref<Node | null>(null)
-const startBlockId = ref<string | null>(null)
+const startGroupId = ref<string | null>(null)
 
 const { findNode, onNodeClick } = useVueFlow()
 
@@ -36,21 +36,23 @@ const load = async () => {
     const result = toVueFlow(draft.schema)
     nodes.value = result.nodes
     edges.value = result.edges
-    startBlockId.value = draft.schema.start_block_id
+    startGroupId.value = draft.schema.start_group_id
 }
 
 const addBlock = (type: string) => {
-    const id = `block_${Date.now()}`
+    const groupId = `group_${Date.now()}`
+    const blockId = `block_${Date.now()}`
     nodes.value.push({
-        id,
+        id: groupId,
         type,
         position: { x: 250, y: 250 },
         data: {
+            blockId,
             content: type === 'text' ? { translations: { ru: '', en: '' } } : type === 'button' ? { buttons: [] } : {},
             config: type === 'input' ? { variable: '' } : {},
         },
     })
-    if (!startBlockId.value) startBlockId.value = id
+    if (!startGroupId.value) startGroupId.value = groupId
 }
 
 const updateNode = (nodeId: string, data: any) => {
@@ -59,7 +61,7 @@ const updateNode = (nodeId: string, data: any) => {
 }
 
 const handleSave = async () => {
-    await saveDraft(toSchema(nodes.value, edges.value, startBlockId.value))
+    await saveDraft(toSchema(nodes.value, edges.value, startGroupId.value))
     alert('Draft saved')
 }
 
