@@ -16,7 +16,7 @@ class BaseFormPage extends FormPage
     protected function buttons(): ListOf
     {
         return parent::buttons()->prepend(
-            ActionButton::make('', fn() => $this->getResource()->getIndexPageUrl())
+            ActionButton::make('', fn() => back()->getTargetUrl() != url()->current() ? back()->getTargetUrl() : $this->getResource()->getIndexPageUrl())
                 ->class('btn-square')
                 ->icon('arrow-uturn-left'),
         );
@@ -25,7 +25,7 @@ class BaseFormPage extends FormPage
     protected function formButtons(): ListOf
     {
         return parent::formButtons()->add(
-            ActionButton::make('Отмена', fn() => $this->getResource()->getIndexPageUrl())->class('btn-lg'),
+            ActionButton::make('Отмена', fn() => back()->getTargetUrl() != url()->current() ? back()->getTargetUrl() : $this->getResource()->getIndexPageUrl())->class('btn-lg'),
         );
     }
 

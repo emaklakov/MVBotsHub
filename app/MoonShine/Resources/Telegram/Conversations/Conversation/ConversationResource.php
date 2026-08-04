@@ -7,13 +7,14 @@ namespace App\MoonShine\Resources\Telegram\Conversations\Conversation;
 use App\Domain\Conversations\Models\Conversation;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\Pages\ConversationDetailPage;
+use App\MoonShine\Resources\Telegram\Conversations\Conversation\Pages\ConversationFormPage;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\Pages\ConversationIndexPage;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Laravel\Resources\ModelResource;
 
 /**
- * @extends ModelResource<Conversation, ConversationIndexPage, ConversationDetailPage>
+ * @extends ModelResource<Conversation, ConversationIndexPage, ConversationDetailPage, ConversationFormPage>
  */
 class ConversationResource extends BaseResource
 {
@@ -40,6 +41,7 @@ class ConversationResource extends BaseResource
         return [
             ConversationIndexPage::class,
             ConversationDetailPage::class,
+            ConversationFormPage::class,
         ];
     }
 }

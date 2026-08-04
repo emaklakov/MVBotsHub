@@ -4,6 +4,7 @@ namespace App\MoonShine\Components;
 
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Bots\Models\BotMember;
+use App\Domain\Broadcasts\Models\Broadcast;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Models\ConversationSession;
@@ -26,6 +27,7 @@ use App\MoonShine\Resources\Jobs\Job\JobResource;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
+use App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\BroadcastResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
 use App\MoonShine\Resources\Telegram\Conversations\ConversationSession\ConversationSessionResource;
@@ -109,6 +111,9 @@ class MainMenu
                 MenuItem::make(MessageResource::class, 'Сообщения')
                     ->icon('comments-regular', path: 'icons')
                     ->canSee(fn () => Gate::allows('view', Message::class)),
+                MenuItem::make(BroadcastResource::class, 'Рассылки')
+                    ->icon('tower-cell', path: 'icons')
+                    ->canSee(fn () => Gate::allows('view', Broadcast::class)),
             ])->icon('telegram', path: 'icons'),
         ];
     }

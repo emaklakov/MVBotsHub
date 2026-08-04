@@ -1,21 +1,37 @@
 <?php
 
-namespace App\MoonShine\Resources\Base;
+declare(strict_types=1);
 
+namespace App\MoonShine\Resources\Telegram\Broadcasts\BroadcastRecipient\Pages;
+
+use App\MoonShine\Resources\Telegram\Broadcasts\BroadcastRecipient\BroadcastRecipientResource;
 use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Support\ListOf;
-use MoonShine\UI\Components\ActionButton;
-use MoonShine\UI\Components\ActionGroup;
 use MoonShine\UI\Components\Table\TableBuilder;
+use MoonShine\UI\Fields\ID;
 use Throwable;
 
-class BaseDetailPage extends DetailPage
+
+/**
+ * @extends DetailPage<BroadcastRecipientResource>
+ */
+class BroadcastRecipientDetailPage extends DetailPage
 {
+    /**
+     * @return list<FieldContract>
+     */
+    protected function fields(): iterable
+    {
+        return [
+            ID::make(),
+        ];
+    }
+
     protected function buttons(): ListOf
     {
         return parent::buttons();
-        //return new ListOf(ActionButtonContract::class, []);
     }
 
     /**
@@ -35,18 +51,7 @@ class BaseDetailPage extends DetailPage
     protected function topLayer(): array
     {
         return [
-            ...parent::topLayer(),
-            ActionGroup::make(
-                $this->getButtons()->prepend(
-                    ActionButton::make('', fn() => back()->getTargetUrl() != url()->current() ? back()->getTargetUrl() : $this->getResource()->getIndexPageUrl())
-                        ->class('btn-square')
-                        ->icon('arrow-uturn-left')
-                )->add(
-                    ActionButton::make('', fn() => url()->current())
-                        ->class('btn-square')
-                        ->icon('arrow-path')
-                ),
-            )->fill($this->getResource()->getCastedData())->class('mb-4'),
+            ...parent::topLayer()
         ];
     }
 

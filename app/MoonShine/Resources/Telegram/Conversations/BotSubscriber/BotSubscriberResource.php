@@ -7,13 +7,14 @@ namespace App\MoonShine\Resources\Telegram\Conversations\BotSubscriber;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages\BotSubscriberDetailPage;
+use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages\BotSubscriberFormPage;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages\BotSubscriberIndexPage;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Laravel\Resources\ModelResource;
 
 /**
- * @extends ModelResource<BotSubscriber, BotSubscriberIndexPage, BotSubscriberDetailPage>
+ * @extends ModelResource<BotSubscriber, BotSubscriberIndexPage, BotSubscriberDetailPage, BotSubscriberFormPage>
  */
 class BotSubscriberResource extends BaseResource
 {
@@ -40,6 +41,7 @@ class BotSubscriberResource extends BaseResource
         return [
             BotSubscriberIndexPage::class,
             BotSubscriberDetailPage::class,
+            BotSubscriberFormPage::class,
         ];
     }
 

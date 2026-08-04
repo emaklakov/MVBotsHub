@@ -2,8 +2,8 @@
 
 namespace App\MoonShine\Resources\Base;
 
+use App\Application\Services\LogService;
 use App\MoonShine\Resources\Traits\HasPerPageSession;
-use Illuminate\Support\Facades\Log;
 use MoonShine\Crud\Handlers\Handler;
 use MoonShine\ImportExport\Contracts\HasImportExportContract;
 use MoonShine\ImportExport\Traits\ImportExportConcern;
@@ -24,10 +24,7 @@ abstract class BaseResource extends ModelResource implements HasImportExportCont
 
     public function modifyErrorResponse(Response $response, Throwable $exception): Response
     {
-        Log::error('Ошибка - App\MoonShine\Resources\Base\BaseResource::modifyErrorResponse', [
-            'message' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString(),
-        ]);
+        LogService::logError( $exception->getMessage(), $exception->getTraceAsString());
 
         return $response;
     }

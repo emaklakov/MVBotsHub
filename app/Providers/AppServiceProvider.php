@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('super-admin') ? true : null;
         });
 
-        // Глобальный throttle для всех ботов приложения
+        // Общий throttle для всех ботов приложения (Telegram лимитирует по IP)
         RateLimiter::for('telegram', function () {
             return Limit::perSecond(28);
         });

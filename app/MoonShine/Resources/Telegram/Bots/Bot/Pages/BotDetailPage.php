@@ -11,10 +11,10 @@ use App\Domain\Bots\Services\WebhookService;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
 use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Crud\JsonResponse;
 use MoonShine\Laravel\Fields\Relationships\HasMany;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Support\Attributes\AsyncMethod;
@@ -98,7 +98,7 @@ class BotDetailPage extends BaseDetailPage
     }
 
     #[AsyncMethod]
-    public function registerWebhook(CrudRequestContract $request, JsonResponse $response): JsonResponse
+    public function registerWebhook(CrudRequestContract $request): RedirectResponse
     {
         $bot = $request->getResource()->getItem();
 
@@ -106,14 +106,16 @@ class BotDetailPage extends BaseDetailPage
         $success = $webhookService->register($bot);
 
         if ($success) {
-            return $response->toast('Webhook успешно зарегистрирован.', ToastType::SUCCESS);
+            toast('Webhook успешно зарегистрирован.', ToastType::SUCCESS);
         } else {
-           return $response->toast('Не удалось зарегистрировать Webhook. Проверьте токен бота и логи.', ToastType::ERROR);
+           toast('Не удалось зарегистрировать Webhook. Проверьте токен бота и логи.', ToastType::ERROR);
         }
+
+        return back();
     }
 
     #[AsyncMethod]
-    public function unregisterWebhook(CrudRequestContract $request, JsonResponse $response): JsonResponse
+    public function unregisterWebhook(CrudRequestContract $request): RedirectResponse
     {
         $bot = $request->getResource()->getItem();
 
@@ -121,9 +123,11 @@ class BotDetailPage extends BaseDetailPage
         $success = $webhookService->unregister($bot);
 
         if ($success) {
-            return $response->toast('Webhook успешно удален.', ToastType::SUCCESS);
+            toast('Webhook успешно удален.', ToastType::SUCCESS);
         } else {
-            return $response->toast('Не удалось удалить Webhook. Проверьте логи.', ToastType::ERROR);
+            toast('Не удалось удалить Webhook. Проверьте логи.', ToastType::ERROR);
         }
+
+        return back();
     }
 }

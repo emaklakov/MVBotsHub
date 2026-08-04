@@ -67,3 +67,16 @@
     width: calc(0.25rem * 6);
     height: calc(0.25rem * 6);
 }
+
+.form .box {
+    background: var(--color-body);
+}
+
+.form-group.moonshine-field .table-responsive {
+    border-radius: var(--ms-form-default-radius);
+    border: var(--ms-form-default-border-width) solid var(--ms-form-default-border-color);
+}
+
+.table-list thead {
+    background-color: var(--color-body);
+}

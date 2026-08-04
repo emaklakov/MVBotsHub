@@ -8,7 +8,6 @@ use App\Domain\Conversations\Models\BotSubscriber;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
 use App\MoonShine\Resources\Telegram\Conversations\Message\MessageResource;
-use App\MoonShine\Resources\Users\User\UserResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
@@ -33,7 +32,7 @@ class MessageIndexPage extends BaseIndexPage
         return [
             ID::make()->sortable(),
             Text::make('Направление', 'direction'),
-            BelongsTo::make('Пользователь', 'conversation.subscriber', resource: ConversationResource::class, formatted: 'telegram_id'),
+            BelongsTo::make('Пользователь', 'conversation', resource: ConversationResource::class, formatted: fn ($item) => $item->subscriber?->telegram_id),
             Text::make('Тип', 'type'),
             Preview::make('Содержание', null, fn($item) =>
                 $item->content['text']
