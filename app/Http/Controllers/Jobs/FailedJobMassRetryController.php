@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Jobs;
 
+use App\Application\Services\LogService;
 use App\Models\Jobs\FailedJob;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class FailedJobMassRetryController
                 'message' => "Перезапущено задач: {$jobs->count()}",
             ]);
         } catch (\Throwable $e) {
-            Log::error('Ошибка массового retry failed jobs', [
+            LogService::logError('Ошибка массового retry failed jobs', [
                 'ids' => $ids,
                 'error' => $e->getMessage(),
             ]);
@@ -58,8 +59,6 @@ class FailedJobMassRetryController
                 'message' => 'Ошибка при перезапуске задач: ' . $e->getMessage(),
             ]);
         }
-
-        return back();
 
         return back();
     }

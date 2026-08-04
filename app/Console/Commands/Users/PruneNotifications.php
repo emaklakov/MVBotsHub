@@ -38,6 +38,14 @@ final class PruneNotifications extends Command
             $query->whereNotNull('read_at');
         }
 
+        if ($this->option('dry-run')) {
+            $this->info("Будет удалено: {$query->count()}");
+            return self::SUCCESS;
+        }
+
+        $deleted = $query->delete();
+        $this->info("Удалено: {$deleted}");
+
         return self::SUCCESS;
     }
 }

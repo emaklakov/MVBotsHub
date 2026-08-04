@@ -19,9 +19,9 @@ use App\Domain\Flows\Enums\TriggerTypes;
 use App\Domain\Flows\Models\Flow;
 use App\Domain\Flows\Services\FlowRunner;
 use DefStudio\Telegraph\DTO\CallbackQuery;
+use DefStudio\Telegraph\DTO\CallbackQuery as TelegramCallbackQuery;
 use DefStudio\Telegraph\DTO\Contact;
 use DefStudio\Telegraph\DTO\Message as TelegramMessage;
-use DefStudio\Telegraph\DTO\CallbackQuery as TelegramCallbackQuery;
 use DefStudio\Telegraph\Facades\Telegraph;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,6 +43,10 @@ class ProcessTelegramUpdate implements ShouldQueue
 
     /** Явный белый список команд, которые можно вызвать через /command (см. пункт 2 выше). */
     private const ALLOWED_COMMANDS = ['start'];
+
+    protected ?TelegramMessage $message = null;
+    protected ?BotSubscriber $subscriber = null;
+    protected ?TelegramCallbackQuery $callbackQuery = null;
 
     public function __construct(
         public Bot $bot,
@@ -93,7 +97,13 @@ class ProcessTelegramUpdate implements ShouldQueue
 //            isset($this->update['my_chat_member']) => $this->handleMyChatMember(
 //
 //            ),
-            default => $this->handleUnsupportedUpdate(),
+//            isset($this->update['edited_message']) => $this->handleEditedMessage(
+//
+//            ),
+//            isset($this->update['chat_join_request']) => $this->handleChatJoinRequest(
+//
+//            ),
+            default => $this->handleUnsupportedUpdate($this->update),
         };
     }
 

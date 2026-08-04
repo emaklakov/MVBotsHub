@@ -31,11 +31,6 @@ class BotResource extends BaseResource
 
     protected function beforeCreating(DataWrapperContract $item): DataWrapperContract
     {
-//        // подмешиваем owner_id в данные запроса до заполнения модели
-//        request()->merge([
-//            'owner_id' => auth()->id(),
-//        ]);
-
         return $item;
     }
 

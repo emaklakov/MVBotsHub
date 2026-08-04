@@ -102,13 +102,6 @@ class Bot extends Model
         return $this->hasMany(BotMember::class);
     }
 
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'bot_members')
-            ->withPivot('role')
-            ->withTimestamps();
-    }
-
     public function subscribers()
     {
         return $this->hasMany(BotSubscriber::class);

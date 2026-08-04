@@ -60,8 +60,10 @@ class AppServiceProvider extends ServiceProvider
             return ['uuid' => $payload['uuid'] ?? \Illuminate\Support\Str::uuid()->toString()];
         });
 
-        Queue::before(function (JobProcessing $event) {
-            if (!in_array($event->job->getQueue(), ['telegram'], true)) {
+        $excludedLogQueues = ['telegram', 'broadcast'];
+
+        Queue::before(function (JobProcessing $event) use ($excludedLogQueues) {
+            if (!in_array($event->job->getQueue(), $excludedLogQueues, true)) {
                 JobLog::create([
                     'job_id'    => $event->job->uuid(),
                     'name'      => $event->job->resolveName(),
@@ -74,15 +76,15 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        Queue::after(function (JobProcessed $event) {
-            if (!in_array($event->job->getQueue(), ['telegram'], true)) {
+        Queue::after(function (JobProcessed $event) use ($excludedLogQueues) {
+            if (!in_array($event->job->getQueue(), $excludedLogQueues, true)) {
                 JobLog::where('job_id', $event->job->uuid())
                     ->update(['status' => 'completed', 'finished_at' => now()]);
             }
         });
 
-        Queue::failing(function (JobFailed $event) {
-            if (!in_array($event->job->getQueue(), ['telegram'], true)) {
+        Queue::failing(function (JobFailed $event) use ($excludedLogQueues) {
+            if (!in_array($event->job->getQueue(), $excludedLogQueues, true)) {
                 JobLog::where('job_id', $event->job->uuid())
                     ->update([
                         'status' => 'failed',

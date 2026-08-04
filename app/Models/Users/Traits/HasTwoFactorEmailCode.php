@@ -46,7 +46,7 @@ trait HasTwoFactorEmailCode
 
     public function checkTwoFactorCode(string $code): bool
     {
-        if (app()->environment('local')) {
+        if (config('auth.two_factor.bypass_in_local')) {
             return true;
         }
 

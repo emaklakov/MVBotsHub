@@ -13,9 +13,9 @@ class FlowPolicy
         return $this->hasBotAccess($user, $flow->bot);
     }
 
-    public function create(User $user): bool
+    public function create(User $user, Flow $flow): bool
     {
-        return true;
+        return $this->hasBotAccess($user, $flow->bot);
     }
 
     public function update(User $user, Flow $flow): bool
@@ -25,14 +25,11 @@ class FlowPolicy
 
     public function delete(User $user, Flow $flow): bool
     {
-        return $flow->bot->owner_id === $user->id;
+        return $this->hasBotAccess($user, $flow->bot);
     }
 
     private function hasBotAccess(User $user, Bot $bot): bool
     {
-        if ($bot->owner_id === $user->id) {
-            return true;
-        }
-        return $bot->users()->where('user_id', $user->id)->exists();
+        return $bot->members()->where('user_id', $user->id)->exists();
     }
 }

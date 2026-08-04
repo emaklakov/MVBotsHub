@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages;
 
 use App\Domain\Conversations\Enums\SubscriberStatus;
-use App\Domain\CRM\Models\Person;
+use App\Domain\Conversations\Models\BotSubscriber;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\CRM\Person\PersonResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
@@ -13,10 +13,11 @@ use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberRe
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
+use MoonShine\UI\Components\Metrics\Wrapped\Metric;
+use MoonShine\UI\Components\Metrics\Wrapped\ValueMetric;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\ID;
-use MoonShine\UI\Fields\Select;
 use MoonShine\UI\Fields\Text;
 
 
@@ -25,7 +26,17 @@ use MoonShine\UI\Fields\Text;
  */
 class BotSubscriberIndexPage extends BaseIndexPage
 {
-    protected bool $isLazy = true;
+    /**
+     * @return list<Metric>
+     */
+    protected function metrics(): array
+    {
+        return [
+            ValueMetric::make('Активные пользователи')
+                ->value(fn() => BotSubscriber::count())
+                ->columnSpan(2),
+        ];
+    }
 
     /**
      * @return list<FieldContract>

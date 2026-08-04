@@ -26,7 +26,7 @@ class ConversationResource extends BaseResource
     {
         return $builder->where(function (Builder $query) {
             $query->whereHas('subscriber.bot', function (Builder $query) {
-                $query->whereHas('users', function (Builder $q) {
+                $query->whereHas('members', function (Builder $q) {
                     $q->where('user_id', auth()->id());
                 });
             });

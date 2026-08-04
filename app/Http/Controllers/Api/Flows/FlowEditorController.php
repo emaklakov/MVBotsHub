@@ -14,6 +14,10 @@ class FlowEditorController
 {
     public function draft(Bot $bot, Flow $flow): JsonResponse
     {
+        if($bot->id != $flow->bot_id) {
+            return abort(404);
+        }
+
         Gate::authorize('view', $flow);
 
         $draft = $flow->versions()->where('status', FlowVersionStatus::DRAFT)->first();
@@ -38,6 +42,10 @@ class FlowEditorController
 
     public function saveDraft(Request $request, Bot $bot, Flow $flow): JsonResponse
     {
+        if($bot->id != $flow->bot_id) {
+            return abort(404);
+        }
+
         Gate::authorize('update', $flow);
 
         $validated = $request->validate([
@@ -65,6 +73,10 @@ class FlowEditorController
 
     public function publish(Request $request, Bot $bot, Flow $flow): JsonResponse
     {
+        if($bot->id != $flow->bot_id) {
+            return abort(404);
+        }
+
         Gate::authorize('update', $flow);
 
         $draft = $flow->versions()->where('status', FlowVersionStatus::DRAFT)->first();

@@ -29,7 +29,7 @@ class FlowResource extends BaseResource
     {
         return $builder->where(function (Builder $query) {
             $query->whereHas('bot', function (Builder $query) {
-                $query->whereHas('users', function (Builder $q) {
+                $query->whereHas('members', function (Builder $q) {
                     $q->where('user_id', auth()->id());
                 });
             });

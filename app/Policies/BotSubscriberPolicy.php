@@ -24,9 +24,6 @@ class BotSubscriberPolicy
         if (!$bot) {
             return false;
         }
-        if ($bot->owner_id === $user->id) {
-            return true;
-        }
-        return $bot->users()->where('user_id', $user->id)->exists();
+        return $bot->members()->where('user_id', $user->id)->exists();
     }
 }

@@ -117,4 +117,8 @@ return [
     'password_expiry' => env('AUTH_PASSWORD_EXPIRY', 90),
 
     'super_admin_password' => env('AUTH_SUPER_ADMIN_PASSWORD', 'password'),
+
+    'two_factor' => [
+        'bypass_in_local' => env('AUTH_TWO_FACTOR_BYPASS_IN_LOCAL', false),
+    ]
 ];

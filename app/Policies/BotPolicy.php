@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Domain\Bots\Enums\BotMemberRole;
 use App\Domain\Bots\Models\Bot;
 use App\Models\Users\User;
 
@@ -24,16 +25,14 @@ class BotPolicy
 
     public function update(User $user, Bot $bot): bool
     {
-        if ($bot->owner_id === $user->id) {
-            return true;
-        }
-        $role = $bot->users()->where('user_id', $user->id)->value('role');
-        return in_array($role, ['admin', 'owner']);
+        $role = $bot->members()->where('user_id', $user->id)->value('role');
+        return in_array($role, [BotMemberRole::ADMIN, BotMemberRole::OWNER]);
     }
 
     public function delete(User $user, Bot $bot): bool
     {
-        return $bot->owner_id === $user->id;
+        $role = $bot->members()->where('user_id', $user->id)->value('role');
+        return in_array($role, [BotMemberRole::ADMIN, BotMemberRole::OWNER]);
     }
 
     public function registerWebhook(User $user, Bot $bot): bool
@@ -43,9 +42,6 @@ class BotPolicy
 
     private function hasAccess(User $user, Bot $bot): bool
     {
-        if ($bot->owner_id === $user->id) {
-            return true;
-        }
-        return $bot->users()->where('user_id', $user->id)->exists();
+        return $bot->members()->where('user_id', $user->id)->exists();
     }
 }
