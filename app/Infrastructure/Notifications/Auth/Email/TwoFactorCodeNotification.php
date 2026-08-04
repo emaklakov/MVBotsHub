@@ -11,6 +11,13 @@ use Illuminate\Notifications\Notification;
  */
 class TwoFactorCodeNotification extends Notification
 {
+    protected $code;
+
+    public function __construct($code)
+    {
+        $this->code =  $code;
+    }
+
     public function via(object $notifiable): array
     {
         return ['mail'];

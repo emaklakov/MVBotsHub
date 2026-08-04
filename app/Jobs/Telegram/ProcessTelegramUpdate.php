@@ -21,6 +21,8 @@ use App\Domain\Flows\Services\FlowRunner;
 use DefStudio\Telegraph\DTO\CallbackQuery;
 use DefStudio\Telegraph\DTO\Contact;
 use DefStudio\Telegraph\DTO\Message as TelegramMessage;
+use DefStudio\Telegraph\DTO\CallbackQuery as TelegramCallbackQuery;
+use DefStudio\Telegraph\Facades\Telegraph;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -85,6 +87,12 @@ class ProcessTelegramUpdate implements ShouldQueue
             isset($this->update['callback_query']) => $this->handleCallbackQuery(
                 CallbackQuery::fromArray($this->update['callback_query'])
             ),
+//            isset($this->update['poll_answer']) => $this->handlePollAnswer(
+//
+//            ),
+//            isset($this->update['my_chat_member']) => $this->handleMyChatMember(
+//
+//            ),
             default => $this->handleUnsupportedUpdate(),
         };
     }
@@ -92,9 +100,9 @@ class ProcessTelegramUpdate implements ShouldQueue
     /**
      * Заглушка под остальные типы апдейтов (edited_message, my_chat_member и т.д.)
      */
-    protected function handleUnsupportedUpdate(): void
+    protected function handleUnsupportedUpdate($update): void
     {
-        // .. пока ничего не делаем
+        LogService::logInfo('Запрошен Unsupported Update', $update);
     }
 
     //---- Message handlers ---------
@@ -135,12 +143,22 @@ class ProcessTelegramUpdate implements ShouldQueue
         // Нет сессии — ищем триггер
         if ($textInput && str_starts_with($textInput, '/')) {
             $command = ltrim($textInput, '/');
+            $parts = explode(' ', $textInput, 2);
+            $param = $parts[1] ?? null;
 
-            $flow = Flow::where('bot_id', $this->bot->id)
-                ->where('trigger_type', TriggerTypes::COMMAND)
-                ->where('trigger_value', $command)
-                ->where('status', FlowStatus::ACTIVE)
-                ->first();
+            if ($param) {
+                $flow = Flow::where('bot_id', $this->bot->id)
+                    ->where('trigger_type', TriggerTypes::DEEPLINK)
+                    ->where('trigger_value', $param)
+                    ->where('status', FlowStatus::ACTIVE)
+                    ->first();
+            } else {
+                $flow = Flow::where('bot_id', $this->bot->id)
+                    ->where('trigger_type', TriggerTypes::COMMAND)
+                    ->where('trigger_value', $command)
+                    ->where('status', FlowStatus::ACTIVE)
+                    ->first();
+            }
 
             if ($flow) {
                 $version = $flow->versions()
@@ -150,7 +168,7 @@ class ProcessTelegramUpdate implements ShouldQueue
 
                 if ($version) {
                     $runner = new FlowRunner($this->bot, $this->subscriber, $version);
-                    $runner->start();
+                    $runner->start($param ? ['deeplink' => $param] : []);
                     return;
                 }
             }
@@ -332,9 +350,36 @@ class ProcessTelegramUpdate implements ShouldQueue
 
     //---- CallbackQuery ------
 
-    protected function handleCallbackQuery(CallbackQuery $callbackQuery): void
+    protected function handleCallbackQuery(TelegramCallbackQuery $callbackQuery): void
     {
-        LogService::logInfo('Callback query received', ['data' => $callbackQuery->data()->toArray()]);
+        //LogService::logInfo('Callback query received', ['data' => $callbackQuery->data()->toArray()]);
+
+        $this->callbackQuery = $callbackQuery;
+
+        $telegramId = $callbackQuery->from()?->id();
+        if (!$telegramId) {
+            return;
+        }
+
+        $data = $callbackQuery->data() ?? '';
+
+        // Answer callback query (убираем "часики" на кнопке)
+        Telegraph::bot($this->bot->token)->replyWebhook(callbackQueryId: $callbackQuery->id());
+
+        $subscriber = BotSubscriber::where('bot_id', $this->bot->id)
+            ->where('telegram_id', $telegramId)
+            ->first();
+
+        if (!$subscriber) return;
+
+        $session = ConversationSession::where('bot_subscriber_id', $subscriber->id)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$session) return;
+
+        $runner = new FlowRunner($this->bot, $subscriber, $session->flowVersion);
+        $runner->handleInput($data);
     }
 
     //---- Helpers -------------------------------------------------------

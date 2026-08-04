@@ -14,6 +14,7 @@ use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
 use App\MoonShine\Resources\Telegram\Conversations\ConversationSession\ConversationSessionResource;
+use App\MoonShine\Resources\Telegram\Conversations\Message\MessageResource;
 use App\MoonShine\Resources\Telegram\Flows\Flow\FlowResource;
 use App\MoonShine\Resources\Telegram\Flows\FlowVersion\FlowVersionResource;
 use App\MoonShine\Resources\Users\Notification\NotificationResource;
@@ -54,6 +55,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 FlowResource::class,
                 FlowVersionResource::class,
                 ConversationSessionResource::class,
+                MessageResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

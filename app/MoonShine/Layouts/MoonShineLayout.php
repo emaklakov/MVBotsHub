@@ -6,6 +6,7 @@ namespace App\MoonShine\Layouts;
 
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Components\MainMenu;
+use App\MoonShine\Resources\Telegram\Conversations\Message\MessageResource;
 use Illuminate\Support\Facades\Vite;
 use MoonShine\AssetManager\Css;
 use MoonShine\AssetManager\Js;
@@ -18,10 +19,12 @@ use MoonShine\Crud\Components\Layout\Notifications;
 use MoonShine\Laravel\Components\Layout\Profile;
 use MoonShine\Laravel\Layouts\AppLayout;
 use MoonShine\Laravel\Pages\ProfilePage;
+use MoonShine\MenuManager\MenuItem;
 use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Breadcrumbs;
 use MoonShine\UI\Components\Layout\Burger;
 use MoonShine\UI\Components\Layout\Div;
+use MoonShine\UI\Components\Layout\Footer;
 use MoonShine\UI\Components\Layout\Header;
 use MoonShine\UI\Components\Layout\Menu;
 use MoonShine\UI\Components\Layout\Sidebar;
@@ -147,6 +150,9 @@ final class MoonShineLayout extends AppLayout
         }
 
         return Header::make([
+            Div::make()->customAttributes([
+                'id' => 'page-loader'
+            ]),
             Breadcrumbs::make(
                 $this->getPage()->getBreadcrumbs(),
             )->prepend(
@@ -214,6 +220,13 @@ final class MoonShineLayout extends AppLayout
     protected function colors(ColorManagerContract $colorManager): void
     {
         parent::colors($colorManager);
+    }
+
+    protected function getFooterComponent(): Footer
+    {
+        return Footer::make()
+            ->copyright($this->getFooterCopyright())
+            ->menu($this->getFooterMenu());
     }
 
     protected function getFooterCopyright(): string

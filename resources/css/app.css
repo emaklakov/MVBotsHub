@@ -11,6 +11,22 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+#page-loader {
+    position: fixed;
+    inset: 0;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    transition: opacity .2s;
+}
+
+#page-loader.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
 :root:not(.dark) {
     --ms-layout-page-bg-color: #ffffff !important;
     /* если хотите просто поменять сам base, а не только фон страницы: */

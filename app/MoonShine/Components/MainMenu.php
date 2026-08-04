@@ -7,6 +7,7 @@ use App\Domain\Bots\Models\BotMember;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Models\ConversationSession;
+use App\Domain\Conversations\Models\Message;
 use App\Domain\CRM\Models\Person;
 use App\Domain\Flows\Models\Flow;
 use App\Domain\Flows\Models\FlowVersion;
@@ -28,6 +29,7 @@ use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
 use App\MoonShine\Resources\Telegram\Conversations\ConversationSession\ConversationSessionResource;
+use App\MoonShine\Resources\Telegram\Conversations\Message\MessageResource;
 use App\MoonShine\Resources\Telegram\Flows\Flow\FlowResource;
 use App\MoonShine\Resources\Telegram\Flows\FlowVersion\FlowVersionResource;
 use App\MoonShine\Resources\Users\Notification\NotificationResource;
@@ -99,11 +101,14 @@ class MainMenu
                 MenuItem::make(BotSubscriberResource::class, 'Пользователи бота', 'user-group')
                     ->canSee(fn () => Gate::allows('view', BotSubscriber::class)),
                 MenuItem::make(ConversationResource::class, 'Диалоги')
-                    ->icon('comments', path: 'icons')
+                    ->icon('people-arrows', path: 'icons')
                     ->canSee(fn () => Gate::allows('view', Conversation::class)),
                 MenuItem::make(ConversationSessionResource::class, 'Сессии диалогов')
-                    ->icon('comment-dots', path: 'icons')
+                    ->icon('hourglass-half', path: 'icons')
                     ->canSee(fn () => Gate::allows('view', ConversationSession::class)),
+                MenuItem::make(MessageResource::class, 'Сообщения')
+                    ->icon('comments-regular', path: 'icons')
+                    ->canSee(fn () => Gate::allows('view', Message::class)),
             ])->icon('telegram', path: 'icons'),
         ];
     }

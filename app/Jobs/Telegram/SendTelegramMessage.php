@@ -28,6 +28,7 @@ class SendTelegramMessage implements ShouldQueue
         public string $text,
         public ?int $conversationId = null,
         public ?array $replyMarkup = null,
+        public ?array $inlineKeyboard = null,
     ) {}
 
     public function middleware(): array
@@ -43,10 +44,9 @@ class SendTelegramMessage implements ShouldQueue
                 ->html($this->text);
 
             if ($this->replyMarkup) {
-                // если $this->replyMarkup — это полный reply_markup вида
-                // ['inline_keyboard' => [...]], достаём саму разметку кнопок;
-                // если это уже голый массив рядов кнопок — используем как есть
-                $telegraph = $telegraph->keyboard($this->replyMarkup['inline_keyboard'] ?? $this->replyMarkup);
+                $telegraph = $telegraph->keyboard($this->replyMarkup);
+            } elseif ($this->inlineKeyboard) {
+                $telegraph = $telegraph->keyboard($this->inlineKeyboard);
             }
 
             $response = $telegraph->send();

@@ -34,6 +34,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        date_default_timezone_set(config('app.timezone'));
+
+        if(config('app.debug') == false) {
+            \URL::forceScheme('https');
+        }
+
         Password::defaults(function () {
             return Password::min(8)
                 ->mixedCase()
