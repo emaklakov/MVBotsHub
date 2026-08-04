@@ -76,7 +76,6 @@ class BotFormPage extends BaseFormPage
                     ->default(BotStatus::DISABLED)
                     ->required(),
                 HasMany::make('Доступы к боту', 'members', resource: BotMemberResource::class)
-                    ->modifyEditButton(fn($button) => $button->canSee(fn() => false))
                     ->creatable()
                     ->tabMode(),
             ]),

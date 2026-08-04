@@ -21,10 +21,7 @@ class FlowEditorController
         if (!$draft) {
             $draft = FlowVersion::create([
                 'flow_id' => $flow->id,
-                'schema' => [
-                    'blocks' => [],
-                    'start_block_id' => null,
-                ],
+                'schema' => [],
                 'status' => FlowVersionStatus::DRAFT,
                 'version_number' => 0,
             ]);
@@ -45,8 +42,6 @@ class FlowEditorController
 
         $validated = $request->validate([
             'schema' => 'required|array',
-            'schema.blocks' => 'present|array',
-            'schema.start_block_id' => 'nullable|string',
         ]);
 
         $draft = $flow->versions()->where('status', FlowVersionStatus::DRAFT)->first();

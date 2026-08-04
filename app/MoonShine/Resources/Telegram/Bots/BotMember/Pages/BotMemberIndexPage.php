@@ -23,7 +23,6 @@ use MoonShine\UI\Fields\ID;
  */
 class BotMemberIndexPage extends BaseIndexPage
 {
-    protected bool $isLazy = true;
 
     /**
      * @return list<FieldContract>
@@ -38,11 +37,6 @@ class BotMemberIndexPage extends BaseIndexPage
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')->format('d.m.Y H:i:s'),
             BelongsTo::make('Кто создал', 'createdBy', resource: UserResource::class, formatted: 'email'),
         ];
-    }
-
-    protected function modifyEditButton(ActionButtonContract $button): ActionButtonContract
-    {
-        return $button->canSee(fn() => false);
     }
 
     protected function filters(): iterable

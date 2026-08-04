@@ -9,6 +9,7 @@ use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\Telegram\Flows\Flow\FlowResource;
 use App\MoonShine\Resources\Telegram\Flows\FlowVersion\FlowVersionResource;
 use App\MoonShine\Resources\Users\User\UserResource;
+use MoonShine\Contracts\UI\ActionButtonContract;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
@@ -23,7 +24,6 @@ use MoonShine\UI\Fields\Text;
  */
 class FlowVersionIndexPage extends BaseIndexPage
 {
-
     /**
      * @return list<FieldContract>
      */

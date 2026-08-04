@@ -1,41 +1,41 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Node } from '@vue-flow/core'
+import type { UiBlock } from '../composables/useFlowSerializer'
 
-const props = defineProps<{ selectedNode: Node | null }>()
-const emit = defineEmits<{ update: [nodeId: string, data: any] }>()
+const props = defineProps<{ selectedBlock: UiBlock | null }>()
+const emit = defineEmits<{ update: [patch: { content?: any; config?: any }] }>()
 
-const updateData = (patch: any) => {
-  if (!props.selectedNode) return
-  emit('update', props.selectedNode.id, { ...props.selectedNode.data, ...patch })
+const updateData = (patch: { content?: any; config?: any }) => {
+  if (!props.selectedBlock) return
+  emit('update', patch)
 }
 
 const translations = computed({
-  get: () => props.selectedNode?.data?.content?.translations || { ru: '', en: '' },
-  set: (val) => updateData({ content: { ...props.selectedNode?.data?.content, translations: val } }),
+  get: () => props.selectedBlock?.content?.translations || { ru: '', en: '' },
+  set: (val) => updateData({ content: { ...props.selectedBlock?.content, translations: val } }),
 })
 
 const variable = computed({
-  get: () => props.selectedNode?.data?.config?.variable || '',
-  set: (val) => updateData({ config: { ...props.selectedNode?.data?.config, variable: val } }),
+  get: () => props.selectedBlock?.config?.variable || '',
+  set: (val) => updateData({ config: { ...props.selectedBlock?.config, variable: val } }),
 })
 
 const buttons = computed({
-  get: () => props.selectedNode?.data?.content?.buttons?.join('\n') || '',
-  set: (val) => updateData({ content: { ...props.selectedNode?.data?.content, buttons: val.split('\n').filter(Boolean) } }),
+  get: () => props.selectedBlock?.content?.buttons?.join('\n') || '',
+  set: (val) => updateData({ content: { ...props.selectedBlock?.content, buttons: val.split('\n').filter(Boolean) } }),
 })
 
-const isText = computed(() => props.selectedNode?.type === 'text')
-const isInput = computed(() => props.selectedNode?.type === 'input')
-const isButton = computed(() => props.selectedNode?.type === 'button')
+const isText = computed(() => props.selectedBlock?.type === 'text')
+const isInput = computed(() => props.selectedBlock?.type === 'input')
+const isButton = computed(() => props.selectedBlock?.type === 'button')
 </script>
 
 <template>
   <div class="properties">
     <h3>Properties</h3>
-    <div v-if="!selectedNode" class="empty">Select a block</div>
+    <div v-if="!selectedBlock" class="empty">Выберите блок</div>
     <div v-else>
-      <div class="field"><label>ID</label><input :value="selectedNode.id" disabled /></div>
+      <div class="field"><label>ID блока</label><input :value="selectedBlock.id" disabled /></div>
 
       <template v-if="isText">
         <div class="field"><label>Text (RU)</label><textarea v-model="translations.ru" rows="3" /></div>

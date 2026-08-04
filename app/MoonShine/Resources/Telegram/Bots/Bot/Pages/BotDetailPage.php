@@ -66,7 +66,6 @@ class BotDetailPage extends BaseDetailPage
             Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
                 ->format('d.m.Y H:i:s'),
             HasMany::make('Доступы к боту', 'members', resource: BotMemberResource::class)
-                ->modifyEditButton(fn($button) => $button->canSee(fn() => false))
                 ->creatable()
                 ->tabMode(),
         ];

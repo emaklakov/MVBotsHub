@@ -1,18 +1,21 @@
 import { describe, it, expect } from 'vitest'
-import { useFlowSerializer } from '../useFlowSerializer'
+import { useFlowSerializer, emptySchema, type GroupNodeData } from '../useFlowSerializer'
 import type { FlowSchema } from '@/types/flow'
 
 const { toVueFlow, toSchema } = useFlowSerializer()
 
-// Реалистичный сценарий: приветствие -> вопрос про имя -> подтверждение.
+// Группа "welcome" содержит ДВА блока подряд (текст + кнопки выбора языка) —
+// именно такой сценарий и был целью Фазы 2: несколько блоков в одной группе.
+// Группа "ask_name" — один блок. Переход на "confirmation" идёт от
+// последнего блока группы welcome (button), а не от первого (text).
 const sampleSchema: FlowSchema = {
     start_group_id: 'group_welcome',
     groups: {
         group_welcome: {
             id: 'group_welcome',
-            title: 'Сообщение',
+            title: 'Приветствие',
             position: { x: 40, y: 80 },
-            block_ids: ['block_welcome'],
+            block_ids: ['block_welcome_text', 'block_welcome_lang'],
         },
         group_ask_name: {
             id: 'group_ask_name',
@@ -20,19 +23,20 @@ const sampleSchema: FlowSchema = {
             position: { x: 40, y: 260 },
             block_ids: ['block_ask_name'],
         },
-        group_confirmation: {
-            id: 'group_confirmation',
-            title: 'Сообщение',
-            position: { x: 40, y: 440 },
-            block_ids: ['block_confirmation'],
-        },
     },
     blocks: {
-        block_welcome: {
-            id: 'block_welcome',
+        block_welcome_text: {
+            id: 'block_welcome_text',
             group_id: 'group_welcome',
             type: 'text',
             content: { translations: { ru: 'Привет!', en: 'Hi!' } },
+            outgoing_edge_id: null,
+        },
+        block_welcome_lang: {
+            id: 'block_welcome_lang',
+            group_id: 'group_welcome',
+            type: 'button',
+            content: { buttons: ['Русский', 'English'] },
             outgoing_edge_id: 'edge_1',
         },
         block_ask_name: {
@@ -41,79 +45,103 @@ const sampleSchema: FlowSchema = {
             type: 'input',
             content: { translations: { ru: 'Как тебя зовут?', en: "What's your name?" } },
             config: { variable: 'user_name' },
-            outgoing_edge_id: 'edge_2',
-        },
-        block_confirmation: {
-            id: 'block_confirmation',
-            group_id: 'group_confirmation',
-            type: 'text',
-            content: { translations: { ru: 'Приятно познакомиться, {{user_name}}!', en: 'Nice to meet you, {{user_name}}!' } },
             outgoing_edge_id: null,
         },
     },
     edges: {
-        edge_1: { id: 'edge_1', source_block_id: 'block_welcome', target_group_id: 'group_ask_name' },
-        edge_2: { id: 'edge_2', source_block_id: 'block_ask_name', target_group_id: 'group_confirmation' },
+        edge_1: { id: 'edge_1', source_block_id: 'block_welcome_lang', target_group_id: 'group_ask_name' },
     },
 }
 
 describe('toVueFlow', () => {
     const { nodes, edges } = toVueFlow(sampleSchema)
 
-    it('создаёт одну ноду на группу с типом её единственного блока', () => {
-        expect(nodes).toHaveLength(3)
-        const welcomeNode = nodes.find((n) => n.id === 'group_welcome')
-        expect(welcomeNode?.type).toBe('text')
-        expect(welcomeNode?.position).toEqual({ x: 40, y: 80 })
+    it('создаёт одну ноду типа group на каждую группу схемы', () => {
+        expect(nodes).toHaveLength(2)
+        expect(nodes.every((n) => n.type === 'group')).toBe(true)
     })
 
-    it('прокидывает content/config и blockId в data ноды', () => {
-        const nameNode = nodes.find((n) => n.id === 'group_ask_name')
-        expect(nameNode?.data.blockId).toBe('block_ask_name')
-        expect(nameNode?.data.content.translations.ru).toBe('Как тебя зовут?')
-        expect(nameNode?.data.config.variable).toBe('user_name')
+    it('кладёт все блоки группы в data.blocks в порядке block_ids', () => {
+        const welcomeNode = nodes.find((n) => n.id === 'group_welcome')!
+        const data = welcomeNode.data as GroupNodeData
+        expect(data.title).toBe('Приветствие')
+        expect(data.blocks.map((b) => b.id)).toEqual(['block_welcome_text', 'block_welcome_lang'])
+        expect(data.blocks[1].content?.buttons).toEqual(['Русский', 'English'])
     })
 
-    it('строит рёбра VueFlow между группами (source/target групп, не блоков)', () => {
-        expect(edges).toHaveLength(2)
-        const edge1 = edges.find((e) => e.id === 'edge_1')
-        expect(edge1).toEqual({ id: 'edge_1', source: 'group_welcome', target: 'group_ask_name' })
+    it('строит рёбра между группами (а не между блоками)', () => {
+        expect(edges).toHaveLength(1)
+        expect(edges[0]).toEqual({ id: 'edge_1', source: 'group_welcome', target: 'group_ask_name' })
     })
 })
 
+describe('toVueFlow — устойчивость к пустому/битому черновику', () => {
+    // Регрессия: "Cannot convert undefined or null to object" при открытии
+    // редактора для нового бота, у которого черновик ещё не был сохранён
+    // и бэкенд вернул schema: null / {} вместо полной структуры.
+    it('не падает, если schema === null', () => {
+        const result = toVueFlow(null)
+        expect(result.nodes).toEqual([])
+        expect(result.edges).toEqual([])
+    })
+
+    it('не падает, если schema === undefined', () => {
+        const result = toVueFlow(undefined)
+        expect(result.nodes).toEqual([])
+        expect(result.edges).toEqual([])
+    })
+
+    it('не падает, если schema === {} (нет ни groups, ни blocks, ни edges)', () => {
+        const result = toVueFlow({})
+        expect(result.nodes).toEqual([])
+        expect(result.edges).toEqual([])
+    })
+
+    it('emptySchema() даёт валидную пустую схему для инициализации нового бота', () => {
+        const result = toVueFlow(emptySchema())
+        expect(result.nodes).toEqual([])
+        expect(result.edges).toEqual([])
+    })
+})
+
+
 describe('toSchema', () => {
-    it('является обратной операцией к toVueFlow (round-trip)', () => {
+    it('является обратной операцией к toVueFlow (round-trip) для группы с несколькими блоками', () => {
         const { nodes, edges } = toVueFlow(sampleSchema)
         const result = toSchema(nodes, edges, sampleSchema.start_group_id)
 
         expect(result.start_group_id).toBe('group_welcome')
-        expect(Object.keys(result.groups)).toHaveLength(3)
-        expect(Object.keys(result.blocks)).toHaveLength(3)
-        expect(result.blocks['block_ask_name'].content).toEqual(
-            sampleSchema.blocks['block_ask_name'].content
-        )
-        expect(result.groups['group_welcome'].block_ids).toEqual(['block_welcome'])
+        expect(result.groups['group_welcome'].block_ids).toEqual(['block_welcome_text', 'block_welcome_lang'])
+        expect(result.blocks['block_welcome_lang'].content?.buttons).toEqual(['Русский', 'English'])
     })
 
-    it('проставляет outgoing_edge_id блоку-источнику по рёбрам VueFlow', () => {
+    it('привязывает outgoing_edge_id ребра группы к ПОСЛЕДНЕМУ блоку группы', () => {
         const { nodes, edges } = toVueFlow(sampleSchema)
         const result = toSchema(nodes, edges, sampleSchema.start_group_id)
 
-        expect(result.blocks['block_welcome'].outgoing_edge_id).toBe('edge_1')
-        expect(result.blocks['block_confirmation'].outgoing_edge_id).toBeNull()
+        expect(result.blocks['block_welcome_lang'].outgoing_edge_id).toBe('edge_1')
+        expect(result.blocks['block_welcome_text'].outgoing_edge_id).toBeNull()
     })
 
-    it('если у ноды ещё нет blockId (только что добавлена), использует node.id как blockId', () => {
-        const newNode = {
-            id: 'group_new',
-            type: 'text',
-            position: { x: 10, y: 10 },
-            data: { content: { translations: { ru: '', en: '' } }, config: {} },
-        }
-        const result = toSchema([newNode as any], [], 'group_new')
+    it('источник ребра в схеме указывает на последний блок исходной группы', () => {
+        const { nodes, edges } = toVueFlow(sampleSchema)
+        const result = toSchema(nodes, edges, sampleSchema.start_group_id)
 
-        expect(result.groups['group_new'].block_ids).toEqual(['group_new'])
-        expect(result.blocks['group_new'].id).toBe('group_new')
+        expect(result.edges['edge_1'].source_block_id).toBe('block_welcome_lang')
+        expect(result.edges['edge_1'].target_group_id).toBe('group_ask_name')
+    })
+
+    it('если группа пуста (data.blocks == []), не падает и просто не создаёт блоков', () => {
+        const emptyGroupNode = {
+            id: 'group_empty',
+            type: 'group',
+            position: { x: 0, y: 0 },
+            data: { title: 'Пустая', blocks: [] } as GroupNodeData,
+        }
+        const result = toSchema([emptyGroupNode as any], [], 'group_empty')
+
+        expect(result.groups['group_empty'].block_ids).toEqual([])
+        expect(Object.keys(result.blocks)).toHaveLength(0)
     })
 
     it('если start_group_id не передан, берёт первую ноду', () => {
