@@ -9,7 +9,7 @@ use App\Domain\Conversations\Enums\ConversationStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Models\Message as MessageModel;
-use App\Infrastructure\Telegram\DTO\TelegramMessage;
+use App\Infrastructure\Telegram\DTO\Message as TelegramMessage;
 use Stringable;
 
 final class ChatMessageHandler
@@ -21,7 +21,6 @@ final class ChatMessageHandler
     public function handle(Bot $bot, BotSubscriber $subscriber, TelegramMessage $message, Stringable $text): void
     {
         $conversation = $this->resolveActiveConversation($bot, $subscriber);
-
         [$type, $content] = $this->extractContent($message);
 
         MessageModel::create([
@@ -73,6 +72,6 @@ final class ChatMessageHandler
             return ['voice', ['file_id' => $voice->id()]];
         }
 
-        return ['text', ['text' => (string) $message->text()]];
+        return ['text', ['text' => $message->text()]];
     }
 }

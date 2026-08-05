@@ -9,7 +9,7 @@ use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationSessionStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\ConversationSession;
-use App\Infrastructure\Telegram\DTO\TelegramCallbackQuery;
+use App\Infrastructure\Telegram\DTO\CallbackQuery as TelegramCallbackQuery;
 
 final class CallbackQueryHandler
 {
@@ -18,10 +18,8 @@ final class CallbackQueryHandler
         private readonly TelegramGatewayInterface $telegramGateway,
     ) {}
 
-    public function handle(Bot $bot, array $callbackPayload): void
+    public function handle(Bot $bot, TelegramCallbackQuery $callbackQuery): void
     {
-        $callbackQuery = TelegramCallbackQuery::fromArray($callbackPayload);
-
         $telegramId = $callbackQuery->from()?->id();
         if (!$telegramId) {
             return;

@@ -9,7 +9,7 @@ use App\Domain\Conversations\Enums\ConversationStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Services\PhoneMergeService;
-use App\Infrastructure\Telegram\DTO\TelegramContact;
+use App\Infrastructure\Telegram\DTO\Contact as TelegramContact;
 
 final class ContactHandler
 {
@@ -27,10 +27,12 @@ final class ContactHandler
             'context'           => [],
         ]);
 
-        if($contact->userId() == $subscriber->telegram_id) {
+        if($contact->userId() != $subscriber->telegram_id) {
             $erroText = $bot->settings['not_your_contact_message'] ?? 'Вы поделились не своим номером';
 
             $this->messageSender->send($bot, $subscriber->telegram_id, $erroText, $conversation->id);
+
+            return;
         }
 
         $this->phoneMergeService->merge(

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Telegram;
 
 use App\Domain\Bots\Models\Bot;
-use App\Infrastructure\Telegram\DTO\TelegramMessage;
+use App\Infrastructure\Telegram\DTO\Message as TelegramMessage;
 use Illuminate\Support\Str;
 
 final class MessageHandler
@@ -19,12 +19,8 @@ final class MessageHandler
         private readonly ChatMessageHandler $chatMessageHandler,
     ) {}
 
-    public function handle(Bot $bot, array $messagePayload): void
+    public function handle(Bot $bot, TelegramMessage $message): void
     {
-        $message = TelegramMessage::fromArray($messagePayload);
-
-        \Log::debug(json_encode($message));
-
         $telegramId = $message->from()?->id();
         if (!$telegramId) {
             return;
