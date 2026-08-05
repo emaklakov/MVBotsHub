@@ -39,14 +39,4 @@ class FlowVersion extends Model
     {
         return $this->belongsTo(User::class, 'published_by');
     }
-
-    public function getStartBlockId(): ?string
-    {
-        return $this->schema['start_block_id'] ?? null;
-    }
-
-    public function getBlock(string $blockId): ?array
-    {
-        return $this->schema['blocks'][$blockId] ?? null;
-    }
 }

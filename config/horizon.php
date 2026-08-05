@@ -83,7 +83,7 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    'middleware' => ['web', 'auth:moonshine'],
 
     /*
     |--------------------------------------------------------------------------
@@ -214,9 +214,9 @@ return [
 
     'environments' => [
         'production' => [
-            'telegram-updates' => [
+            'telegram' => [
                 'connection' => 'redis',
-                'queue' => ['telegram-updates'],
+                'queue' => ['telegram'],
                 'balance' => 'auto',
                 'minProcesses' => 3,
                 'maxProcesses' => 20,

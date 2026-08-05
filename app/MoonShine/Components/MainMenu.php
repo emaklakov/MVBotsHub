@@ -53,67 +53,67 @@ class MainMenu
         return [
             MenuGroup::make('Пользователи', [
                 MenuItem::make(UserResource::class,'Пользователи', 'users')
-                    ->canSee(fn () => Gate::allows('view', User::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', User::class)),
                 MenuItem::make(RoleResource::class,'Роли', 'shield-exclamation')
-                    ->canSee(fn () => Gate::allows('view', Role::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Role::class)),
                 MenuItem::make(PermissionResource::class,'Разрешения', 'shield-check')
-                    ->canSee(fn () => Gate::allows('view', Permission::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Permission::class)),
                 MenuItem::make(SessionResource::class,'Сессии', 'arrow-right-end-on-rectangle')
-                    ->canSee(fn () => Gate::allows('view', Session::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Session::class)),
                 MenuItem::make(UserLogResource::class, 'Логи действий')
                     ->icon('shoe-prints', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', UserLog::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', UserLog::class)),
                 MenuItem::make(UserSettingResource::class, 'Настройки пользователей', 'cog-8-tooth')
-                    ->canSee(fn () => Gate::allows('view', UserSetting::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', UserSetting::class)),
                 MenuItem::make(NotificationResource::class, 'Уведомления', 'bell-alert')
-                    ->canSee(fn () => Gate::allows('view', Notification::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Notification::class)),
             ], 'user-group'),
             MenuGroup::make('Система', [
 
             ], 'cpu-chip'),
             MenuGroup::make('Очереди', [
                 MenuItem::make(JobResource::class, 'Журнал очередей DB', 'square-3-stack-3d')
-                    ->canSee(fn () => Gate::allows('view', Job::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Job::class)),
                 MenuItem::make(url('/horizon'), 'Horizon (Очереди Redis)')
                     ->blank()->icon('grip', path: 'icons')
                     ->canSee(fn () => \Auth::user()->hasRole('admin') || \Auth::user()->hasRole('super-admin')),
                 MenuItem::make(FailedJobResource::class, 'Задачи с ошибками', 'exclamation-triangle')
-                    ->canSee(fn () => Gate::allows('view', FailedJob::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', FailedJob::class)),
                 MenuItem::make(JobLogResource::class, 'Логи очередей', 'rectangle-stack')
-                    ->canSee(fn () => Gate::allows('view', JobLog::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', JobLog::class)),
             ], 'square-3-stack-3d'),
             MenuGroup::make('CRM', [
                 MenuItem::make(PersonResource::class, 'Люди')
                     ->icon('people-group', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', Person::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Person::class)),
             ])->icon('window-restore', path: 'icons'),
             MenuGroup::make('Telegram', [
                 MenuItem::make(BotResource::class, 'Боты')
                     ->icon('robot', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', Bot::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Bot::class)),
                 MenuItem::make(FlowResource::class, 'Потоки')
                     ->icon('chart-diagram', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', Flow::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Flow::class)),
                 MenuItem::make(FlowVersionResource::class, 'Версии потоков')
                     ->icon('diagram-project', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', FlowVersion::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', FlowVersion::class)),
                 MenuItem::make(BotMemberResource::class, 'Доступы к ботам')
                     ->icon('eye-low-vision', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', BotMember::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', BotMember::class)),
                 MenuItem::make(BotSubscriberResource::class, 'Пользователи бота', 'user-group')
-                    ->canSee(fn () => Gate::allows('view', BotSubscriber::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', BotSubscriber::class)),
                 MenuItem::make(ConversationResource::class, 'Диалоги')
                     ->icon('people-arrows', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', Conversation::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Conversation::class)),
                 MenuItem::make(ConversationSessionResource::class, 'Сессии диалогов')
                     ->icon('hourglass-half', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', ConversationSession::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', ConversationSession::class)),
                 MenuItem::make(MessageResource::class, 'Сообщения')
                     ->icon('comments-regular', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', Message::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Message::class)),
                 MenuItem::make(BroadcastResource::class, 'Рассылки')
                     ->icon('tower-cell', path: 'icons')
-                    ->canSee(fn () => Gate::allows('view', Broadcast::class)),
+                    ->canSee(fn () => Gate::allows('viewAny', Broadcast::class)),
             ])->icon('telegram', path: 'icons'),
         ];
     }

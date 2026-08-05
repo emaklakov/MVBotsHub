@@ -16,6 +16,7 @@ class ConversationSession extends Model
         'bot_subscriber_id',
         'flow_version_id',
         'current_block_id',
+        'current_group_id',
         'context',
         'status',
         'expires_at',

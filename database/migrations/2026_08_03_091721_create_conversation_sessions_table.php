@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('bot_subscriber_id')->constrained()->onDelete('cascade');
             $table->foreignId('flow_version_id')->constrained()->onDelete('cascade');
-            $table->string('current_block_id');
+            $table->string('current_block_id')->nullable();
+            $table->string('current_group_id')->nullable();
             $table->jsonb('context')->default('{}');
             $table->string('status')->default('active'); // active, paused, completed
             $table->timestamp('expires_at')->nullable();
