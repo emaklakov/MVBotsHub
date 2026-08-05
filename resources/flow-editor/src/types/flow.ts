@@ -7,6 +7,8 @@ export interface BlockContent {
 export interface BlockConfig {
     variable?: string
     hint?: string
+    /** Только для type: 'button'. Inline-кнопки под сообщением или reply-клавиатура. */
+    keyboardMode?: 'inline' | 'reply'
 }
 
 export type FlowBlockType = 'text' | 'input' | 'button'

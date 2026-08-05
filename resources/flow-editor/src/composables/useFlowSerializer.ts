@@ -27,6 +27,47 @@ export function defaultGroupTitle(type: FlowBlockType): string {
     }
 }
 
+/** Пустое содержимое блока при его создании (клик/drag из библиотеки блоков). */
+export function defaultBlockContent(type: FlowBlockType): BlockContent {
+    switch (type) {
+        case 'text':
+            return { translations: { ru: '', en: '' } }
+        case 'button':
+            return { buttons: [] }
+        default:
+            return {}
+    }
+}
+
+/** Пустые настройки блока при его создании. */
+export function defaultBlockConfig(type: FlowBlockType): BlockConfig {
+    return type === 'input' ? { variable: '' } : {}
+}
+
+/**
+ * Собирает имена всех переменных, которые где-либо во флоу заполняются
+ * input-блоками (`config.variable`) — используется, чтобы предложить их
+ * для вставки в текст через TextBlockEditor.
+ *
+ * Принимает минимальный тип (только `data`), а не полный `Node` из
+ * @vue-flow/core: связка `computed(() => collectVariables(nodes.value))`
+ * с полным generic-типом `Node` в вызывающем коде провоцирует ошибку
+ * TS2589 (Type instantiation is excessively deep) из-за глубоких
+ * generic-параметров этого типа.
+ */
+export function collectVariables(nodes: Array<{ data?: unknown }>): string[] {
+    const names = new Set<string>()
+    for (const node of nodes) {
+        const data = node.data as GroupNodeData | undefined
+        for (const block of data?.blocks ?? []) {
+            if (block.type === 'input' && block.config?.variable) {
+                names.add(block.config.variable)
+            }
+        }
+    }
+    return Array.from(names)
+}
+
 /**
  * Пустая схема — используется как безопасный дефолт, когда бэкенд
  * ещё не вернул валидную схему (новый бот без сохранённого черновика,

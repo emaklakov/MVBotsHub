@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { useFlowSerializer, emptySchema, type GroupNodeData } from '../useFlowSerializer'
+import {
+    useFlowSerializer,
+    emptySchema,
+    defaultBlockContent,
+    defaultBlockConfig,
+    collectVariables,
+    type GroupNodeData,
+} from '../useFlowSerializer'
 import type { FlowSchema } from '@/types/flow'
 
 const { toVueFlow, toSchema } = useFlowSerializer()
@@ -148,5 +155,76 @@ describe('toSchema', () => {
         const { nodes, edges } = toVueFlow(sampleSchema)
         const result = toSchema(nodes, edges, null)
         expect(result.start_group_id).toBe(nodes[0].id)
+    })
+})
+
+describe('defaultBlockContent / defaultBlockConfig', () => {
+    it('text получает пустые переводы ru/en', () => {
+        expect(defaultBlockContent('text')).toEqual({ translations: { ru: '', en: '' } })
+        expect(defaultBlockConfig('text')).toEqual({})
+    })
+
+    it('input получает пустую переменную в config, content пустой', () => {
+        expect(defaultBlockContent('input')).toEqual({})
+        expect(defaultBlockConfig('input')).toEqual({ variable: '' })
+    })
+
+    it('button получает пустой список кнопок', () => {
+        expect(defaultBlockContent('button')).toEqual({ buttons: [] })
+        expect(defaultBlockConfig('button')).toEqual({})
+    })
+})
+
+describe('collectVariables', () => {
+    it('собирает переменные из всех input-блоков по всем группам', () => {
+        const { nodes } = toVueFlow(sampleSchema)
+        // sampleSchema: block_ask_name (input, variable: user_name) — единственный input
+        expect(collectVariables(nodes)).toEqual(['user_name'])
+    })
+
+    it('не дублирует переменную, если она используется в нескольких input-блоках', () => {
+        const nodesWithDuplicate = [
+            {
+                id: 'g1',
+                type: 'group',
+                position: { x: 0, y: 0 },
+                data: {
+                    title: 'A',
+                    blocks: [{ id: 'b1', type: 'input', config: { variable: 'name' } }],
+                } as GroupNodeData,
+            },
+            {
+                id: 'g2',
+                type: 'group',
+                position: { x: 0, y: 0 },
+                data: {
+                    title: 'B',
+                    blocks: [{ id: 'b2', type: 'input', config: { variable: 'name' } }],
+                } as GroupNodeData,
+            },
+        ]
+        expect(collectVariables(nodesWithDuplicate as any)).toEqual(['name'])
+    })
+
+    it('игнорирует input-блоки без указанной переменной и блоки других типов', () => {
+        const mixedNodes = [
+            {
+                id: 'g1',
+                type: 'group',
+                position: { x: 0, y: 0 },
+                data: {
+                    title: 'A',
+                    blocks: [
+                        { id: 'b1', type: 'input', config: {} },
+                        { id: 'b2', type: 'text', config: { variable: 'should_be_ignored' } },
+                    ],
+                } as GroupNodeData,
+            },
+        ]
+        expect(collectVariables(mixedNodes as any)).toEqual([])
+    })
+
+    it('на пустом списке нод возвращает пустой массив', () => {
+        expect(collectVariables([])).toEqual([])
     })
 })

@@ -67,7 +67,7 @@ class FlowDetailPage extends BaseDetailPage
             ActionButton::make('Редактировать', fn($item) => route('flow.editor', ['bot' => $item->bot_id, 'flow' => $item->id]))
                 ->icon('chart-diagram', path: 'icons')
                 ->canSee(fn(Flow $flow) => $flow->status === FlowStatus::DRAFT)
-                ->blank()
+                //->blank()
                 ->class('py-[10px] ml-4 btn-primary'),
         );
     }
