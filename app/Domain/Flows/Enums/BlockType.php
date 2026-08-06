@@ -13,5 +13,4 @@ enum BlockType: string
     case JUMP = 'jump';
     case API_CALL = 'api_call';
     case DELAY = 'delay';
-    case INLINE_KEYBOARD = 'inline_keyboard';
 }

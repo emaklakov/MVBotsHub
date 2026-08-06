@@ -57,18 +57,38 @@ final class FlowSchemaNavigator
     }
 
     /**
-     * Найти ID следующей группы после выполнения блока.
+     * Найти ID следующей группы.
+     * Для condition: передаётся branch ('true'/'false').
      */
-    public function getNextGroupId(string $blockId): ?string
+    public function getNextGroupId(string $blockId, ?string $branch = null): ?string
     {
-        $block = $this->getBlock($blockId);
-        if (!$block || empty($block['outgoing_edge_id'])) {
-            return null;
+        // Для condition и многовыходных блоков: ищем edge по source_block_id + source_handle
+        foreach ($this->schema['edges'] ?? [] as $edge) {
+            if (($edge['source_block_id'] ?? null) !== $blockId) {
+                continue;
+            }
+
+            // Если branch не указан — берём первую попавшуюся (обратная совместимость)
+            // Если branch указан — строгое совпадение source_handle
+            $edgeBranch = $edge['source_handle'] ?? null;
+
+            if ($branch === null) {
+                return $edge['target_group_id'] ?? null;
+            }
+
+            if ($edgeBranch === $branch) {
+                return $edge['target_group_id'] ?? null;
+            }
         }
 
-        $edge = $this->schema['edges'][$block['outgoing_edge_id']] ?? null;
+        // Fallback: обычные блоки с outgoing_edge_id
+        $block = $this->getBlock($blockId);
+        if ($block && !empty($block['outgoing_edge_id'])) {
+            $edge = $this->schema['edges'][$block['outgoing_edge_id']] ?? null;
+            return $edge['target_group_id'] ?? null;
+        }
 
-        return $edge['target_group_id'] ?? null;
+        return null;
     }
 
     /**

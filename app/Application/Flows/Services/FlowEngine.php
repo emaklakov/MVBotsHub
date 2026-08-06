@@ -111,7 +111,7 @@ final class FlowEngine
             }
 
             // Переходим дальше
-            $advanced = $this->advanceToNext($version, $session, $navigator);
+            $advanced = $this->advanceToNext($version, $session, $navigator, $result->branch);
 
             if (!$advanced) {
                 $this->sessionStore->complete($session->id);
@@ -134,7 +134,7 @@ final class FlowEngine
         $this->run($version, $session, $bot, $subscriber);
     }
 
-    private function advanceToNext(FlowVersion $version, FlowSession $session, FlowSchemaNavigator $navigator): bool
+    private function advanceToNext(FlowVersion $version, FlowSession $session, FlowSchemaNavigator $navigator, ?string $branch = null): bool
     {
         $currentGroupId = $session->currentGroupId;
         $currentBlockId = $session->currentBlockId;
@@ -147,8 +147,8 @@ final class FlowEngine
             return true;
         }
 
-        // 2. Текущий блок — последний в группе. Ищем edge к следующей группе.
-        $nextGroupId = $navigator->getNextGroupId($currentBlockId);
+        // 2. Последний блок — ищем edge (с учётом branch для condition)
+        $nextGroupId = $navigator->getNextGroupId($currentBlockId, $branch);
 
         if (!$nextGroupId) {
             return false; // Flow завершён

@@ -24,14 +24,33 @@ final class ConditionBlockExecutor implements BlockExecutorInterface
     public function execute(array $block, ExecutionContext $context): BlockExecutionResult
     {
         $config = $block['config'] ?? [];
-        $variable = $config['variable'] ?? '';
-        $operator = $config['operator'] ?? 'eq';
-        $value = $config['value'] ?? '';
 
-        $contextValue = $context->session->context[$variable] ?? '';
-        $result = $this->evaluator->evaluate($contextValue, $operator, $value);
-        $branch = $result ? 'true' : 'false';
+        $variable = $config['conditionVariable'] ?? '';
+        $operator = $config['conditionOperator'] ?? '==';
+        $value = $config['conditionValue'] ?? '';
 
-        return new BlockExecutionResult(nextBlockId: $block['branches'][$branch] ?? null);
+        $contextValue = $context->session->context[$variable] ?? null;
+
+        $result = match ($operator) {
+            'is_set' => $contextValue !== null && $contextValue !== '',
+            'is_empty' => $contextValue === null || $contextValue === '',
+            default => $this->evaluator->evaluate(
+                $contextValue ?? '',
+                $this->mapOperator($operator),
+                $value
+            ),
+        };
+
+        return new BlockExecutionResult(branch: $result ? 'true' : 'false');
+    }
+
+    private function mapOperator(string $operator): string
+    {
+        return match ($operator) {
+            '==' => 'eq',
+            '!=' => 'neq',
+            'contains' => 'contains',
+            default => 'eq',
+        };
     }
 }

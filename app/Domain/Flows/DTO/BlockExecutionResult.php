@@ -11,5 +11,6 @@ final readonly class BlockExecutionResult
     public function __construct(
         public ?string $nextBlockId = null,
         public ExecutionStatus $status = ExecutionStatus::CONTINUE,
+        public ?string $branch = null, // 'true' | 'false' | null
     ) {}
 }
