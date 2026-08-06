@@ -7,7 +7,6 @@ namespace App\Application\Telegram;
 use App\Domain\Bots\Contracts\TelegramGatewayInterface;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationSessionStatus;
-use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\ConversationSession;
 use App\Infrastructure\Telegram\DTO\CallbackQuery as TelegramCallbackQuery;
 
@@ -16,6 +15,7 @@ final class CallbackQueryHandler
     public function __construct(
         private readonly FlowSessionRunner $flowSessionRunner,
         private readonly TelegramGatewayInterface $telegramGateway,
+        private readonly SubscriberResolver $subscriberResolver,
     ) {}
 
     public function handle(Bot $bot, TelegramCallbackQuery $callbackQuery): void
@@ -28,14 +28,7 @@ final class CallbackQueryHandler
         // Убираем "часики" на кнопке
         $this->telegramGateway->answerCallbackQuery($bot, $callbackQuery->id());
 
-        $subscriber = BotSubscriber::query()
-            ->where('bot_id', $bot->id)
-            ->where('telegram_id', $telegramId)
-            ->first();
-
-        if (!$subscriber) {
-            return;
-        }
+        $subscriber = $this->subscriberResolver->resolve($bot, $callbackQuery->from());
 
         $session = ConversationSession::query()
             ->where('bot_subscriber_id', $subscriber->id)

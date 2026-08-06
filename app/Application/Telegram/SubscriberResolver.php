@@ -7,19 +7,30 @@ namespace App\Application\Telegram;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\SubscriberStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
+use App\Infrastructure\Telegram\DTO\User as TelegramUser;
 
 final class SubscriberResolver
 {
-    public function resolve(Bot $bot, int $telegramId, ?string $username): BotSubscriber
+    public function resolve(Bot $bot, TelegramUser $user): BotSubscriber
     {
-        return BotSubscriber::firstOrCreate(
-            ['bot_id' => $bot->id, 'telegram_id' => $telegramId],
+        $subscriber = BotSubscriber::updateOrCreate(
+            ['bot_id' => $bot->id, 'telegram_id' => $user->id()],
             [
-                'telegram_username' => $username,
+                'telegram_username' => $user->username(),
+                'telegram_first_name' => $user->firstName(),
+                'telegram_last_name' => $user->lastName(),
+                'telegram_language' => $user->languageCode(),
                 'status'            => SubscriberStatus::ACTIVE,
                 'settings'          => [],
                 'language'          => $bot->settings['language'] ?? config('app.locale'),
             ]
         );
+
+        $subscriber->timestamps = false;
+        $subscriber->last_activity_at = now();
+        $subscriber->save();
+        $subscriber->timestamps = true;
+
+        return $subscriber;
     }
 }

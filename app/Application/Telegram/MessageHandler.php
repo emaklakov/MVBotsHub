@@ -26,8 +26,7 @@ final class MessageHandler
             return;
         }
 
-        $subscriber = $this->subscriberResolver->resolve($bot, $telegramId, $message->from()?->username());
-        $subscriber->update(['last_activity_at' => now()]);
+        $subscriber = $this->subscriberResolver->resolve($bot, $message->from());
 
         if ($contact = $message->contact()) {
             $this->contactHandler->handle($bot, $subscriber, $contact);

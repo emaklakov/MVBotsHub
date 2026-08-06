@@ -17,6 +17,10 @@ return new class extends Migration
             $table->foreignId('person_id')->nullable()->constrained()->onDelete('set null');
             $table->unsignedBigInteger('telegram_id');
             $table->string('telegram_username')->nullable();
+            $table->string('telegram_first_name')->nullable();
+            $table->string('telegram_last_name')->nullable();
+            $table->string('telegram_language', 5)->nullable();
+            $table->date('birthday')->nullable();
             $table->string('language', 5)->nullable(); // override от people/bot
             $table->jsonb('settings')->default('{}');
             $table->string('status')->default('active'); // active, blocked, merged

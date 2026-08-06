@@ -21,11 +21,15 @@ class BotSubscriber extends Model
         'person_id',
         'telegram_id',
         'telegram_username',
+        'telegram_first_name',
+        'telegram_last_name',
+        'telegram_language',
         'language',
         'settings',
         'status',
         'merged_into_id',
         'last_activity_at',
+        'birthday'
     ];
 
     protected function casts(): array
