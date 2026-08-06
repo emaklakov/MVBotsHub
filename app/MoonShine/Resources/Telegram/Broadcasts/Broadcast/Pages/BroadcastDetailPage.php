@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\Pages;
 
+use App\Application\Broadcasts\Services\BroadcastDispatcher;
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\Domain\Broadcasts\Models\Broadcast;
-use App\Domain\Broadcasts\Services\BroadcastDispatcher;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\BroadcastResource;

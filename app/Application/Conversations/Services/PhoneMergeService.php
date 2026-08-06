@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Conversations\Services;
+namespace App\Application\Conversations\Services;
 
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationStatus;

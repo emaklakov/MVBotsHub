@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Domain\Bots\Services;
+namespace App\Application\Bots\Services;
 
 use App\Application\Services\LogService;
 use App\Domain\Bots\Models\Bot;
 use DefStudio\Telegraph\Facades\Telegraph;
-use DefStudio\Telegraph\Models\TelegraphBot;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class WebhookService

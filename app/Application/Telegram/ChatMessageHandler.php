@@ -8,7 +8,6 @@ use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
-use App\Domain\Conversations\Models\Message as MessageModel;
 use App\Infrastructure\Telegram\DTO\Message as TelegramMessage;
 use Stringable;
 
@@ -16,20 +15,25 @@ final class ChatMessageHandler
 {
     public function __construct(
         private readonly TelegramMessageSender $messageSender,
+        private readonly MessageRecorder $messageRecorder,
     ) {}
 
-    public function handle(Bot $bot, BotSubscriber $subscriber, TelegramMessage $message, Stringable $text): void
+    public function handle(
+        Bot $bot,
+        BotSubscriber $subscriber,
+        TelegramMessage $message,
+        Stringable $text
+    ): void
     {
         $conversation = $this->resolveActiveConversation($bot, $subscriber);
         [$type, $content] = $this->extractContent($message);
 
-        MessageModel::create([
-            'conversation_id'     => $conversation->id,
-            'direction'           => 'in',
-            'type'                => $type,
-            'content'             => $content,
-            'telegram_message_id' => $message->id(),
-        ]);
+        $this->messageRecorder->recordInbound(
+            $conversation->id,
+            $type,
+            $content,
+            $message->id()
+        );
 
         if ($type === 'text') {
             $this->messageSender->send(

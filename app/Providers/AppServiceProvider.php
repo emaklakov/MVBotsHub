@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Application\Broadcasts\ProgressTracker;
+use App\Application\Broadcasts\Services\BroadcastDispatcher;
 use App\Application\Flows\BlockExecutorRegistry;
 use App\Application\Flows\Executors\ApiCallBlockExecutor;
 use App\Application\Flows\Executors\ButtonBlockExecutor;
@@ -12,10 +14,11 @@ use App\Application\Flows\Executors\InputBlockExecutor;
 use App\Application\Flows\Executors\JumpBlockExecutor;
 use App\Application\Flows\Executors\TextBlockExecutor;
 use App\Application\Flows\Services\FlowEngine;
+use App\Application\Flows\Services\VariableResolver;
+use App\Application\Telegram\MessageRecorder;
 use App\Domain\Flows\Contracts\MessengerInterface;
 use App\Domain\Flows\Contracts\SessionStoreInterface;
 use App\Domain\Flows\Contracts\VariableResolverInterface;
-use App\Domain\Flows\Services\VariableResolver;
 use App\Http\Controllers\Auth\AuthenticateController;
 use App\Http\Controllers\Users\ProfileController;
 use App\Infrastructure\Persistence\EloquentSessionStore;
@@ -49,9 +52,13 @@ class AppServiceProvider extends ServiceProvider
             \App\Infrastructure\Telegram\TelegraphGateway::class
         );
 
+        $this->app->singleton(ProgressTracker::class);
+        $this->app->singleton(BroadcastDispatcher::class);
+
         $this->app->singleton(SessionStoreInterface::class, EloquentSessionStore::class);
         $this->app->singleton(MessengerInterface::class, TelegramMessenger::class);
         $this->app->singleton(VariableResolverInterface::class, VariableResolver::class);
+        $this->app->singleton(MessageRecorder::class);
 
         $this->app->singleton(BlockExecutorRegistry::class, function ($app) {
             $registry = new BlockExecutorRegistry();

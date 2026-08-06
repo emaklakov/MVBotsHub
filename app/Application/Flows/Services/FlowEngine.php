@@ -165,4 +165,26 @@ final class FlowEngine
         $this->sessionStore->updatePosition($session, $nextGroupId, $firstBlock['id']);
         return true;
     }
+
+    public function continueFromBlock(
+        Bot $bot,
+        BotSubscriber $subscriber,
+        FlowVersion $version,
+        FlowSession $session,
+        string $blockId
+    ): void {
+        $navigator = new FlowSchemaNavigator($version);
+        $block = $navigator->getBlock($blockId);
+
+        if (!$block) {
+            $this->sessionStore->complete($session->id);
+            return;
+        }
+
+        // Синхронизируем позицию сессии
+        $this->sessionStore->updatePosition($session, $block['group_id'], $blockId);
+
+        // Продолжаем выполнение с новой позиции
+        $this->run($version, $session, $bot, $subscriber);
+    }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Users;
 
 
-use App\Application\Services\Users\ActivityLogger;
+use App\Application\Users\Services\ActivityLogger;
 use App\Http\Requests\Users\ProfileFormRequest;
 use App\MoonShine\Pages\Admin\ProfilePage;
 use Illuminate\Database\Eloquent\Model;

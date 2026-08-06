@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Flows\Services;
+namespace App\Application\Flows\Services;
 
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Flows\Contracts\VariableResolverInterface;
@@ -18,7 +18,7 @@ final class VariableResolver implements VariableResolverInterface
         $variables['subscriber.language'] = $subscriber->effectiveLanguage;
 
         if ($subscriber->person) {
-            $variables['people.phone'] = $subscriber->person->phone;
+            $variables['person.phone'] = $subscriber->person->phone;
         }
 
         foreach ($variables as $key => $value) {

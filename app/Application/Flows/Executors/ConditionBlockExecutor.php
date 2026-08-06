@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Application\Flows\Executors;
 
+use App\Application\Flows\Services\ConditionEvaluator;
 use App\Domain\Flows\Contracts\BlockExecutorInterface;
 use App\Domain\Flows\Dto\BlockExecutionResult;
 use App\Domain\Flows\Dto\ExecutionContext;
 use App\Domain\Flows\Enums\BlockType;
-use App\Domain\Flows\Services\ConditionEvaluator;
 
 final class ConditionBlockExecutor implements BlockExecutorInterface
 {

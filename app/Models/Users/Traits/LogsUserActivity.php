@@ -2,7 +2,7 @@
 
 namespace App\Models\Users\Traits;
 
-use App\Application\Services\Users\ActivityLogger;
+use App\Application\Users\Services\ActivityLogger;
 
 /**
  * Трейт для логирования действий пользователей:

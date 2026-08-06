@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\Session\Pages;
 
-use App\Application\Services\Users\DeviceDetector;
+use App\Application\Users\Services\DeviceDetector;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\Users\Session\SessionResource;
 use App\MoonShine\Resources\Users\User\UserResource;

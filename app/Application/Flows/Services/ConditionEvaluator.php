@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Flows\Services;
+namespace App\Application\Flows\Services;
 
 /**
  * Чистая функция. Не зависит от фреймворка.

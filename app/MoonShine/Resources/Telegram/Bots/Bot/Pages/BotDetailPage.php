@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Telegram\Bots\Bot\Pages;
 
+use App\Application\Bots\Services\WebhookService;
 use App\Domain\Bots\Enums\BotStatus;
 use App\Domain\Bots\Enums\WebhookStatus;
 use App\Domain\Bots\Models\Bot;
-use App\Domain\Bots\Services\WebhookService;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;

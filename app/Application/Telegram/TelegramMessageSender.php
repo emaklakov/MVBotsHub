@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Telegram;
 
+use App\Application\Telegram\DTO\SendMessage;
 use App\Domain\Bots\Models\Bot;
 use App\Jobs\Telegram\SendContactRequest;
 use App\Jobs\Telegram\SendTelegramMessage;
@@ -16,7 +17,7 @@ final class TelegramMessageSender
 {
     public function send(Bot $bot, int $telegramId, string $text, ?int $conversationId = null): void
     {
-        SendTelegramMessage::dispatch($bot, $telegramId, $text, $conversationId)
+        SendTelegramMessage::dispatch(new SendMessage($bot, $telegramId, $text, $conversationId))
             ->onQueue('telegram');
     }
 

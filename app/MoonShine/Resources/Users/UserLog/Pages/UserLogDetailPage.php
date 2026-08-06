@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\UserLog\Pages;
 
-use App\Application\Services\Users\DeviceDetector;
+use App\Application\Users\Services\DeviceDetector;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Users\UserLog\UserLogResource;
 use MoonShine\Contracts\UI\FieldContract;

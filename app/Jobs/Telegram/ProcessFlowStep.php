@@ -1,18 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs\Telegram;
 
+use App\Application\Flows\FlowSchemaNavigator;
+use App\Application\Flows\Services\FlowEngine;
 use App\Domain\Conversations\Enums\ConversationSessionStatus;
 use App\Domain\Conversations\Models\ConversationSession;
-use App\Domain\Flows\Services\FlowRunner;
+use App\Domain\Flows\Entities\FlowSession;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-// Job для отложенных шагов (Delay)
-class ProcessFlowStep implements ShouldQueue
+/**
+ * Job для продолжения flow после задержки (Delay).
+ */
+final class ProcessFlowStep implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -23,7 +29,7 @@ class ProcessFlowStep implements ShouldQueue
         public string $blockId,
     ) {}
 
-    public function handle(): void
+    public function handle(FlowEngine $flowEngine): void
     {
         $session = ConversationSession::with(['subscriber', 'flowVersion.flow.bot'])
             ->find($this->sessionId);
@@ -32,14 +38,39 @@ class ProcessFlowStep implements ShouldQueue
             return;
         }
 
-        $session->update(['current_block_id' => $this->blockId]);
+        // Находим блок в схеме flow-editor, чтобы получить его group_id
+        $navigator = new FlowSchemaNavigator($session->flowVersion);
+        $block = $navigator->getBlock($this->blockId);
 
-        $runner = new FlowRunner(
-            $session->flowVersion->flow->bot,
-            $session->subscriber,
-            $session->flowVersion
+        if (!$block) {
+            return;
+        }
+
+        // Синхронизируем позицию в БД (group + block)
+        $session->update([
+            'current_block_id' => $this->blockId,
+            'current_group_id' => $block['group_id'],
+        ]);
+
+        // Маппим Eloquent-модель в Domain Entity
+        $flowSession = new FlowSession(
+            id: $session->id,
+            botSubscriberId: $session->bot_subscriber_id,
+            flowVersionId: $session->flow_version_id,
+            currentGroupId: $block['group_id'],
+            currentBlockId: $this->blockId,
+            context: $session->context ?? [],
+            status: $session->status,
+            expiresAt: $session->expires_at,
         );
 
-        $runner->continueFromBlock($session, $this->blockId);
+        // Продолжаем выполнение с новой позиции
+        $flowEngine->continueFromBlock(
+            $session->flowVersion->flow->bot,
+            $session->subscriber,
+            $session->flowVersion,
+            $flowSession,
+            $this->blockId
+        );
     }
 }

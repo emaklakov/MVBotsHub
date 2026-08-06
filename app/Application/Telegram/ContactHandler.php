@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Application\Telegram;
 
+use App\Application\Conversations\Services\PhoneMergeService;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
-use App\Domain\Conversations\Services\PhoneMergeService;
 use App\Infrastructure\Telegram\DTO\Contact as TelegramContact;
 
 final class ContactHandler

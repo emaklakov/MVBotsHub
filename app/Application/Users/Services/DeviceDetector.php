@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Services\Users;
+namespace App\Application\Users\Services;
 
 use Jenssegers\Agent\Agent;
 
