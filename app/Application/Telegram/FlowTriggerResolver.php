@@ -15,8 +15,8 @@ final class FlowTriggerResolver
 {
     public function resolve(Bot $bot, string $textInput): ?TriggerResolution
     {
-        $command = ltrim($textInput, '/');
-        $parts   = explode(' ', $textInput, 2);
+        $command = explode('@', ltrim($textInput, '/'))[0];
+        $parts = explode(' ', $textInput, 2);
         $param   = $parts[1] ?? null;
 
         if ($param) {

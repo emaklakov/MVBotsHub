@@ -40,15 +40,4 @@ final class TextBlockExecutor implements BlockExecutorInterface
 
         return new BlockExecutionResult(); // CONTINUE по умолчанию
     }
-
-    private function resolveText(array $content, ExecutionContext $context): string
-    {
-        $language = $context->subscriber->effectiveLanguage;
-        $raw = $content['translations'][$language]
-            ?? $content['translations']['ru']
-            ?? $content['text']
-            ?? '';
-
-        return $this->variableResolver->resolve($raw, $context->session->context, $context->subscriber);
-    }
 }

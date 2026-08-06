@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Application\Flows\Executors;
 
 use App\Domain\Flows\Contracts\BlockExecutorInterface;
+use App\Domain\Flows\Contracts\MessengerInterface;
+use App\Domain\Flows\Contracts\VariableResolverInterface;
 use App\Domain\Flows\Dto\BlockExecutionResult;
 use App\Domain\Flows\Dto\ExecutionContext;
 use App\Domain\Flows\Enums\BlockType;
@@ -12,6 +14,11 @@ use App\Domain\Flows\Enums\ExecutionStatus;
 
 final class InputBlockExecutor implements BlockExecutorInterface
 {
+    public function __construct(
+        private readonly MessengerInterface $messenger,
+        private readonly VariableResolverInterface $variableResolver,
+    ) {}
+
     public function supports(BlockType $type): bool
     {
         return $type === BlockType::INPUT;

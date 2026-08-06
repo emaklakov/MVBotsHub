@@ -29,9 +29,17 @@ final class ApiCallBlockExecutor implements BlockExecutorInterface
         $method = strtoupper($config['method'] ?? 'GET');
         $headers = $config['headers'] ?? [];
         $variable = $config['variable'] ?? 'api_response';
+        $body = $config['body'] ?? [];
 
         try {
-            $response = Http::withHeaders($headers)->timeout(10)->{$method}($url);
+            $response = match ($method) {
+                'GET' => Http::withHeaders($headers)->timeout(10)->get($url),
+                'POST' => Http::withHeaders($headers)->timeout(10)->post($url, $body),
+                'PUT' => Http::withHeaders($headers)->timeout(10)->put($url, $body),
+                'PATCH' => Http::withHeaders($headers)->timeout(10)->patch($url, $body),
+                'DELETE' => Http::withHeaders($headers)->timeout(10)->delete($url),
+                default => Http::withHeaders($headers)->timeout(10)->get($url),
+            };
             $result = $response->successful() ? $response->json() : ['error' => $response->body()];
         } catch (\Exception $e) {
             $result = ['error' => $e->getMessage()];
