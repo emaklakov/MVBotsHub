@@ -7,7 +7,6 @@ namespace App\Application\Telegram;
 use App\Application\Services\LogService;
 use App\Domain\Bots\Models\Bot;
 use App\Infrastructure\Telegram\DTO\TelegramUpdate;
-use Illuminate\Support\Facades\Log;
 
 final readonly class UpdateDispatcher
 {

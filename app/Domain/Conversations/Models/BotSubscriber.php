@@ -24,6 +24,7 @@ class BotSubscriber extends Model
         'telegram_first_name',
         'telegram_last_name',
         'telegram_language',
+        'is_bot',
         'language',
         'settings',
         'status',

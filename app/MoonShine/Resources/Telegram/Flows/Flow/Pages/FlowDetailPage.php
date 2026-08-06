@@ -54,7 +54,7 @@ class FlowDetailPage extends BaseDetailPage
     protected function buttons(): ListOf
     {
         return parent::buttons()->add(
-            ActionButton::make('Опубликовать')
+            ActionButton::make('Опубликовать черновик')
                 ->method('publishFlow')
                 ->withConfirm(
                     title: 'Подтвердить',
@@ -62,13 +62,13 @@ class FlowDetailPage extends BaseDetailPage
                     button: 'Подтвердить',
                 )
                 ->icon('upload', path: 'icons')
-                ->canSee(fn(Flow $flow) => $flow->status === FlowStatus::ACTIVE)
+                ->canSee(fn(Flow $flow) => $flow->status != FlowStatus::ARCHIVED)
                 ->class('py-[10px] ml-4 btn-success'),
-            ActionButton::make('Редактировать', fn($item) => route('flow.editor', ['bot' => $item->bot_id, 'flow' => $item->id]))
+            ActionButton::make('Редактировать схему', fn($item) => route('flow.editor', ['bot' => $item->bot_id, 'flow' => $item->id]))
                 ->icon('chart-diagram', path: 'icons')
-                ->canSee(fn(Flow $flow) => $flow->status === FlowStatus::DRAFT)
+                ->canSee(fn(Flow $flow) => $flow->status != FlowStatus::ARCHIVED)
                 //->blank()
-                ->class('py-[10px] ml-4 btn-primary'),
+                ->class('py-[10px] btn-primary'),
         );
     }
 

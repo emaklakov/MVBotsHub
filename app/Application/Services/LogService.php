@@ -15,7 +15,7 @@ class LogService
             : $caller['function'];
 
         Log::error("Error in {$location} {$caller['file']}:{$caller['line']}", [
-            'message' => json_encode($message),
+            'message' => is_string($message) ? $message : json_encode($message),
             'trace' => json_encode($trace),
         ]);
     }
@@ -29,7 +29,7 @@ class LogService
             : $caller['function'];
 
         Log::warning("Warning in {$location} {$caller['file']}:{$caller['line']}", [
-            'message' => json_encode($message),
+            'message' => is_string($message) ? $message : json_encode($message),
             'trace' => json_encode($trace),
         ]);
     }
@@ -43,7 +43,7 @@ class LogService
             : $caller['function'];
 
         Log::info("Info in {$location} {$caller['file']}:{$caller['line']}", [
-            'message' => json_encode($message),
+            'message' => is_string($message) ? $message : json_encode($message),
             'trace' => json_encode($trace),
         ]);
     }

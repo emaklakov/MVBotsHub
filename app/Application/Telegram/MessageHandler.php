@@ -21,13 +21,15 @@ final class MessageHandler
 
     public function handle(Bot $bot, TelegramMessage $message): void
     {
-        $telegramId = $message->from()?->id();
-        if (!$telegramId) {
+        $from = $message->from();
+        if (!$from) {
             return;
         }
 
-        $subscriber = $this->subscriberResolver->resolve($bot, $message->from());
+        // Заполняем данные по пользователю
+        $subscriber = $this->subscriberResolver->resolve($bot, $from);
 
+        // Обрабатываем отправленный контакт
         if ($contact = $message->contact()) {
             $this->contactHandler->handle($bot, $subscriber, $contact);
             return;

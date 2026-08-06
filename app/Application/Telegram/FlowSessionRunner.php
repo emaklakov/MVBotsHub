@@ -9,6 +9,7 @@ use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationSessionStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\ConversationSession;
+use App\Domain\Flows\Contracts\SessionStoreInterface;
 use App\Domain\Flows\Models\FlowVersion;
 
 /**
@@ -19,6 +20,7 @@ final class FlowSessionRunner
 {
     public function __construct(
         private readonly FlowEngine $flowEngine,
+        private readonly SessionStoreInterface $sessionStore,
     ) {}
 
     public function hasActiveSession(BotSubscriber $subscriber): bool

@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Application\Telegram;
 
+use App\Application\Telegram\DTO\SendMessage;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
+use App\Domain\Flows\Contracts\MessageSenderInterface;
 use App\Infrastructure\Telegram\DTO\Message as TelegramMessage;
 use Stringable;
 
 final class ChatMessageHandler
 {
     public function __construct(
-        private readonly TelegramMessageSender $messageSender,
+        private readonly MessageSenderInterface $messageSender,
         private readonly MessageRecorder $messageRecorder,
     ) {}
 
@@ -36,12 +38,12 @@ final class ChatMessageHandler
         );
 
         if ($type === 'text') {
-            $this->messageSender->send(
+            $this->messageSender->send(new SendMessage(
                 $bot,
                 $subscriber->telegram_id,
                 "Echo: {$content['text']}",
                 $conversation->id
-            );
+            ));
         }
     }
 

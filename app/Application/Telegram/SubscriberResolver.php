@@ -16,13 +16,14 @@ final class SubscriberResolver
         $subscriber = BotSubscriber::updateOrCreate(
             ['bot_id' => $bot->id, 'telegram_id' => $user->id()],
             [
-                'telegram_username' => $user->username(),
+                'telegram_username'   => $user->username(),
                 'telegram_first_name' => $user->firstName(),
-                'telegram_last_name' => $user->lastName(),
-                'telegram_language' => $user->languageCode(),
-                'status'            => SubscriberStatus::ACTIVE,
-                'settings'          => [],
-                'language'          => $bot->settings['language'] ?? config('app.locale'),
+                'telegram_last_name'  => $user->lastName(),
+                'telegram_language'   => $user->languageCode(),
+                'is_bot'              => $user->isBot(),
+                'status'              => SubscriberStatus::ACTIVE,
+                'settings'            => [],
+                'language'            => $bot->settings['language'] ?? config('app.locale'),
             ]
         );
 

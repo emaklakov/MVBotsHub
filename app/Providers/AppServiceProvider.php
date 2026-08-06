@@ -5,24 +5,22 @@ namespace App\Providers;
 use App\Application\Broadcasts\ProgressTracker;
 use App\Application\Broadcasts\Services\BroadcastDispatcher;
 use App\Application\Flows\BlockExecutorRegistry;
-use App\Application\Flows\Executors\ApiCallBlockExecutor;
 use App\Application\Flows\Executors\ButtonBlockExecutor;
 use App\Application\Flows\Executors\ConditionBlockExecutor;
-use App\Application\Flows\Executors\DelayBlockExecutor;
-use App\Application\Flows\Executors\InlineKeyboardBlockExecutor;
 use App\Application\Flows\Executors\InputBlockExecutor;
-use App\Application\Flows\Executors\JumpBlockExecutor;
 use App\Application\Flows\Executors\TextBlockExecutor;
 use App\Application\Flows\Services\FlowEngine;
 use App\Application\Flows\Services\VariableResolver;
 use App\Application\Telegram\MessageRecorder;
-use App\Domain\Flows\Contracts\MessengerInterface;
+use App\Application\Telegram\TelegramMessageSender;
+use App\Domain\Bots\Contracts\TelegramGatewayInterface;
+use App\Domain\Flows\Contracts\MessageSenderInterface;
 use App\Domain\Flows\Contracts\SessionStoreInterface;
 use App\Domain\Flows\Contracts\VariableResolverInterface;
 use App\Http\Controllers\Auth\AuthenticateController;
 use App\Http\Controllers\Users\ProfileController;
 use App\Infrastructure\Persistence\EloquentSessionStore;
-use App\Infrastructure\Telegram\TelegramMessenger;
+use App\Infrastructure\Telegram\TelegraphGateway;
 use App\Models\Jobs\JobLog;
 use App\Models\Users\User;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -48,15 +46,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BaseProfileController::class, ProfileController::class);
 
         $this->app->singleton(
-            \App\Domain\Bots\Contracts\TelegramGatewayInterface::class,
-            \App\Infrastructure\Telegram\TelegraphGateway::class
+            TelegramGatewayInterface::class,
+            TelegraphGateway::class
         );
 
         $this->app->singleton(ProgressTracker::class);
         $this->app->singleton(BroadcastDispatcher::class);
 
         $this->app->singleton(SessionStoreInterface::class, EloquentSessionStore::class);
-        $this->app->singleton(MessengerInterface::class, TelegramMessenger::class);
+        $this->app->singleton(MessageSenderInterface::class, TelegramMessageSender::class);
         $this->app->singleton(VariableResolverInterface::class, VariableResolver::class);
         $this->app->singleton(MessageRecorder::class);
 
@@ -66,10 +64,9 @@ class AppServiceProvider extends ServiceProvider
             $registry->register($app->make(ButtonBlockExecutor::class));
             $registry->register($app->make(InputBlockExecutor::class));
             $registry->register($app->make(ConditionBlockExecutor::class));
-            $registry->register($app->make(JumpBlockExecutor::class));
-            $registry->register($app->make(ApiCallBlockExecutor::class));
-            $registry->register($app->make(DelayBlockExecutor::class));
-            $registry->register($app->make(InlineKeyboardBlockExecutor::class));
+//            $registry->register($app->make(JumpBlockExecutor::class));
+//            $registry->register($app->make(ApiCallBlockExecutor::class));
+//            $registry->register($app->make(DelayBlockExecutor::class));
             return $registry;
         });
 

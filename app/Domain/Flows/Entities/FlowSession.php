@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Flows\Entities;
 
+use App\Domain\Conversations\Enums\ConversationSessionStatus;
 use Carbon\Carbon;
 
 final class FlowSession
@@ -15,7 +16,7 @@ final class FlowSession
         public string $currentGroupId,
         public string $currentBlockId,
         public array $context,
-        public string $status,
+        public ConversationSessionStatus $status,
         public readonly ?Carbon $expiresAt = null,
     ) {}
 }

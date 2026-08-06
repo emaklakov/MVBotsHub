@@ -39,10 +39,13 @@ final class CallbackQueryHandler
             return;
         }
 
+        $data = $callbackQuery->data();
+        $input = is_string($data) ? $data : (string) ($data->first() ?? '');
+
         $this->flowSessionRunner->handleInput(
             $bot,
             $subscriber,
-            $callbackQuery->data() ?? ''
+            $input
         );
     }
 }

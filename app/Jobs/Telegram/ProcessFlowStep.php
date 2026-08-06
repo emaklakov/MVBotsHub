@@ -38,27 +38,12 @@ final class ProcessFlowStep implements ShouldQueue
             return;
         }
 
-        // Находим блок в схеме flow-editor, чтобы получить его group_id
-        $navigator = new FlowSchemaNavigator($session->flowVersion);
-        $block = $navigator->getBlock($this->blockId);
-
-        if (!$block) {
-            return;
-        }
-
-        // Синхронизируем позицию в БД (group + block)
-        $session->update([
-            'current_block_id' => $this->blockId,
-            'current_group_id' => $block['group_id'],
-        ]);
-
-        // Маппим Eloquent-модель в Domain Entity
         $flowSession = new FlowSession(
             id: $session->id,
             botSubscriberId: $session->bot_subscriber_id,
             flowVersionId: $session->flow_version_id,
-            currentGroupId: $block['group_id'],
-            currentBlockId: $this->blockId,
+            currentGroupId: $session->current_group_id,
+            currentBlockId: $session->current_block_id,
             context: $session->context ?? [],
             status: $session->status,
             expiresAt: $session->expires_at,

@@ -6,6 +6,7 @@ namespace App\Application\Telegram;
 
 use App\Application\Telegram\DTO\SendMessage;
 use App\Domain\Bots\Models\Bot;
+use App\Domain\Flows\Contracts\MessageSenderInterface;
 use App\Jobs\Telegram\SendContactRequest;
 use App\Jobs\Telegram\SendTelegramMessage;
 
@@ -13,11 +14,11 @@ use App\Jobs\Telegram\SendTelegramMessage;
  * Фасад для отправки сообщений через очередь.
  * Изолирует остальной код от деталей диспатчинга Job'ов.
  */
-final class TelegramMessageSender
+final class TelegramMessageSender implements MessageSenderInterface
 {
-    public function send(Bot $bot, int $telegramId, string $text, ?int $conversationId = null): void
+    public function send(SendMessage $sendMessage): void
     {
-        SendTelegramMessage::dispatch(new SendMessage($bot, $telegramId, $text, $conversationId))
+        SendTelegramMessage::dispatch($sendMessage)
             ->onQueue('telegram');
     }
 
