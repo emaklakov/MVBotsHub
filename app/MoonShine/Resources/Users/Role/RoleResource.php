@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\Role;
 
-use App\Models\Users\Role;
+use App\Domain\Users\Role;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Users\Role\Pages\RoleFormPage;
 use App\MoonShine\Resources\Users\Role\Pages\RoleIndexPage;

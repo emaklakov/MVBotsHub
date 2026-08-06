@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Forms\Auth;
+namespace App\MoonShine\Forms\Auth;
 
 use MoonShine\Contracts\Core\DependencyInjection\CoreContract;
 use MoonShine\Contracts\UI\FormBuilderContract;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Users\Enums;
+namespace App\Domain\Users\Enums;
 
 enum NotificationPriority: string
 {

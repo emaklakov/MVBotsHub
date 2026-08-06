@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Jobs\JobLog;
 
-use App\Models\Jobs\JobLog;
+use App\Domain\Queue\JobLog;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Jobs\JobLog\Pages\JobLogDetailPage;
 use App\MoonShine\Resources\Jobs\JobLog\Pages\JobLogIndexPage;

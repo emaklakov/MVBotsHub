@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { FlowBlockType } from '@/types/flow'
+import { blockCategories, listBlockDefinitions } from '@/blocks'
 
 interface LibraryItem {
     type: FlowBlockType
@@ -17,40 +18,23 @@ interface Category {
 
 const emit = defineEmits<{ add: [type: string] }>()
 
-// Категории пока отражают ровно те типы блоков, которые реально
-// поддержаны схемой/бэкендом/редакторами свойств (text/input/button/condition).
-// Расширение набора типов (фото, видео, условия и т.д.) — отдельная
-// задача, требующая изменений в схеме, PropertiesPanel и валидации
-// на бэкенде, поэтому оставлена за рамками этой фазы.
-const categories: Category[] = [
-    {
-        key: 'bubbles',
-        label: 'Bubbles',
-        items: [
-            { type: 'text', label: 'Текст', hint: 'Сообщение от бота', icon: '💬' },
-        ],
-    },
-    {
-        key: 'inputs',
-        label: 'Входные данные',
-        items: [
-            { type: 'input', label: 'Вопрос', hint: 'Ждём текстовый ответ пользователя', icon: '✏️' },
-            { type: 'button', label: 'Кнопки', hint: 'Выбор одного из вариантов', icon: '🔘' },
-        ],
-    },
-    {
-        key: 'logic',
-        label: 'Логика',
-        items: [
-            { type: 'condition', label: 'Условие', hint: 'Ветвление по переменной (True/False)', icon: '🔀' },
-        ],
-    },
-]
+// Библиотека блоков строится из реестра (src/blocks) — категории и
+// список типов внутри них здесь больше не дублируются. Новый тип блока
+// появится в сайдбаре сам, как только будет добавлен в реестр.
+const categories = computed<Category[]>(() =>
+    blockCategories.map((category) => ({
+        key: category.key,
+        label: category.label,
+        items: listBlockDefinitions()
+            .filter((def) => def.category === category.key)
+            .map((def) => ({ type: def.type, label: def.label, hint: def.hint, icon: def.icon })),
+    }))
+)
 
 const query = ref('')
 
 const openCategories = ref<Record<string, boolean>>(
-    Object.fromEntries(categories.map((c) => [c.key, true]))
+    Object.fromEntries(blockCategories.map((c) => [c.key, true]))
 )
 
 const toggleCategory = (key: string) => {
@@ -61,7 +45,7 @@ const normalizedQuery = computed(() => query.value.trim().toLowerCase())
 
 const filteredResults = computed<LibraryItem[]>(() => {
     if (!normalizedQuery.value) return []
-    return categories
+    return categories.value
         .flatMap((c) => c.items)
         .filter(
             (item) =>

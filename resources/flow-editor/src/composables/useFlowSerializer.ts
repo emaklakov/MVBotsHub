@@ -1,5 +1,12 @@
 import type { FlowSchema, FlowGroup, FlowBlock, FlowEdge, FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
 import type { Node, Edge } from '@vue-flow/core'
+import {
+    defaultBlockTitle,
+    defaultBlockContent as registryDefaultBlockContent,
+    defaultBlockConfig as registryDefaultBlockConfig,
+    getBlockOutputs,
+    blockProducesVariable,
+} from '@/blocks'
 
 /** Блок в представлении холста — то, что реально нужно компонентам группы. */
 export interface UiBlock {
@@ -14,41 +21,22 @@ export interface GroupNodeData {
     blocks: UiBlock[]
 }
 
+/** Заголовок по умолчанию для новой группы, создаваемой вместе с первым
+ * блоком заданного типа. Делегирует в реестр блоков (src/blocks) —
+ * см. его комментарии о том, почему тип блока больше не "размазан"
+ * по нескольким файлам. */
 export function defaultGroupTitle(type: FlowBlockType): string {
-    switch (type) {
-        case 'text':
-            return 'Сообщение'
-        case 'input':
-            return 'Вопрос'
-        case 'button':
-            return 'Кнопки'
-        case 'condition':
-            return 'Условие'
-        default:
-            return 'Группа'
-    }
+    return defaultBlockTitle(type)
 }
 
 /** Пустое содержимое блока при его создании (клик/drag из библиотеки блоков). */
 export function defaultBlockContent(type: FlowBlockType): BlockContent {
-    switch (type) {
-        case 'text':
-            return { translations: { ru: '', en: '' } }
-        case 'button':
-            return { buttons: [] }
-        default:
-            // 'input' хранит свой вопрос тоже в content.translations, но пустой
-            // объект здесь ок — InputBlockEditor заполнит его при редактировании.
-            // 'condition' контента не имеет вовсе, вся суть в config.
-            return {}
-    }
+    return registryDefaultBlockContent(type)
 }
 
 /** Пустые настройки блока при его создании. */
 export function defaultBlockConfig(type: FlowBlockType): BlockConfig {
-    if (type === 'input') return { variable: '' }
-    if (type === 'condition') return { conditionOperator: '==' }
-    return {}
+    return registryDefaultBlockConfig(type)
 }
 
 /**
@@ -63,13 +51,18 @@ export function defaultBlockConfig(type: FlowBlockType): BlockConfig {
  * с полным generic-типом `Node` в вызывающем коде провоцирует ошибку
  * TS2589 (Type instantiation is excessively deep) из-за глубоких
  * generic-параметров этого типа.
+ *
+ * Какие типы блоков вообще способны дать переменную — определяется
+ * реестром блоков (BlockDefinition.producesVariable), а не перечислением
+ * типов здесь: новый input-подобный блок (Фазы 1-2) подключается к сбору
+ * переменных простой пометкой в реестре.
  */
 export function collectVariables(nodes: Array<{ data?: unknown }>): string[] {
     const names = new Set<string>()
     for (const node of nodes) {
         const data = node.data as GroupNodeData | undefined
         for (const block of data?.blocks ?? []) {
-            if ((block.type === 'input' || block.type === 'button') && block.config?.variable) {
+            if (blockProducesVariable(block.type) && block.config?.variable) {
                 names.add(block.config.variable)
             }
         }
@@ -164,14 +157,18 @@ export function useFlowSerializer() {
             const data = node.data as GroupNodeData
             const nodeBlocks = data?.blocks ?? []
             const lastBlock = nodeBlocks[nodeBlocks.length - 1]
-            const isLastBlockCondition = lastBlock?.type === 'condition'
+            const lastBlockHasSingleOutput = !lastBlock || getBlockOutputs(lastBlock.type, lastBlock.config).length <= 1
 
-            // У обычного (не condition) последнего блока — ровно один
-            // выход, поэтому среди рёбер группы ищем то, что без
-            // конкретного sourceHandle (обычный "групповой" хендл).
-            const outgoingEdge = isLastBlockCondition
-                ? undefined
-                : edges.find((e) => e.source === node.id && !e.sourceHandle)
+            // У последнего блока с ровно одним выходом ищем среди рёбер
+            // группы то, что без конкретного sourceHandle (обычный
+            // "групповой" хендл). У блоков с несколькими выходами (см.
+            // src/blocks/registry.ts, поле outputs) единого outgoing_edge_id
+            // нет в принципе — источник истины для них это schemaEdges,
+            // отфильтрованные по source_block_id (см. комментарий у
+            // outgoing_edge_id в types/flow.ts).
+            const outgoingEdge = lastBlockHasSingleOutput
+                ? edges.find((e) => e.source === node.id && !e.sourceHandle)
+                : undefined
 
             groups[node.id] = {
                 id: node.id,

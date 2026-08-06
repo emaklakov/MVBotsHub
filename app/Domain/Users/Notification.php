@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Users;
+namespace App\Domain\Users;
 
 use Illuminate\Notifications\DatabaseNotification;
 

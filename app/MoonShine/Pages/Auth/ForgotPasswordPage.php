@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Pages\Auth;
 
-use App\Forms\Auth\ForgotPasswordForm;
+use App\MoonShine\Forms\Auth\ForgotPasswordForm;
 use App\MoonShine\Pages\Auth\Traits\WithAuthPageAssets;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Core\Attributes\Layout;

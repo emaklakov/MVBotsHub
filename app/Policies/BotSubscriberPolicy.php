@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Models\BotSubscriber;
-use App\Models\Users\User;
+use App\Domain\Users\User;
 
 class BotSubscriberPolicy
 {

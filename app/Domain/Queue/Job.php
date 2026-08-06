@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Jobs;
+namespace App\Domain\Queue;
 
 use Illuminate\Database\Eloquent\Model;
 

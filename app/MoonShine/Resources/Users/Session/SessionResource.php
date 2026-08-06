@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\Session;
 
-use App\Models\Users\Session;
+use App\Domain\Users\Session;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Users\Session\Pages\SessionDetailPage;
 use App\MoonShine\Resources\Users\Session\Pages\SessionIndexPage;

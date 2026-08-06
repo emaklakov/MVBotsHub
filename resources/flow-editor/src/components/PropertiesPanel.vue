@@ -1,9 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { UiBlock } from '../composables/useFlowSerializer'
-import TextBlockEditor from './properties/TextBlockEditor.vue'
-import InputBlockEditor from './properties/InputBlockEditor.vue'
-import ButtonsBlockEditor from './properties/ButtonsBlockEditor.vue'
-import ConditionBlockEditor from './properties/ConditionBlockEditor.vue'
+import { getBlockDefinition } from '@/blocks'
 
 const props = defineProps<{ selectedBlock: UiBlock | null; variables: string[] }>()
 const emit = defineEmits<{ update: [patch: { content?: any; config?: any }] }>()
@@ -12,6 +10,15 @@ const forward = (patch: { content?: any; config?: any }) => {
     if (!props.selectedBlock) return
     emit('update', patch)
 }
+
+// Редактор свойств берётся из реестра блоков — этот компонент больше не
+// перечисляет типы блоков сам. Общий набор пропсов (block, variables)
+// передаётся всем редакторам; те, что variables не объявляют (Input,
+// Buttons), просто её не используют — лишний проп не мешает.
+const editorComponent = computed(() => {
+    if (!props.selectedBlock) return null
+    return getBlockDefinition(props.selectedBlock.type).editorComponent ?? null
+})
 </script>
 
 <template>
@@ -26,16 +33,9 @@ const forward = (patch: { content?: any; config?: any }) => {
                 <input :value="selectedBlock.id" disabled />
             </div>
 
-            <TextBlockEditor
-                v-if="selectedBlock.type === 'text'"
-                :block="selectedBlock"
-                :variables="variables"
-                @update="forward"
-            />
-            <InputBlockEditor v-else-if="selectedBlock.type === 'input'" :block="selectedBlock" @update="forward" />
-            <ButtonsBlockEditor v-else-if="selectedBlock.type === 'button'" :block="selectedBlock" @update="forward" />
-            <ConditionBlockEditor
-                v-else-if="selectedBlock.type === 'condition'"
+            <component
+                :is="editorComponent"
+                v-if="editorComponent"
                 :block="selectedBlock"
                 :variables="variables"
                 @update="forward"

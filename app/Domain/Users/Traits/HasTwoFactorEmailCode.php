@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Users\Traits;
+namespace App\Domain\Users\Traits;
 
-use App\Models\Users\UserCode;
+use App\Domain\Users\UserCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 

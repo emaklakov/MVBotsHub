@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import TextBlock from './blocks/TextBlock.vue'
-import InputBlock from './blocks/InputBlock.vue'
-import ButtonBlock from './blocks/ButtonBlock.vue'
-import ConditionBlock from './blocks/ConditionBlock.vue'
+import { getBlockDefinition } from '@/blocks'
 import type { FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
 
 const props = defineProps<{
@@ -13,14 +10,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{ select: [blockId: string] }>()
 
-const componentMap: Record<FlowBlockType, unknown> = {
-    text: TextBlock,
-    input: InputBlock,
-    button: ButtonBlock,
-    condition: ConditionBlock,
-}
-
-const component = computed(() => componentMap[props.block.type])
+// Компонент отображения берётся из реестра блоков (src/blocks) — этот
+// файл больше не знает о конкретных типах и не меняется при добавлении
+// нового типа блока.
+const component = computed(() => getBlockDefinition(props.block.type).renderComponent)
 </script>
 
 <template>

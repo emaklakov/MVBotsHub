@@ -3,7 +3,7 @@
 namespace App\Domain\Bots\Models;
 
 use App\Domain\Bots\Enums\BotMemberRole;
-use App\Models\Users\User;
+use App\Domain\Users\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

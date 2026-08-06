@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Users;
 
-use App\Models\Users\Enums\NotificationPriority;
+use App\Domain\Users\Enums\NotificationPriority;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -40,7 +40,7 @@ class SendNotificationJob implements ShouldQueue
 
     public function handle(): void
     {
-        $notifiableType = config('moonshine.auth.model', \App\Models\Users\User::class);
+        $notifiableType = config('moonshine.auth.model', \App\Domain\Users\User::class);
         $expires = $this->expiresAt ? $this->expiresAt->format('Y-m-d H:i:s') : null;
 
         if ($this->groupKey) {

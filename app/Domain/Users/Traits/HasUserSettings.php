@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Users\Traits;
+namespace App\Domain\Users\Traits;
 
-use App\Models\Users\UserSetting;
+use App\Domain\Users\UserSetting;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;

@@ -2,7 +2,11 @@
 import { computed } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
 
-const props = defineProps<{ block: UiBlock }>()
+// `variables` объявлен, но не используется этим редактором — сюда его
+// передаёт общий PropertiesPanel одинаково для всех типов блоков
+// (см. src/blocks); без явного объявления пропа Vue протащил бы его
+// как обычный DOM-атрибут на корневой div (fallthrough attrs).
+const props = defineProps<{ block: UiBlock; variables?: string[] }>()
 const emit = defineEmits<{ update: [patch: { content?: any; config?: any }] }>()
 
 const translations = computed(() => props.block.content?.translations || { ru: '', en: '' })

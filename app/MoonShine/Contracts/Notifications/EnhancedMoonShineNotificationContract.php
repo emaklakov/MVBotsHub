@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Contracts\Notifications;
 
-use App\Models\Users\Enums\NotificationPriority;
+use App\Domain\Users\Enums\NotificationPriority;
 use App\MoonShine\Notifications\NotificationTemplate;
 use MoonShine\Crud\Contracts\Notifications\MoonShineNotificationContract;
 use MoonShine\Crud\Contracts\Notifications\NotificationButtonContract;

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Models\Users;
+namespace App\Domain\Users;
 
 use App\Domain\Bots\Models\BotMember;
+use App\Domain\Users\Traits\HasTwoFactorEmailCode;
+use App\Domain\Users\Traits\HasUserSettings;
+use App\Domain\Users\Traits\LogsUserActivity;
 use App\Infrastructure\Notifications\Auth\Email\ResetPassword;
-use App\Models\Users\Traits\HasTwoFactorEmailCode;
-use App\Models\Users\Traits\HasUserSettings;
-use App\Models\Users\Traits\LogsUserActivity;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
 use Illuminate\Database\Eloquent\Attributes\Fillable;

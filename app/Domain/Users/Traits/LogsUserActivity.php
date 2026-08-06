@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Users\Traits;
+namespace App\Domain\Users\Traits;
 
 use App\Application\Users\Services\ActivityLogger;
 

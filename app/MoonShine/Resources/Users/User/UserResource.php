@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Users\User;
 
-use App\Models\Users\User;
+use App\Domain\Users\User;
 use App\MoonShine\Resources\Base\BaseResource;
 use App\MoonShine\Resources\Users\Permission\PermissionResource;
 use App\MoonShine\Resources\Users\Role\RoleResource;

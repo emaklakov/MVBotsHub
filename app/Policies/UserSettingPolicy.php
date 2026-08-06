@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Users\User;
-use App\Models\Users\UserSetting;
+use App\Domain\Users\User;
+use App\Domain\Users\UserSetting;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserSettingPolicy

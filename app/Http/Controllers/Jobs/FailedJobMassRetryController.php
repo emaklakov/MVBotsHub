@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Jobs;
 
 use App\Application\Services\LogService;
-use App\Models\Jobs\FailedJob;
+use App\Domain\Queue\FailedJob;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Log;
 
 class FailedJobMassRetryController
 {

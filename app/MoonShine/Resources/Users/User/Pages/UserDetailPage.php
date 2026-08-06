@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Users\User\Pages;
 
 use App\Application\Users\Services\DeviceDetector;
-use App\Models\Users\UserSetting;
+use App\Domain\Users\UserSetting;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Users\Permission\PermissionResource;
 use App\MoonShine\Resources\Users\Role\RoleResource;

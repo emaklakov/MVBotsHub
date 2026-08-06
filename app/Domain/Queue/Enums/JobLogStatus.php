@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Jobs\Enums;
+namespace App\Domain\Queue\Enums;
 
 enum JobLogStatus: string
 {

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 import BlockRenderer from '../BlockRenderer.vue'
+import { getBlockOutputs } from '@/blocks'
 import type { FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
 
 interface UiBlock {
@@ -32,12 +33,19 @@ const emit = defineEmits<{
     'insert-block': [groupId: string, blockType: FlowBlockType, index: number]
 }>()
 
-// Если группа заканчивается condition-блоком — у неё два выхода
-// (True/False) на уровне этого конкретного блока, а не один общий
-// выход группы. Обычные блоки продолжают использовать единственный
-// хендл группы снизу (см. Фазу 5 плана).
+// Число и подписи выходов группы определяются ПОСЛЕДНИМ блоком —
+// именно от него логически идёт переход дальше по флоу — и берутся из
+// реестра блоков (src/blocks), а не захардкожены под конкретный тип.
+// Обычный блок (в т.ч. пустая группа) даёт один выход снизу группы;
+// condition — два (True/False); в будущем так же заведётся любой другой
+// блок с несколькими выходами, без правок этого компонента.
 const lastBlock = computed(() => props.data.blocks[props.data.blocks.length - 1])
-const hasConditionOutput = computed(() => lastBlock.value?.type === 'condition')
+const outputs = computed(() => getBlockOutputs(lastBlock.value?.type, lastBlock.value?.config))
+
+/** Равномерно распределяет N>1 выходов по ширине группы, оставляя отступы
+ * по краям (первый выход — не у самого левого края, последний — не у
+ * самого правого). */
+const outputLeft = (index: number, total: number): string => `${((index + 1) / (total + 1)) * 100}%`
 
 // --- Редактирование заголовка группы по двойному клику ---
 const editingTitle = ref(false)
@@ -171,14 +179,26 @@ const swallowDrop = () => {}
             />
         </div>
 
-        <Handle type="source" :position="Position.Bottom" v-if="!hasConditionOutput" />
+        <Handle v-if="outputs.length <= 1" type="source" :position="Position.Bottom" />
 
         <template v-else>
-            <Handle id="false" type="source" :position="Position.Bottom" class="handle-false" style="left: 30%" />
-            <Handle id="true" type="source" :position="Position.Bottom" class="handle-true" style="left: 70%" />
-            <div class="condition-labels">
-                <span class="label-false">False</span>
-                <span class="label-true">True</span>
+            <Handle
+                v-for="(output, index) in outputs"
+                :key="output.handle ?? index"
+                :id="output.handle ?? undefined"
+                type="source"
+                :position="Position.Bottom"
+                :class="output.tone ? `handle-tone-${output.tone}` : undefined"
+                :style="{ left: outputLeft(index, outputs.length) }"
+            />
+            <div class="output-labels">
+                <span
+                    v-for="(output, index) in outputs"
+                    :key="'label-' + (output.handle ?? index)"
+                    class="output-label"
+                    :class="output.tone ? `label-tone-${output.tone}` : undefined"
+                    :style="{ left: outputLeft(index, outputs.length) }"
+                >{{ output.label }}</span>
             </div>
         </template>
     </div>
@@ -230,16 +250,25 @@ const swallowDrop = () => {}
 .drop-tail { height: 8px; border-radius: var(--radius-sm); }
 .drop-tail.drag-over { background: color-mix(in oklch, var(--color-accent) 15%, transparent); outline: 2px dashed var(--color-accent); }
 
-.condition-labels {
-    display: flex;
-    justify-content: space-between;
-    padding: 2px 14px 4px;
+.output-labels {
+    position: relative;
+    height: 14px;
+    margin-top: 2px;
+}
+.output-label {
+    position: absolute;
+    transform: translateX(-50%);
     font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-text-muted);
 }
-.label-false { color: var(--color-error-text); }
-.label-true { color: var(--color-success-text); }
-.handle-false { background: var(--color-error) !important; }
-.handle-true { background: var(--color-success) !important; }
+.output-label.label-tone-success { color: var(--color-success-text); }
+.output-label.label-tone-error { color: var(--color-error-text); }
+/* Handle — компонент @vue-flow/core, класс передаётся на его корневой
+ * элемент через fallthrough — scoped-стили родителя достают до корня
+ * дочернего компонента, как и раньше с .handle-false/.handle-true. */
+.handle-tone-success { background: var(--color-success) !important; }
+.handle-tone-error { background: var(--color-error) !important; }
 </style>

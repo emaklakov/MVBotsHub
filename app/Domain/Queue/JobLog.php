@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Jobs;
+namespace App\Domain\Queue;
 
-use App\Models\Jobs\Enums\JobLogStatus;
+use App\Domain\Queue\Enums\JobLogStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

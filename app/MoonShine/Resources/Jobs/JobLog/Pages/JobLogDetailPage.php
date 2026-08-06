@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Jobs\JobLog\Pages;
 
-use App\Models\Jobs\Enums\JobLogStatus;
+use App\Domain\Queue\Enums\JobLogStatus;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
 use MoonShine\Contracts\UI\FieldContract;

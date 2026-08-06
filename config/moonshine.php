@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Domain\Users\User;
 use App\Exceptions\MVNotFoundException;
 use App\Http\Middleware\CheckExpiredPassword;
 use App\Http\Middleware\CheckUserIsActive;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TwoFactorVerified;
-use App\Models\Users\User;
 use App\MoonShine\ColorManager\Palettes\MVPalette;
 use App\MoonShine\Pages\Auth\LoginPage;
 use App\MoonShine\Pages\Errors\ErrorPage;
@@ -98,7 +98,7 @@ return [
     'palette' => MVPalette::class,
 
     'forms' => [
-        'login' => \App\Forms\Auth\LoginForm::class,
+        'login' => \App\MoonShine\Forms\Auth\LoginForm::class,
         'filters' => FiltersForm::class,
     ],
 

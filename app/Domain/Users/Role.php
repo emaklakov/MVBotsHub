@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Users;
+namespace App\Domain\Users;
 
-use App\Models\Users\Traits\LogsUserActivity;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 /**

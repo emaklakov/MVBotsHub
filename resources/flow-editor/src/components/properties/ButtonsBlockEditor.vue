@@ -2,7 +2,9 @@
 import { ref, computed } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
 
-const props = defineProps<{ block: UiBlock }>()
+// `variables` объявлен, но не используется этим редактором — см.
+// аналогичный комментарий в InputBlockEditor.vue.
+const props = defineProps<{ block: UiBlock; variables?: string[] }>()
 const emit = defineEmits<{ update: [patch: { content?: any; config?: any }] }>()
 
 const translations = computed(() => props.block.content?.translations || { ru: '', en: '' })
