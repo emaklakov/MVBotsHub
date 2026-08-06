@@ -1,4 +1,4 @@
-import type { FlowSchema, FlowGroup, FlowBlock, FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
+import type { FlowSchema, FlowGroup, FlowBlock, FlowEdge, FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
 import type { Node, Edge } from '@vue-flow/core'
 
 /** Блок в представлении холста — то, что реально нужно компонентам группы. */
@@ -22,6 +22,8 @@ export function defaultGroupTitle(type: FlowBlockType): string {
             return 'Вопрос'
         case 'button':
             return 'Кнопки'
+        case 'condition':
+            return 'Условие'
         default:
             return 'Группа'
     }
@@ -35,19 +37,26 @@ export function defaultBlockContent(type: FlowBlockType): BlockContent {
         case 'button':
             return { buttons: [] }
         default:
+            // 'input' хранит свой вопрос тоже в content.translations, но пустой
+            // объект здесь ок — InputBlockEditor заполнит его при редактировании.
+            // 'condition' контента не имеет вовсе, вся суть в config.
             return {}
     }
 }
 
 /** Пустые настройки блока при его создании. */
 export function defaultBlockConfig(type: FlowBlockType): BlockConfig {
-    return type === 'input' ? { variable: '' } : {}
+    if (type === 'input') return { variable: '' }
+    if (type === 'condition') return { conditionOperator: '==' }
+    return {}
 }
 
 /**
  * Собирает имена всех переменных, которые где-либо во флоу заполняются
- * input-блоками (`config.variable`) — используется, чтобы предложить их
- * для вставки в текст через TextBlockEditor.
+ * пользователем — из input-блоков (текстовый ответ) и button-блоков
+ * (выбор варианта, если у блока задана config.variable). Используется,
+ * чтобы предложить их для вставки в текст через TextBlockEditor и для
+ * выбора в условии.
  *
  * Принимает минимальный тип (только `data`), а не полный `Node` из
  * @vue-flow/core: связка `computed(() => collectVariables(nodes.value))`
@@ -60,7 +69,7 @@ export function collectVariables(nodes: Array<{ data?: unknown }>): string[] {
     for (const node of nodes) {
         const data = node.data as GroupNodeData | undefined
         for (const block of data?.blocks ?? []) {
-            if (block.type === 'input' && block.config?.variable) {
+            if ((block.type === 'input' || block.type === 'button') && block.config?.variable) {
                 names.add(block.config.variable)
             }
         }
@@ -80,9 +89,11 @@ export function emptySchema(): FlowSchema {
 export function useFlowSerializer() {
     /**
      * Схема -> VueFlow. Каждая группа схемы становится одной нодой холста
-     * с типом 'group' (единственный тип ноды теперь, вне зависимости от
-     * того, сколько и каких блоков внутри). Порядок data.blocks совпадает
-     * с group.block_ids.
+     * с типом 'group'. Порядок data.blocks совпадает с group.block_ids.
+     *
+     * Ребро схемы переносит source_handle 1-в-1 в VueFlow-ребро
+     * (sourceHandle) — для condition-блока это 'true'/'false' и
+     * указывает, из какого из двух хендлов группы оно выходит.
      *
      * Специально принимает `schema` как возможно неполную/отсутствующую —
      * для нового бота бэкенд может вернуть `null`/`{}` вместо валидной
@@ -118,6 +129,7 @@ export function useFlowSerializer() {
                 id: edge.id,
                 source: sourceBlock.group_id,
                 target: edge.target_group_id,
+                sourceHandle: edge.source_handle ?? undefined,
             })
         }
 
@@ -126,23 +138,40 @@ export function useFlowSerializer() {
 
     /**
      * VueFlow -> схема. node.data.blocks задаёт и содержимое блоков,
-     * и их порядок внутри группы (group.block_ids). Исходящее ребро
-     * группы (edge.source === node.id) в схеме привязывается к
-     * ПОСЛЕДНЕМУ блоку группы — именно от него логически идёт переход
-     * к следующей группе. Остальные блоки группы outgoing_edge_id не
-     * получают (у логических блоков с несколькими выходами это будет
-     * устроено иначе — см. Фазу 5).
+     * и их порядок внутри группы (group.block_ids).
+     *
+     * Исходящее ребро группы (edge.source === node.id) в схеме
+     * привязывается к ПОСЛЕДНЕМУ блоку группы — именно от него логически
+     * идёт переход к следующей группе. Остальные блоки группы
+     * outgoing_edge_id не получают.
+     *
+     * Если последний блок — 'condition' (два возможных выхода, True и
+     * False, различаются по edge.sourceHandle), то block.outgoing_edge_id
+     * остаётся null: это поле рассчитано только на один выход. Источник
+     * истины для condition-блоков — это schemaEdges, отфильтрованные по
+     * source_block_id.
      */
-    const toSchema = (nodes: Node[], edges: Edge[], startGroupId: string | null): FlowSchema => {
+    const toSchema = (
+        nodes: Array<{ id: string; type?: string; position: { x: number; y: number }; data?: unknown }>,
+        edges: Array<{ id: string; source: string; target: string; sourceHandle?: string | null }>,
+        startGroupId: string | null
+    ): FlowSchema => {
         const groups: Record<string, FlowGroup> = {}
         const blocks: Record<string, FlowBlock> = {}
-        const schemaEdges: Record<string, { id: string; source_block_id: string; target_group_id: string }> = {}
+        const schemaEdges: Record<string, FlowEdge> = {}
 
         for (const node of nodes) {
             const data = node.data as GroupNodeData
             const nodeBlocks = data?.blocks ?? []
-            const outgoingEdge = edges.find((e) => e.source === node.id)
-            const lastBlockId = nodeBlocks[nodeBlocks.length - 1]?.id ?? null
+            const lastBlock = nodeBlocks[nodeBlocks.length - 1]
+            const isLastBlockCondition = lastBlock?.type === 'condition'
+
+            // У обычного (не condition) последнего блока — ровно один
+            // выход, поэтому среди рёбер группы ищем то, что без
+            // конкретного sourceHandle (обычный "групповой" хендл).
+            const outgoingEdge = isLastBlockCondition
+                ? undefined
+                : edges.find((e) => e.source === node.id && !e.sourceHandle)
 
             groups[node.id] = {
                 id: node.id,
@@ -158,7 +187,7 @@ export function useFlowSerializer() {
                     type: block.type,
                     content: block.content,
                     config: block.config,
-                    outgoing_edge_id: block.id === lastBlockId ? (outgoingEdge?.id ?? null) : null,
+                    outgoing_edge_id: block.id === lastBlock?.id ? (outgoingEdge?.id ?? null) : null,
                 }
             }
         }
@@ -172,6 +201,7 @@ export function useFlowSerializer() {
                 id: edge.id,
                 source_block_id: sourceBlockId,
                 target_group_id: edge.target,
+                source_handle: edge.sourceHandle ?? null,
             }
         }
 

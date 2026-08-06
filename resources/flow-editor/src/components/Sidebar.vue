@@ -18,7 +18,7 @@ interface Category {
 const emit = defineEmits<{ add: [type: string] }>()
 
 // Категории пока отражают ровно те типы блоков, которые реально
-// поддержаны схемой/бэкендом/редакторами свойств (text/input/button).
+// поддержаны схемой/бэкендом/редакторами свойств (text/input/button/condition).
 // Расширение набора типов (фото, видео, условия и т.д.) — отдельная
 // задача, требующая изменений в схеме, PropertiesPanel и валидации
 // на бэкенде, поэтому оставлена за рамками этой фазы.
@@ -32,10 +32,17 @@ const categories: Category[] = [
     },
     {
         key: 'inputs',
-        label: 'Inputs',
+        label: 'Входные данные',
         items: [
             { type: 'input', label: 'Вопрос', hint: 'Ждём текстовый ответ пользователя', icon: '✏️' },
             { type: 'button', label: 'Кнопки', hint: 'Выбор одного из вариантов', icon: '🔘' },
+        ],
+    },
+    {
+        key: 'logic',
+        label: 'Логика',
+        items: [
+            { type: 'condition', label: 'Условие', hint: 'Ветвление по переменной (True/False)', icon: '🔀' },
         ],
     },
 ]
@@ -73,7 +80,7 @@ const onDragStart = (event: DragEvent, type: FlowBlockType) => {
 <template>
     <div class="sidebar">
         <div class="search">
-            <input v-model="query" type="text" placeholder="Поиск блока…" />
+            <input id="search" v-model="query" type="text" placeholder="Поиск блока…" />
         </div>
 
         <!-- Поиск активен: показываем плоский список найденных блоков -->
@@ -124,45 +131,54 @@ const onDragStart = (event: DragEvent, type: FlowBlockType) => {
 </template>
 
 <style scoped>
-.sidebar { width: 220px; background: #fff; border-right: 1px solid #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; }
-.search { padding: 12px; border-bottom: 1px solid #e2e8f0; }
-.search input { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
-.empty-hint { padding: 16px 12px; color: #94a3b8; font-size: 12px; font-style: italic; text-align: center; }
+.sidebar { width: 220px; background: var(--color-surface); border-right: 1px solid var(--color-stroke); overflow-y: auto; display: flex; flex-direction: column; }
+.search { padding-top: var(--space-3); padding-right: var(--space-3); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-stroke); }
+.search input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    box-sizing: border-box;
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+.empty-hint { padding: 16px 12px; color: var(--color-text-muted); font-size: var(--font-size-sm); font-style: italic; text-align: center; }
 
 .category-header {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding-top: var(--space-3); padding-right: var(--space-3); padding-bottom: var(--space-3);
     background: none;
     border: none;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 11px;
+    border-bottom: 1px solid var(--color-stroke);
+    font-size: var(--font-size-xs);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #64748b;
+    color: var(--color-text-muted);
     cursor: pointer;
 }
 .chevron { transition: transform 0.15s ease; }
 .chevron.open { transform: rotate(180deg); }
 
-.category-items, .search-results { padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+.category-items, .search-results { padding-top: var(--space-2); padding-right: var(--space-2); padding-bottom: var(--space-2); display: flex; flex-direction: column; gap: var(--space-1); }
 
 .library-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px;
-    border-radius: 6px;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
     cursor: grab;
     border: 1px solid transparent;
 }
-.library-item:hover { background: #f8fafc; border-color: #e2e8f0; }
+.library-item:hover { background: var(--color-surface-50); border-color: var(--color-stroke); }
 .library-item:active { cursor: grabbing; }
-.item-icon { font-size: 16px; flex-shrink: 0; }
+.item-icon { font-size: var(--font-size-lg); flex-shrink: 0; }
 .item-text { min-width: 0; }
-.item-label { font-size: 13px; font-weight: 600; color: #1e293b; }
-.item-hint { font-size: 11px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-label { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text); }
+.item-hint { font-size: var(--font-size-xs); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

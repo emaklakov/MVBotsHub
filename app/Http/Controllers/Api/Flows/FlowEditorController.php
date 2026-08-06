@@ -25,7 +25,12 @@ class FlowEditorController
         if (!$draft) {
             $draft = FlowVersion::create([
                 'flow_id' => $flow->id,
-                'schema' => [],
+                'schema' => [
+                    'start_group_id' => null,
+                    'groups' => [],
+                    'blocks' => [],
+                    'edges' => [],
+                ],
                 'status' => FlowVersionStatus::DRAFT,
                 'version_number' => 0,
             ]);
@@ -48,36 +53,37 @@ class FlowEditorController
 
         Gate::authorize('update', $flow);
 
-        $validated = $request->validate([
-            'schema' => 'required|array',
-        ]);
-
 //        $validated = $request->validate([
 //            'schema' => 'required|array',
-//            'schema.start_group_id' => 'nullable|string',
-//
-//            'schema.groups' => 'present|array',
-//            'schema.groups.*.id' => 'required|string',
-//            'schema.groups.*.title' => 'required|string',
-//            'schema.groups.*.position' => 'required|array',
-//            'schema.groups.*.position.x' => 'required|numeric',
-//            'schema.groups.*.position.y' => 'required|numeric',
-//            'schema.groups.*.block_ids' => 'required|array',
-//            'schema.groups.*.block_ids.*' => 'string',
-//
-//            'schema.blocks' => 'present|array',
-//            'schema.blocks.*.id' => 'required|string',
-//            'schema.blocks.*.group_id' => 'required|string',
-//            'schema.blocks.*.type' => 'required|string|in:text,input,button',
-//            'schema.blocks.*.content' => 'nullable',
-//            'schema.blocks.*.config' => 'nullable',
-//            'schema.blocks.*.outgoing_edge_id' => 'nullable|string',
-//
-//            'schema.edges' => 'present|array',
-//            'schema.edges.*.id' => 'required|string',
-//            'schema.edges.*.source_block_id' => 'required|string',
-//            'schema.edges.*.target_group_id' => 'required|string',
 //        ]);
+
+        $validated = $request->validate([
+            'schema' => 'required|array',
+            'schema.start_group_id' => 'nullable|string',
+
+            'schema.groups' => 'present|array',
+            'schema.groups.*.id' => 'required|string',
+            'schema.groups.*.title' => 'required|string',
+            'schema.groups.*.position' => 'required|array',
+            'schema.groups.*.position.x' => 'required|numeric',
+            'schema.groups.*.position.y' => 'required|numeric',
+            'schema.groups.*.block_ids' => 'required|array',
+            'schema.groups.*.block_ids.*' => 'string',
+
+            'schema.blocks' => 'present|array',
+            'schema.blocks.*.id' => 'required|string',
+            'schema.blocks.*.group_id' => 'required|string',
+            'schema.blocks.*.type' => 'required|string|in:text,input,button,condition',
+            'schema.blocks.*.content' => 'nullable',
+            'schema.blocks.*.config' => 'nullable',
+            'schema.blocks.*.outgoing_edge_id' => 'nullable|string',
+
+            'schema.edges' => 'present|array',
+            'schema.edges.*.id' => 'required|string',
+            'schema.edges.*.source_block_id' => 'required|string',
+            'schema.edges.*.target_group_id' => 'required|string',
+            'schema.edges.*.source_handle' => 'nullable|string|in:true,false',
+        ]);
 
         $draft = $flow->versions()->where('status', FlowVersionStatus::DRAFT)->first();
 
@@ -109,7 +115,7 @@ class FlowEditorController
         $draft = $flow->versions()->where('status', FlowVersionStatus::DRAFT)->first();
 
         if (!$draft) {
-            return response()->json(['error' => 'No draft found'], 422);
+            return response()->json(['error' => 'Черновик не найден'], 422);
         }
 
         $nextVersion = ($flow->versions()->where('status', FlowVersionStatus::PUBLISHED)->max('version_number') ?? 0) + 1;

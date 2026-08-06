@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
     useFlowSerializer,
     emptySchema,
+    defaultGroupTitle,
     defaultBlockContent,
     defaultBlockConfig,
     collectVariables,
@@ -173,6 +174,88 @@ describe('defaultBlockContent / defaultBlockConfig', () => {
         expect(defaultBlockContent('button')).toEqual({ buttons: [] })
         expect(defaultBlockConfig('button')).toEqual({})
     })
+
+    it('condition получает пустой content и оператор "==" по умолчанию', () => {
+        expect(defaultBlockContent('condition')).toEqual({})
+        expect(defaultBlockConfig('condition')).toEqual({ conditionOperator: '==' })
+    })
+})
+
+describe('defaultGroupTitle', () => {
+    it('условию соответствует заголовок "Условие"', () => {
+        expect(defaultGroupTitle('condition')).toBe('Условие')
+    })
+})
+
+describe('condition-блок: два выхода (True/False) через source_handle', () => {
+    // Группа заканчивается блоком-условием: True ведёт в group_yes,
+    // False — в group_no. Оба ребра формально выходят из одного и того
+    // же блока (block_condition), различаются только source_handle.
+    const conditionSchema: FlowSchema = {
+        start_group_id: 'group_check',
+        groups: {
+            group_check: {
+                id: 'group_check',
+                title: 'Условие',
+                position: { x: 0, y: 0 },
+                block_ids: ['block_condition'],
+            },
+            group_yes: { id: 'group_yes', title: 'Да', position: { x: 100, y: 100 }, block_ids: [] },
+            group_no: { id: 'group_no', title: 'Нет', position: { x: -100, y: 100 }, block_ids: [] },
+        },
+        blocks: {
+            block_condition: {
+                id: 'block_condition',
+                group_id: 'group_check',
+                type: 'condition',
+                config: { conditionVariable: 'user_language', conditionOperator: '==', conditionValue: 'ru' },
+                outgoing_edge_id: null,
+            },
+        },
+        edges: {
+            edge_true: { id: 'edge_true', source_block_id: 'block_condition', target_group_id: 'group_yes', source_handle: 'true' },
+            edge_false: { id: 'edge_false', source_block_id: 'block_condition', target_group_id: 'group_no', source_handle: 'false' },
+        },
+    }
+
+    it('toVueFlow переносит source_handle в sourceHandle ребра VueFlow', () => {
+        const { edges } = toVueFlow(conditionSchema)
+        const trueEdge = edges.find((e) => e.id === 'edge_true')
+        const falseEdge = edges.find((e) => e.id === 'edge_false')
+
+        expect(trueEdge).toMatchObject({ source: 'group_check', target: 'group_yes', sourceHandle: 'true' })
+        expect(falseEdge).toMatchObject({ source: 'group_check', target: 'group_no', sourceHandle: 'false' })
+    })
+
+    it('toSchema восстанавливает оба ребра с правильным source_handle (round-trip)', () => {
+        const { nodes, edges } = toVueFlow(conditionSchema)
+        const result = toSchema(nodes, edges, conditionSchema.start_group_id)
+
+        expect(result.edges['edge_true']).toMatchObject({
+            source_block_id: 'block_condition',
+            target_group_id: 'group_yes',
+            source_handle: 'true',
+        })
+        expect(result.edges['edge_false']).toMatchObject({
+            source_block_id: 'block_condition',
+            target_group_id: 'group_no',
+            source_handle: 'false',
+        })
+    })
+
+    it('condition-блок не получает outgoing_edge_id — у него два выхода, это поле рассчитано на один', () => {
+        const { nodes, edges } = toVueFlow(conditionSchema)
+        const result = toSchema(nodes, edges, conditionSchema.start_group_id)
+
+        expect(result.blocks['block_condition'].outgoing_edge_id).toBeNull()
+    })
+
+    it('обычный (не condition) блок по-прежнему не получает source_handle', () => {
+        const { nodes, edges } = toVueFlow(sampleSchema)
+        const result = toSchema(nodes, edges, sampleSchema.start_group_id)
+
+        expect(result.edges['edge_1'].source_handle).toBeNull()
+    })
 })
 
 describe('collectVariables', () => {
@@ -180,6 +263,24 @@ describe('collectVariables', () => {
         const { nodes } = toVueFlow(sampleSchema)
         // sampleSchema: block_ask_name (input, variable: user_name) — единственный input
         expect(collectVariables(nodes)).toEqual(['user_name'])
+    })
+
+    it('собирает переменные и из button-блоков, если у них задана config.variable', () => {
+        const nodesWithButtonVariable = [
+            {
+                id: 'g1',
+                type: 'group',
+                position: { x: 0, y: 0 },
+                data: {
+                    title: 'A',
+                    blocks: [
+                        { id: 'b1', type: 'input', config: { variable: 'user_name' } },
+                        { id: 'b2', type: 'button', config: { variable: 'user_language' }, content: { buttons: ['ru', 'en'] } },
+                    ],
+                } as GroupNodeData,
+            },
+        ]
+        expect(collectVariables(nodesWithButtonVariable as any)).toEqual(['user_name', 'user_language'])
     })
 
     it('не дублирует переменную, если она используется в нескольких input-блоках', () => {

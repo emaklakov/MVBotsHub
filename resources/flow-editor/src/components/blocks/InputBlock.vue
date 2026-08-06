@@ -15,8 +15,8 @@ defineProps<{ content?: BlockContent; config?: BlockConfig }>()
 </template>
 
 <style scoped>
-.block { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; }
-.block-icon { flex-shrink: 0; font-size: 12px; }
-.block-text { font-size: 12px; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.var-tag { color: #10b981; font-weight: 600; font-size: 11px; }
+.block { display: flex; align-items: center; gap: var(--space-2); padding: 6px 8px; border-radius: var(--radius-sm); }
+.block-icon { flex-shrink: 0; font-size: var(--font-size-sm); }
+.block-text { font-size: var(--font-size-sm); color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.var-tag { color: var(--color-success-text); font-weight: 600; font-size: var(--font-size-xs); }
 </style>

@@ -79,31 +79,43 @@ const insertVariable = (name: string) => {
 </template>
 
 <style scoped>
-.field { margin-bottom: 12px; }
-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; color: #64748b; }
-textarea { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; box-sizing: border-box; font-family: inherit; resize: vertical; }
+.field { margin-bottom: var(--space-3); }
+label { display: block; font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; color: var(--color-text-muted); }
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--color-surface);
+    color: var(--color-text);
+}
 
-.lang-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.lang-tabs { display: flex; gap: 4px; margin-bottom: var(--space-3); }
 .lang-tabs button {
     padding: 4px 12px;
-    border: 1px solid #cbd5e1;
-    background: white;
-    border-radius: 4px;
-    font-size: 12px;
+    border: 1px solid var(--color-stroke);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
     cursor: pointer;
 }
-.lang-tabs button.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+.lang-tabs button.active { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-contrast); }
 
-.variables { display: flex; flex-wrap: wrap; gap: 6px; }
+.variables { display: flex; flex-wrap: wrap; gap: var(--space-1); }
 .var-chip {
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
-    color: #047857;
-    border-radius: 999px;
+    background: color-mix(in oklch, var(--color-success) 12%, var(--color-surface));
+    border: 1px solid color-mix(in oklch, var(--color-success) 35%, transparent);
+    color: var(--color-success-text);
+    border-radius: var(--radius-pill);
     padding: 4px 10px;
-    font-size: 11px;
+    font-size: var(--font-size-xs);
     cursor: pointer;
 }
-.var-chip:hover { background: #d1fae5; }
-.variables-empty { font-size: 12px; color: #94a3b8; font-style: italic; }
+.var-chip:hover { background: color-mix(in oklch, var(--color-success) 22%, var(--color-surface)); }
+.variables-empty { font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic; }
 </style>

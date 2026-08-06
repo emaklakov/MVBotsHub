@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 import BlockRenderer from '../BlockRenderer.vue'
 import type { FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
@@ -17,6 +17,10 @@ const props = defineProps<{
     id: string
     data: { title: string; blocks: UiBlock[] }
     selectedBlockId?: string | null
+    /** Пробрасывается VueFlow через slot-пропсы кастомной ноды (v-bind="p"
+     * в App.vue) — используется только для визуальной рамки выбранной
+     * группы (нужна с Фазы 6, где выбор группы влияет на Delete/Ctrl+D). */
+    selected?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -27,6 +31,13 @@ const emit = defineEmits<{
      * вставлен в эту группу на позицию index. */
     'insert-block': [groupId: string, blockType: FlowBlockType, index: number]
 }>()
+
+// Если группа заканчивается condition-блоком — у неё два выхода
+// (True/False) на уровне этого конкретного блока, а не один общий
+// выход группы. Обычные блоки продолжают использовать единственный
+// хендл группы снизу (см. Фазу 5 плана).
+const lastBlock = computed(() => props.data.blocks[props.data.blocks.length - 1])
+const hasConditionOutput = computed(() => lastBlock.value?.type === 'condition')
 
 // --- Редактирование заголовка группы по двойному клику ---
 const editingTitle = ref(false)
@@ -110,7 +121,7 @@ const swallowDrop = () => {}
 </script>
 
 <template>
-    <div class="group-node" @dragover.prevent @drop.stop.prevent="swallowDrop">
+    <div class="group-node" :class="{ selected }" @dragover.prevent @drop.stop.prevent="swallowDrop">
         <Handle type="target" :position="Position.Top" />
 
         <div class="group-header" @dblclick="startEditTitle">
@@ -160,46 +171,75 @@ const swallowDrop = () => {}
             />
         </div>
 
-        <Handle type="source" :position="Position.Bottom" />
+        <Handle type="source" :position="Position.Bottom" v-if="!hasConditionOutput" />
+
+        <template v-else>
+            <Handle id="false" type="source" :position="Position.Bottom" class="handle-false" style="left: 30%" />
+            <Handle id="true" type="source" :position="Position.Bottom" class="handle-true" style="left: 70%" />
+            <div class="condition-labels">
+                <span class="label-false">False</span>
+                <span class="label-true">True</span>
+            </div>
+        </template>
     </div>
 </template>
 
 <style scoped>
 .group-node {
-    background: white;
-    border: 2px solid #cbd5e1;
-    border-radius: 10px;
+    background: var(--color-surface);
+    border: 2px solid var(--color-stroke);
+    border-radius: var(--radius-lg);
     width: 220px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
-    font-family: system-ui, sans-serif;
+    font-family: var(--font-sans);
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.group-node.selected {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
 }
 .group-header {
-    background: #f1f5f9;
+    background: var(--color-surface-50);
     padding: 6px 10px;
-    font-size: 11px;
+    font-size: var(--font-size-xs);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: #475569;
+    color: var(--color-text-muted);
     cursor: text;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-stroke);
 }
 .title-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .title-input {
     width: 100%;
-    border: 1px solid #3b82f6;
-    border-radius: 4px;
-    font-size: 11px;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
     padding: 2px 4px;
     font-weight: 700;
     text-transform: uppercase;
+    background: var(--color-surface);
+    color: var(--color-text);
 }
-.group-body { padding: 6px; display: flex; flex-direction: column; gap: 4px; min-height: 24px; }
+.group-body { padding: var(--space-2); display: flex; flex-direction: column; gap: var(--space-1); min-height: 24px; }
 .block-wrapper { cursor: grab; border-top: 2px solid transparent; }
 .block-wrapper:active { cursor: grabbing; }
-.block-wrapper.drag-over { border-top-color: #3b82f6; }
-.empty-group { font-size: 11px; color: #94a3b8; font-style: italic; padding: 8px 4px; text-align: center; }
-.drop-tail { height: 8px; border-radius: 4px; }
-.drop-tail.drag-over { background: #dbeafe; outline: 2px dashed #3b82f6; }
+.block-wrapper.drag-over { border-top-color: var(--color-accent); }
+.empty-group { font-size: var(--font-size-xs); color: var(--color-text-muted); font-style: italic; padding: 8px 4px; text-align: center; }
+.drop-tail { height: 8px; border-radius: var(--radius-sm); }
+.drop-tail.drag-over { background: color-mix(in oklch, var(--color-accent) 15%, transparent); outline: 2px dashed var(--color-accent); }
+
+.condition-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 14px 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.label-false { color: var(--color-error-text); }
+.label-true { color: var(--color-success-text); }
+.handle-false { background: var(--color-error) !important; }
+.handle-true { background: var(--color-success) !important; }
 </style>

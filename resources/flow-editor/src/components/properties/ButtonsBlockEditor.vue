@@ -55,6 +55,11 @@ const keyboardMode = computed({
     get: () => props.block.config?.keyboardMode || 'inline',
     set: (val: 'inline' | 'reply') => emit('update', { config: { ...props.block.config, keyboardMode: val } }),
 })
+
+const variable = computed({
+    get: () => props.block.config?.variable || '',
+    set: (val: string) => emit('update', { config: { ...props.block.config, variable: val } }),
+})
 </script>
 
 <template>
@@ -87,6 +92,12 @@ const keyboardMode = computed({
         </div>
 
         <div class="field">
+            <label>Переменная (необязательно)</label>
+            <input v-model="variable" placeholder="user_language" />
+            <p class="field-hint">Выбор пользователя сохранится в эту переменную — можно использовать в условии или в тексте других блоков.</p>
+        </div>
+
+        <div class="field">
             <label>Кнопки</label>
             <div class="button-list">
                 <div
@@ -114,38 +125,49 @@ const keyboardMode = computed({
 </template>
 
 <style scoped>
-.field { margin-bottom: 12px; }
-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; color: #64748b; }
-input, textarea, select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; box-sizing: border-box; font-family: inherit; }
+.field { margin-bottom: var(--space-3); }
+label { display: block; font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; color: var(--color-text-muted); }
+input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    box-sizing: border-box;
+    font-family: inherit;
+    background: var(--color-surface);
+    color: var(--color-text);
+}
 textarea { resize: vertical; }
 
-.button-list { display: flex; flex-direction: column; gap: 6px; }
-.button-row { display: flex; align-items: center; gap: 6px; cursor: grab; }
+.field-hint { margin: 4px 0 0; font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.button-list { display: flex; flex-direction: column; gap: var(--space-1); }
+.button-row { display: flex; align-items: center; gap: var(--space-1); cursor: grab; }
 .button-row:active { cursor: grabbing; }
 .button-row input { flex: 1; }
-.drag-handle { color: #94a3b8; font-size: 14px; flex-shrink: 0; }
+.drag-handle { color: var(--color-text-muted); font-size: var(--font-size-md); flex-shrink: 0; }
 .remove-btn {
     flex-shrink: 0;
     width: 24px;
     height: 24px;
-    border: 1px solid #fecaca;
-    background: #fef2f2;
-    color: #dc2626;
-    border-radius: 4px;
+    border: 1px solid color-mix(in oklch, var(--color-error) 40%, transparent);
+    background: color-mix(in oklch, var(--color-error) 10%, var(--color-surface));
+    color: var(--color-error-text);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 11px;
+    font-size: var(--font-size-xs);
 }
-.remove-btn:hover { background: #fee2e2; }
+.remove-btn:hover { background: color-mix(in oklch, var(--color-error) 20%, var(--color-surface)); }
 .add-btn {
     margin-top: 4px;
     padding: 6px;
-    border: 1px dashed #cbd5e1;
+    border: 1px dashed var(--color-stroke);
     background: none;
-    border-radius: 4px;
-    color: #3b82f6;
-    font-size: 12px;
+    border-radius: var(--radius-sm);
+    color: var(--color-accent-text);
+    font-size: var(--font-size-sm);
     cursor: pointer;
 }
-.add-btn:hover { background: #eff6ff; }
-.empty-hint { font-size: 12px; color: #94a3b8; font-style: italic; }
+.add-btn:hover { background: color-mix(in oklch, var(--color-accent) 10%, transparent); }
+.empty-hint { font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic; }
 </style>

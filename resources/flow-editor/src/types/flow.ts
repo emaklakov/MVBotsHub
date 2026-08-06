@@ -4,14 +4,20 @@ export interface BlockContent {
     buttons?: string[]
 }
 
+export type ConditionOperator = '==' | '!=' | 'contains' | 'is_set' | 'is_empty'
+
 export interface BlockConfig {
     variable?: string
     hint?: string
     /** Только для type: 'button'. Inline-кнопки под сообщением или reply-клавиатура. */
     keyboardMode?: 'inline' | 'reply'
+    /** Только для type: 'condition'. */
+    conditionVariable?: string
+    conditionOperator?: ConditionOperator
+    conditionValue?: string
 }
 
-export type FlowBlockType = 'text' | 'input' | 'button'
+export type FlowBlockType = 'text' | 'input' | 'button' | 'condition'
 
 /**
  * Группа — нода на холсте. Содержит один или несколько блоков,
@@ -33,7 +39,14 @@ export interface FlowBlock {
     type: FlowBlockType
     content?: BlockContent
     config?: BlockConfig
-    /** Ссылка на исходящее ребро этого блока, если оно есть. */
+    /**
+     * Ссылка на исходящее ребро этого блока, если оно есть.
+     * ВАЖНО: для блоков с несколькими выходами (condition — True/False)
+     * это поле всегда null, потому что оно рассчитано на один выход.
+     * Для condition-блоков источник истины по рёбрам — это
+     * `schema.edges`, отфильтрованные по `source_block_id` этого блока
+     * (их может быть до двух, различаются по `source_handle`).
+     */
     outgoing_edge_id?: string | null
 }
 
@@ -46,6 +59,12 @@ export interface FlowEdge {
     id: string
     source_block_id: string
     target_group_id: string
+    /**
+     * Для блоков с несколькими выходами (сейчас — только 'condition'):
+     * 'true' | 'false' говорит, какая это ветка. Для обычных блоков
+     * (один выход) — null.
+     */
+    source_handle?: string | null
 }
 
 export interface FlowSchema {

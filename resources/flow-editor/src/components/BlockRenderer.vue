@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import TextBlock from './blocks/TextBlock.vue'
 import InputBlock from './blocks/InputBlock.vue'
 import ButtonBlock from './blocks/ButtonBlock.vue'
+import ConditionBlock from './blocks/ConditionBlock.vue'
 import type { FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
 
 const props = defineProps<{
@@ -16,6 +17,7 @@ const componentMap: Record<FlowBlockType, unknown> = {
     text: TextBlock,
     input: InputBlock,
     button: ButtonBlock,
+    condition: ConditionBlock,
 }
 
 const component = computed(() => componentMap[props.block.type])
@@ -28,7 +30,7 @@ const component = computed(() => componentMap[props.block.type])
 </template>
 
 <style scoped>
-.block-slot { border: 2px solid transparent; border-radius: 6px; cursor: pointer; }
-.block-slot:hover { background: #f8fafc; }
-.block-slot.selected { border-color: #3b82f6; background: #eff6ff; }
+.block-slot { border: 2px solid transparent; border-radius: var(--radius-sm); cursor: pointer; }
+.block-slot:hover { background: var(--color-surface-50); }
+.block-slot.selected { border-color: var(--color-accent); background: color-mix(in oklch, var(--color-accent) 10%, transparent); }
 </style>

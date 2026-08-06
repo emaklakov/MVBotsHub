@@ -55,9 +55,19 @@ const hint = computed({
 </template>
 
 <style scoped>
-.field { margin-bottom: 12px; }
-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; color: #64748b; }
-input, textarea { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; box-sizing: border-box; font-family: inherit; }
+.field { margin-bottom: var(--space-3); }
+label { display: block; font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; color: var(--color-text-muted); }
+input, textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    box-sizing: border-box;
+    font-family: inherit;
+    background: var(--color-surface);
+    color: var(--color-text);
+}
 textarea { resize: vertical; }
-.field-hint { margin: 4px 0 0; font-size: 11px; color: #94a3b8; }
+.field-hint { margin: 4px 0 0; font-size: var(--font-size-xs); color: var(--color-text-muted); }
 </style>

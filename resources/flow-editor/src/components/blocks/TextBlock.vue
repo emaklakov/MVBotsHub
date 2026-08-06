@@ -12,7 +12,7 @@ defineProps<{ content?: BlockContent }>()
 </template>
 
 <style scoped>
-.block { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; }
-.block-icon { flex-shrink: 0; font-size: 12px; }
-.block-text { font-size: 12px; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.block { display: flex; align-items: center; gap: var(--space-2); padding: 6px 8px; border-radius: var(--radius-sm); }
+.block-icon { flex-shrink: 0; font-size: var(--font-size-sm); }
+.block-text { font-size: var(--font-size-sm); color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

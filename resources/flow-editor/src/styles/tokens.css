@@ -1,0 +1,137 @@
+/**
+ * Дизайн-токены flow-editor.
+ *
+ * Цвета взяты 1-в-1 из app/MoonShine/ColorManager/Palettes/MVPalette.php —
+ * той же палитры, что использует остальная админка MoonShine (значения в
+ * OKLCH). Так редактор выглядит частью админки, а не отдельным виджетом
+ * со своей случайной палитрой, и корректно поддерживает тёмную тему.
+ *
+ * Редактор открывается как отдельный HTML-документ (см.
+ * resources/views/flows/flow-editor.blade.php), а не встроен в DOM
+ * админки, поэтому нет доступа к переключателю темы MoonShine — тёмная
+ * тема здесь следует системной настройке (prefers-color-scheme).
+ */
+
+:root {
+    /* --- Цвета (светлая тема, из MVPalette::getColors()) --- */
+    --color-body: oklch(98.4% 0.003 247.858);
+    --color-primary: oklch(0.65 0.13 242.7);
+    --color-primary-text: oklch(1 0 0);
+    --color-secondary: oklch(0.58 0.15 315.31);
+    --color-secondary-text: oklch(1 0 0);
+
+    --color-text: oklch(0.25 0 0);
+    --color-stroke: oklch(0.25 0 0 / 20%);
+    --color-surface: oklch(1 0 0);
+    --color-surface-50: oklch(0.985 0 0);
+    --color-surface-100: oklch(0.97 0 0);
+    --color-surface-200: oklch(0.955 0 0);
+    --color-surface-300: oklch(0.94 0 0);
+    --color-surface-400: oklch(0.925 0 0);
+    --color-surface-500: oklch(0.91 0 0);
+    --color-surface-600: oklch(0.88 0 0);
+    --color-surface-700: oklch(0.85 0 0);
+    --color-surface-800: oklch(0.80 0 0);
+    --color-surface-900: oklch(0.75 0 0);
+
+    --color-success: oklch(0.64 0.22 142.49);
+    --color-success-text: oklch(0.46 0.16 142.49);
+    --color-warning: oklch(0.75 0.17 75.35);
+    --color-warning-text: oklch(0.5 0.10 76.10);
+    --color-error: oklch(0.58 0.21 26.855);
+    --color-error-text: oklch(0.37 0.145 26.85);
+    --color-info: oklch(0.60 0.219 257.63);
+    --color-info-text: oklch(0.35 0.12 257.63);
+
+    /* Приглушённый текст (подписи, хинты) — не отдельный цвет в палитре
+     * админки, поэтому выводится затемнением основного текстового цвета,
+     * а не произвольным серым — так тоже переживает смену темы. */
+    --color-text-muted: color-mix(in oklch, var(--color-text) 55%, transparent);
+
+    /* Единый акцент для интерактивных элементов редактора (выделение
+     * блока, фокус, чипы переменных, ссылки) — намеренно --color-info,
+     * а не --color-primary: в тёмной теме MVPalette primary становится
+     * белым (осознанный выбор для CTA-кнопок), а info остаётся синим
+     * в обеих темах, что и ожидается от акцента для рамок/фокуса. */
+    --color-accent: var(--color-info);
+    --color-accent-text: var(--color-info-text);
+    /* Текст ПОВЕРХ сплошной заливки --color-accent (например, активная
+     * вкладка) — не путать с --color-accent-text, который для текста
+     * акцентного цвета НА нейтральном фоне. Белый работает в обеих темах,
+     * так как info остаётся среднеярким синим и в тёмной теме тоже. */
+    --color-accent-contrast: oklch(1 0 0);
+
+    /* --- Отступы --- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+
+    /* --- Скругления --- */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-pill: 999px;
+
+    /* --- Тени --- */
+    --shadow-sm: 0 1px 3px oklch(0 0 0 / 10%);
+    --shadow-md: 0 4px 16px oklch(0 0 0 / 14%);
+
+    /* --- Типографика --- */
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 13px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-body: oklch(0.20 0 0);
+        --color-primary: oklch(1 0 0);
+        --color-primary-text: oklch(0 0 0);
+        --color-secondary: oklch(0.8 0 0);
+        --color-secondary-text: oklch(0.20 0 0);
+
+        --color-text: oklch(0.90 0 0);
+        --color-stroke: oklch(0.85 0 0 / 20%);
+        --color-surface: oklch(0.24 0 0);
+        --color-surface-50: oklch(0.26 0 0);
+        --color-surface-100: oklch(0.28 0 0);
+        --color-surface-200: oklch(0.32 0 0);
+        --color-surface-300: oklch(0.38 0 0);
+        --color-surface-400: oklch(0.45 0 0);
+        --color-surface-500: oklch(0.52 0 0);
+        --color-surface-600: oklch(0.60 0 0);
+        --color-surface-700: oklch(0.70 0 0);
+        --color-surface-800: oklch(0.80 0 0);
+        --color-surface-900: oklch(0.88 0 0);
+
+        --color-success: oklch(0.64 0.22 142.495);
+        --color-success-text: oklch(0.93 0.12 144.46);
+        --color-warning: oklch(0.9 0.22 92.72);
+        --color-warning-text: oklch(0.99 0.072 107.64);
+        --color-error: oklch(0.589 0.214 26.855);
+        --color-error-text: oklch(0.71 0.24 25.96);
+        --color-info: oklch(0.6 0.22 257.63);
+        --color-info-text: oklch(0.88 0.065 244.38);
+
+        --shadow-sm: 0 1px 3px oklch(0 0 0 / 40%);
+        --shadow-md: 0 4px 16px oklch(0 0 0 / 45%);
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: var(--color-body);
+}

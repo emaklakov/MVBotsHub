@@ -15,9 +15,9 @@ defineProps<{ content?: BlockContent }>()
 </template>
 
 <style scoped>
-.block { display: flex; align-items: flex-start; gap: 6px; padding: 6px 8px; border-radius: 6px; }
-.block-icon { flex-shrink: 0; font-size: 12px; margin-top: 2px; }
-.block-text { font-size: 12px; color: #94a3b8; }
+.block { display: flex; align-items: flex-start; gap: var(--space-2); padding: 6px 8px; border-radius: var(--radius-sm); }
+.block-icon { flex-shrink: 0; font-size: var(--font-size-sm); margin-top: 2px; }
+.block-text { font-size: var(--font-size-sm); color: var(--color-text-muted); }
 .tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.tag { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #92400e; }
+.tag { background: color-mix(in oklch, var(--color-warning) 20%, var(--color-surface)); padding: 2px 6px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); color: var(--color-warning-text); }
 </style>
