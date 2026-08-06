@@ -7,6 +7,7 @@ namespace App\Application\Broadcasts\Services;
 use App\Application\Broadcasts\ProgressTracker;
 use App\Application\Flows\Services\FlowEngine;
 use App\Application\Services\LogService;
+use App\Domain\Bots\Models\Bot;
 use App\Domain\Broadcasts\Enums\BroadcastRecipientStatus;
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\Domain\Broadcasts\Exceptions\RateLimitException;
@@ -14,13 +15,10 @@ use App\Domain\Broadcasts\Models\Broadcast;
 use App\Domain\Broadcasts\Models\BroadcastRecipient;
 use App\Domain\Conversations\Enums\SubscriberStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
+use App\Jobs\Telegram\SendBroadcastMessage;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Оркестратор отправки broadcast-сообщения.
- * Не знает про Queue — чистый Application Service.
- */
 final class BroadcastDispatcher
 {
     public function __construct(
@@ -28,6 +26,32 @@ final class BroadcastDispatcher
         private readonly ProgressTracker $progressTracker,
     ) {}
 
+    /**
+     * Запустить рассылку для ВСЕХ pending-получателей.
+     * Вызывается из админки (BroadcastDetailPage).
+     */
+    public function dispatchAll(Broadcast $broadcast): void
+    {
+        if ($broadcast->status === BroadcastStatus::CANCELLED) {
+            return;
+        }
+
+        $broadcast->update(['status' => BroadcastStatus::PROCESSING, 'started_at' => now()]);
+
+        $recipients = BroadcastRecipient::where('broadcast_id', $broadcast->id)
+            ->where('status', BroadcastRecipientStatus::PENDING)
+            ->pluck('bot_subscriber_id');
+
+        foreach ($recipients as $subscriberId) {
+            SendBroadcastMessage::dispatch($broadcast->id, $subscriberId)
+                ->onQueue('broadcasts');
+        }
+    }
+
+    /**
+     * Отправить одному получателю.
+     * Вызывается из SendBroadcastMessage Job.
+     */
     public function dispatch(int $broadcastId, int $subscriberId): void
     {
         $broadcast = Broadcast::find($broadcastId);
@@ -71,6 +95,18 @@ final class BroadcastDispatcher
             ]);
             $this->markFailed($recipient, $e->getMessage());
         }
+    }
+
+    /**
+     * Повторить отправку для failed-получателей.
+     */
+    public function retryFailed(Broadcast $broadcast): void
+    {
+        $recipients = BroadcastRecipient::where('broadcast_id', $broadcast->id)
+            ->where('status', BroadcastRecipientStatus::FAILED)
+            ->update(['status' => BroadcastRecipientStatus::PENDING]);
+
+        $this->dispatchAll($broadcast);
     }
 
     private function markSent(BroadcastRecipient $recipient): void

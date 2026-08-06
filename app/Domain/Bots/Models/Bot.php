@@ -102,7 +102,7 @@ class Bot extends Model
         return $this->hasMany(BotMember::class);
     }
 
-    public function subscribers()
+    public function subscribers(): HasMany
     {
         return $this->hasMany(BotSubscriber::class);
     }

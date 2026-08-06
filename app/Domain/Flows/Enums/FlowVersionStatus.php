@@ -11,9 +11,9 @@ enum FlowVersionStatus: string
     public function toString(): ?string
     {
         return match ($this) {
-            self::PUBLISHED => 'Опубликован',
+            self::PUBLISHED => 'Опубликована',
             self::DRAFT => 'Черновик',
-            self::ARCHIVED => 'Архивирован',
+            self::ARCHIVED => 'Архивирована',
         };
     }
 

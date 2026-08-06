@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class BotSubscriber extends Model
 {
@@ -75,6 +76,23 @@ class BotSubscriber extends Model
     public function conversations(): HasMany
     {
         return $this->hasMany(Conversation::class, 'bot_subscriber_id');
+    }
+
+    public function conversationSessions(): HasMany
+    {
+        return $this->hasMany(ConversationSession::class, 'bot_subscriber_id');
+    }
+
+    public function messages(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Message::class,
+            Conversation::class,
+            'bot_subscriber_id',          // conversations.bot_subscriber_id
+            'conversation_id', // messages.conversation_id
+            'id',
+            'id'
+        );
     }
 
     public function mergedInto(): BelongsTo

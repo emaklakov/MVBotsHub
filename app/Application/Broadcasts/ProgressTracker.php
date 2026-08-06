@@ -4,67 +4,58 @@ declare(strict_types=1);
 
 namespace App\Application\Broadcasts;
 
+use App\Domain\Broadcasts\Enums\BroadcastRecipientStatus;
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\Domain\Broadcasts\Models\Broadcast;
-use Illuminate\Support\Facades\Redis;
+use App\Domain\Broadcasts\Models\BroadcastRecipient;
 
-/**
- * Атомарный трекер прогресса рассылки.
- * Использует Redis для скорости, DB для консистентности.
- */
 final class ProgressTracker
 {
-    private const string SENT_KEY = 'broadcast:%d:sent';
-    private const string FAILED_KEY = 'broadcast:%d:failed';
-    private const int FLUSH_BATCH_SIZE = 50;
-
     public function markSent(int $broadcastId): void
     {
-        Redis::incr(sprintf(self::SENT_KEY, $broadcastId));
-        $this->maybeFlush($broadcastId);
+        $this->flush($broadcastId);
     }
 
     public function markFailed(int $broadcastId): void
     {
-        Redis::incr(sprintf(self::FAILED_KEY, $broadcastId));
-        $this->maybeFlush($broadcastId);
+        $this->flush($broadcastId);
     }
 
-    private function maybeFlush(int $broadcastId): void
+    private function flush(int $broadcastId): void
     {
-        $sent = (int) Redis::get(sprintf(self::SENT_KEY, $broadcastId));
-        $failed = (int) Redis::get(sprintf(self::FAILED_KEY, $broadcastId));
-        $total = $sent + $failed;
+        // Подсчитываем актуальные значения из БД
+        $sent = BroadcastRecipient::where('broadcast_id', $broadcastId)
+            ->where('status', BroadcastRecipientStatus::SENT)
+            ->count();
 
-        if ($total === 0 || $total % self::FLUSH_BATCH_SIZE !== 0) {
-            return;
-        }
+        $failed = BroadcastRecipient::where('broadcast_id', $broadcastId)
+            ->where('status', BroadcastRecipientStatus::FAILED)
+            ->count();
 
-        // Атомарный flush счётчиков в БД
         Broadcast::where('id', $broadcastId)->update([
             'sent_count' => $sent,
             'failed_count' => $failed,
         ]);
 
-        $this->maybeComplete($broadcastId, $sent, $failed, $total);
+        $this->maybeComplete($broadcastId);
     }
 
-    private function maybeComplete(int $broadcastId, int $sent, int $failed, int $total): void
+    private function maybeComplete(int $broadcastId): void
     {
-        // Атомарная проверка: только один Job завершит рассылку
-        $affected = Broadcast::where('id', $broadcastId)
+        $hasPending = BroadcastRecipient::where('broadcast_id', $broadcastId)
+            ->where('status', BroadcastRecipientStatus::PENDING)
+            ->exists();
+
+        if ($hasPending) {
+            return;
+        }
+
+        // Атомарно: только один Job установит COMPLETED
+        Broadcast::where('id', $broadcastId)
             ->where('status', BroadcastStatus::PROCESSING)
-            ->whereColumn('total_recipients', '<=', 'sent_count + failed_count') // или whereRaw
             ->update([
                 'status' => BroadcastStatus::COMPLETED,
                 'completed_at' => now(),
-                'sent_count' => $sent,
-                'failed_count' => $failed,
             ]);
-
-        if ($affected > 0) {
-            Redis::del(sprintf(self::SENT_KEY, $broadcastId));
-            Redis::del(sprintf(self::FAILED_KEY, $broadcastId));
-        }
     }
 }

@@ -20,19 +20,28 @@ class FlowEditorController
 
         Gate::authorize('view', $flow);
 
-        $draft = $flow->versions()->where('status', FlowVersionStatus::DRAFT)->first();
+        // Ищем черновик
+        $draft = $flow->versions()->where('status', FlowVersionStatus::DRAFT)->latest()->first();
 
+        // Если нет черновика и последней опубликованной версии, то создать новую
         if (!$draft) {
+            // Если нет черновика, то ищем последнею опубликованную версию и берем у нее схему
+            $published = $flow->versions()->where('status', FlowVersionStatus::PUBLISHED)->latest()->first();
+
+            $schema = $published ? $published->schema : [
+                'start_group_id' => null,
+                'groups' => [],
+                'blocks' => [],
+                'edges' => [],
+            ];
+
+            $version_number = $published ? $published->version_number + 1 : 1;
+
             $draft = FlowVersion::create([
                 'flow_id' => $flow->id,
-                'schema' => [
-                    'start_group_id' => null,
-                    'groups' => [],
-                    'blocks' => [],
-                    'edges' => [],
-                ],
+                'schema' => $schema,
                 'status' => FlowVersionStatus::DRAFT,
-                'version_number' => 0,
+                'version_number' => $version_number,
             ]);
         }
 
@@ -94,7 +103,7 @@ class FlowEditorController
                 'flow_id' => $flow->id,
                 'schema' => $validated['schema'],
                 'status' => FlowVersionStatus::DRAFT,
-                'version_number' => 0,
+                'version_number' => 1,
             ]);
         }
 
@@ -118,7 +127,7 @@ class FlowEditorController
             return response()->json(['error' => 'Черновик не найден'], 422);
         }
 
-        $nextVersion = ($flow->versions()->where('status', FlowVersionStatus::PUBLISHED)->max('version_number') ?? 0) + 1;
+        $nextVersion = ($flow->versions()->where('status', FlowVersionStatus::PUBLISHED)->max('version_number') ?? 1) + 1;
 
         $published = FlowVersion::create([
             'flow_id' => $flow->id,

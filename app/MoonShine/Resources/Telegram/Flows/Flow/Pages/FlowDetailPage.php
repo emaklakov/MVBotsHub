@@ -12,10 +12,13 @@ use App\Domain\Flows\Models\FlowVersion;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Flows\Flow\FlowResource;
+use App\MoonShine\Resources\Telegram\Flows\FlowVersion\FlowVersionResource;
+use App\MoonShine\Resources\Users\User\UserResource;
 use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Crud\JsonResponse;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
+use MoonShine\Laravel\Fields\Relationships\HasMany;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Support\Attributes\AsyncMethod;
 use MoonShine\Support\Enums\ToastType;
@@ -48,6 +51,20 @@ class FlowDetailPage extends BaseDetailPage
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
                 ->format('d.m.Y H:i:s'),
+            HasMany::make('Версии', 'versions', resource: FlowVersionResource::class)
+                ->fields([
+                    ID::make()->sortable(),
+                    Text::make('Версия', 'version_number'),
+                    Enum::make('Статут', 'status')->attach(FlowVersionStatus::class),
+                    Date::make('Опубликована', 'published_at')
+                        ->format('d.m.Y H:i:s'),
+                    BelongsTo::make('Кто опубликовал', 'publisher', resource: UserResource::class, formatted: 'email'),
+                    Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
+                        ->format('d.m.Y H:i:s'),
+                    Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
+                        ->format('d.m.Y H:i:s'),
+                ])
+                ->tabMode(),
         ];
     }
 

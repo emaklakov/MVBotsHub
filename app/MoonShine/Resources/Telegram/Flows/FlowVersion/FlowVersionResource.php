@@ -43,4 +43,9 @@ class FlowVersionResource extends BaseResource
             FlowVersionDetailPage::class,
         ];
     }
+
+    protected function search(): array
+    {
+        return ['version_number'];
+    }
 }

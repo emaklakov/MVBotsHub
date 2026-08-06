@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Telegram\Conversations\Conversation\Pages;
 
 use App\Domain\Conversations\Enums\ConversationStatus;
+use App\Domain\Conversations\Models\ConversationSession;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
+use App\MoonShine\Resources\Telegram\Conversations\ConversationSession\ConversationSessionResource;
+use App\MoonShine\Resources\Telegram\Conversations\Message\MessageResource;
 use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Laravel\Fields\Relationships\HasMany;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\Enum;
@@ -41,6 +45,8 @@ class ConversationDetailPage extends BaseDetailPage
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
                 ->format('d.m.Y H:i:s'),
+            HasMany::make('Сообщения', 'messages', resource: MessageResource::class)
+                ->tabMode(),
         ];
     }
 }

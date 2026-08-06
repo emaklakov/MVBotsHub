@@ -34,7 +34,7 @@ class FlowVersionIndexPage extends BaseIndexPage
             BelongsTo::make('Основной поток', 'flow', resource: FlowResource::class, formatted: 'name'),
             Text::make('Версия', 'version_number'),
             Enum::make('Статут', 'status')->attach(FlowVersionStatus::class),
-            Date::make('Опубликован', 'published_at')
+            Date::make('Опубликована', 'published_at')
                 ->format('d.m.Y H:i:s'),
             BelongsTo::make('Кто опубликовал', 'publisher', resource: UserResource::class, formatted: 'email'),
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')

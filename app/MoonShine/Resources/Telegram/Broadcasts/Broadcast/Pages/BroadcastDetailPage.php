@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\Pages;
 
 use App\Application\Broadcasts\Services\BroadcastDispatcher;
+use App\Application\Broadcasts\Services\BroadcastRecipientGenerator;
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\Domain\Broadcasts\Models\Broadcast;
 use App\MoonShine\Resources\Base\BaseDetailPage;
@@ -51,7 +52,7 @@ class BroadcastDetailPage extends BaseDetailPage
             Preview::make('Процесс', null, fn($item) => "{$item->sent_count}/{$item->total_recipients} ({$item->failed_count} failed)"),
             Date::make('Запланировано', 'scheduled_at')
                 ->format('d.m.Y H:i:s'),
-            Date::make('Запущено', 'scheduled_at')
+            Date::make('Запущено', 'started_at')
                 ->format('d.m.Y H:i:s'),
             Date::make('Завершено', 'completed_at')
                 ->format('d.m.Y H:i:s'),
@@ -107,8 +108,12 @@ class BroadcastDetailPage extends BaseDetailPage
     {
         $broadcast = $request->getResource()->getItem();
 
+        // Генерируем получателей, если ещё нет
+        $generator = app(BroadcastRecipientGenerator::class);
+        $generator->generate($broadcast);
+
         $dispatcher = app(BroadcastDispatcher::class);
-        $dispatcher->dispatch($broadcast);
+        $dispatcher->dispatchAll($broadcast);
 
         toast('Рассылка отправлена в очередь', ToastType::SUCCESS);
 

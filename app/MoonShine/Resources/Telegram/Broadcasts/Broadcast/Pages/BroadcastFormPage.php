@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\Pages;
 
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
+use App\Domain\Flows\Enums\FlowVersionStatus;
 use App\MoonShine\Resources\Base\BaseFormPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\BroadcastResource;
@@ -34,11 +35,14 @@ class BroadcastFormPage extends BaseFormPage
                 ID::make(),
                 Text::make('Название', 'name')->required(),
                 BelongsTo::make('Бот', 'bot', resource: BotResource::class, formatted: 'username')->nullable()->required(),
-                BelongsTo::make('Поток', 'flowVersion', resource: FlowVersionResource::class)->required(),
+                BelongsTo::make('Поток', 'flowVersion', resource: FlowVersionResource::class, formatted: fn ($item) => $item->flow?->name.' ('.$item->version_number.')')
+                    ->valuesQuery(fn ($query) => $query->where('status', FlowVersionStatus::PUBLISHED))
+                    ->nullable()
+                    ->required(),
                 Date::make('Запланировано', 'scheduled_at')
                     ->withTime()
                     ->required(),
-                Enum::make('Статус', 'status')->attach(BroadcastStatus::class)->default(BroadcastStatus::PENDING)->required(),
+                Enum::make('Статус', 'status')->attach(BroadcastStatus::class)->default(BroadcastStatus::DRAFT)->required(),
             ]),
         ];
     }

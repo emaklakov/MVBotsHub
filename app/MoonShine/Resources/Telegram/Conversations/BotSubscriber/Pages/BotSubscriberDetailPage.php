@@ -9,8 +9,13 @@ use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\CRM\Person\PersonResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
+use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
+use App\MoonShine\Resources\Telegram\Conversations\ConversationSession\ConversationSessionResource;
+use App\MoonShine\Resources\Telegram\Conversations\Message\MessageResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
+use MoonShine\Laravel\Fields\Relationships\HasMany;
+use MoonShine\Laravel\Fields\Relationships\HasManyThrough;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\Enum;
@@ -42,6 +47,12 @@ class BotSubscriberDetailPage extends BaseDetailPage
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
                 ->format('d.m.Y H:i:s'),
+            HasManyThrough::make('Сообщения', 'messages', resource: MessageResource::class)
+                ->tabMode(),
+            HasMany::make('Диалоги', 'conversations', resource: ConversationResource::class)
+                ->tabMode(),
+            HasMany::make('Сессии диалогов', 'conversationSessions', resource: ConversationSessionResource::class)
+                ->tabMode(),
         ];
     }
 }

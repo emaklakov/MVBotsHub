@@ -42,8 +42,8 @@ final class SendBroadcastMessage implements ShouldQueue, ShouldBeUnique
     {
         try {
             $dispatcher->dispatch($this->broadcastId, $this->subscriberId);
-        } catch (RateLimitException $e) {
-            $this->release($e->retryAfter);
+        } catch (RateLimitException $exception) {
+            $this->release($exception->retryAfter);
         }
     }
 

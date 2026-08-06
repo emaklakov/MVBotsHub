@@ -8,6 +8,7 @@ use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\BroadcastResource;
+use App\MoonShine\Resources\Telegram\Flows\FlowVersion\FlowVersionResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
@@ -34,11 +35,12 @@ class BroadcastIndexPage extends BaseIndexPage
             ID::make()->sortable(),
             Text::make('Название', 'name'),
             BelongsTo::make('Бот', 'bot', resource: BotResource::class, formatted: 'username'),
+            BelongsTo::make('Поток', 'flowVersion', resource: FlowVersionResource::class, formatted: fn ($item) => $item->flow?->name.' ('.$item->version_number.')'),
             Enum::make('Статус', 'status')->attach(BroadcastStatus::class),
             Preview::make('Процесс', null, fn($item) => "{$item->sent_count}/{$item->total_recipients} ({$item->failed_count} failed)"),
             Date::make('Запланировано', 'scheduled_at')
                 ->format('d.m.Y H:i:s'),
-            Date::make('Запущено', 'scheduled_at')
+            Date::make('Запущено', 'started_at')
                 ->format('d.m.Y H:i:s'),
             Date::make('Завершено', 'completed_at')
                 ->format('d.m.Y H:i:s'),

@@ -12,6 +12,8 @@ use App\MoonShine\Resources\Telegram\Conversations\Conversation\Pages\Conversati
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Laravel\Resources\ModelResource;
+use MoonShine\Support\Enums\Action;
+use MoonShine\Support\ListOf;
 
 /**
  * @extends ModelResource<Conversation, ConversationIndexPage, ConversationDetailPage, ConversationFormPage>
@@ -21,6 +23,15 @@ class ConversationResource extends BaseResource
     protected string $model = Conversation::class;
 
     protected string $title = 'Диалоги';
+
+    protected function activeActions(): ListOf
+    {
+        return parent::activeActions()
+            ->except(
+                Action::CREATE,
+                Action::UPDATE
+            );
+    }
 
     protected function modifyQueryBuilder(Builder $builder): Builder
     {
