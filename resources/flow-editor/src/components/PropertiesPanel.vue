@@ -2,8 +2,9 @@
 import { computed } from 'vue'
 import type { UiBlock } from '../composables/useFlowSerializer'
 import { getBlockDefinition } from '@/blocks'
+import type { ChannelProfile } from '@/channels'
 
-const props = defineProps<{ selectedBlock: UiBlock | null; variables: string[] }>()
+const props = defineProps<{ selectedBlock: UiBlock | null; variables: string[]; channel: ChannelProfile }>()
 const emit = defineEmits<{ update: [patch: { content?: any; config?: any }] }>()
 
 const forward = (patch: { content?: any; config?: any }) => {
@@ -12,9 +13,10 @@ const forward = (patch: { content?: any; config?: any }) => {
 }
 
 // Редактор свойств берётся из реестра блоков — этот компонент больше не
-// перечисляет типы блоков сам. Общий набор пропсов (block, variables)
-// передаётся всем редакторам; те, что variables не объявляют (Input,
-// Buttons), просто её не используют — лишний проп не мешает.
+// перечисляет типы блоков сам. Общий набор пропсов (block, variables,
+// channel) передаётся всем редакторам; те, что какой-то из них не
+// объявляют явно (см. InputBlockEditor/ButtonsBlockEditor/... — там
+// оставлен комментарий), просто её не используют — лишний проп не мешает.
 const editorComponent = computed(() => {
     if (!props.selectedBlock) return null
     return getBlockDefinition(props.selectedBlock.type).editorComponent ?? null
@@ -38,6 +40,7 @@ const editorComponent = computed(() => {
                 v-if="editorComponent"
                 :block="selectedBlock"
                 :variables="variables"
+                :channel="channel"
                 @update="forward"
             />
         </div>

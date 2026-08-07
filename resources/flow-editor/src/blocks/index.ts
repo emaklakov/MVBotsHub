@@ -1,4 +1,6 @@
 import type { BlockConfig, BlockContent, FlowBlockType } from '@/types/flow'
+import type { ChannelProfile } from '@/channels'
+import { channelSupportsAll } from '@/channels'
 import { blockRegistry, blockCategories } from './registry'
 import { singleOutput, type BlockDefinition, type BlockOutput } from './types'
 
@@ -48,4 +50,17 @@ export function getBlockOutputs(type: FlowBlockType | undefined, config?: BlockC
  * переменную (см. BlockDefinition.producesVariable). */
 export function blockProducesVariable(type: FlowBlockType): boolean {
     return Boolean(getBlockDefinition(type).producesVariable)
+}
+
+/** true, если у канала есть все возможности, которые требует блок (см.
+ * BlockDefinition.requiresCapabilities). Универсальные блоки без
+ * requiresCapabilities доступны любому каналу всегда. */
+export function isBlockAvailableForChannel(def: BlockDefinition, channel: ChannelProfile): boolean {
+    return channelSupportsAll(channel, def.requiresCapabilities)
+}
+
+/** Список блоков, доступных данному каналу — то, чем реально
+ * пользуется Sidebar при построении библиотеки блоков. */
+export function listBlockDefinitionsForChannel(channel: ChannelProfile): BlockDefinition[] {
+    return listBlockDefinitions().filter((def) => isBlockAvailableForChannel(def, channel))
 }

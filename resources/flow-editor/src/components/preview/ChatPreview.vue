@@ -41,6 +41,16 @@ const handleRestart = () => {
     inputValue.value = ''
     scrollToBottom()
 }
+
+const MEDIA_MISSING_LABELS: Record<'image' | 'video' | 'audio' | 'file', string> = {
+    image: 'Изображение без ссылки',
+    video: 'Видео без ссылки',
+    audio: 'Аудио без ссылки',
+    file: 'Файл без ссылки',
+}
+
+const mediaMissingLabel = (type?: 'image' | 'video' | 'audio' | 'file') =>
+    (type && MEDIA_MISSING_LABELS[type]) || 'Медиа без ссылки'
 </script>
 
 <template>
@@ -57,6 +67,24 @@ const handleRestart = () => {
         <div ref="messagesEl" class="messages">
             <template v-for="msg in sim.state.messages" :key="msg.id">
                 <div v-if="msg.kind === 'note'" class="note">{{ msg.text }}</div>
+                <div v-else-if="msg.kind === 'media'" class="message-row role-bot">
+                    <div class="bubble media-bubble">
+                        <img v-if="msg.mediaType === 'image' && msg.mediaUrl" :src="msg.mediaUrl" class="media-preview" alt="" />
+                        <video v-else-if="msg.mediaType === 'video' && msg.mediaUrl" :src="msg.mediaUrl" class="media-preview" controls />
+                        <audio v-else-if="msg.mediaType === 'audio' && msg.mediaUrl" :src="msg.mediaUrl" controls class="media-audio" />
+                        <a
+                            v-else-if="msg.mediaType === 'file' && msg.mediaUrl"
+                            :href="msg.mediaUrl"
+                            target="_blank"
+                            rel="noopener"
+                            class="media-file-link"
+                        >
+                            📎 {{ msg.mediaFileName || msg.mediaUrl }}
+                        </a>
+                        <div v-else class="media-missing">{{ mediaMissingLabel(msg.mediaType) }}</div>
+                        <div v-if="msg.text" class="media-caption">{{ msg.text }}</div>
+                    </div>
+                </div>
                 <div v-else class="message-row" :class="`role-${msg.role}`">
                     <div class="bubble">{{ msg.text }}</div>
                 </div>
@@ -141,6 +169,25 @@ const handleRestart = () => {
 }
 .role-bot .bubble { background: var(--color-surface); border: 1px solid var(--color-stroke); color: var(--color-text); border-bottom-left-radius: 2px; }
 .role-user .bubble { background: var(--color-primary); color: var(--color-primary-text); border-bottom-right-radius: 2px; }
+
+.media-bubble { background: var(--color-surface); border: 1px solid var(--color-stroke); color: var(--color-text); border-bottom-left-radius: 2px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.media-preview { max-width: 100%; max-height: 220px; border-radius: var(--radius-sm); display: block; }
+.media-audio { width: 100%; }
+.media-file-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-sm);
+    color: var(--color-accent-text);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    word-break: break-all;
+}
+.media-file-link:hover { background: var(--color-surface-50); }
+.media-missing { font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic; padding: 4px 0; }
+.media-caption { font-size: var(--font-size-base); line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
 
 .note {
     align-self: center;

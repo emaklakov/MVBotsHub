@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import type { BlockContent } from '@/types/flow'
+import type { BlockContent, BlockConfig, FlowBlockType } from '@/types/flow'
 
-defineProps<{ content?: BlockContent }>()
+// `config`/`type` объявлены, но не используются этим компонентом — см.
+// аналогичный комментарий в ConditionBlock.vue.
+defineProps<{ content?: BlockContent; config?: BlockConfig; type?: FlowBlockType }>()
 </script>
 
 <template>

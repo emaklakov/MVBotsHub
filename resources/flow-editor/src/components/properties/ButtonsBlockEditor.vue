@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
+import { channelHasCapability, type ChannelProfile } from '@/channels'
 
-// `variables` объявлен, но не используется этим редактором — см.
-// аналогичный комментарий в InputBlockEditor.vue.
-const props = defineProps<{ block: UiBlock; variables?: string[] }>()
+const props = defineProps<{ block: UiBlock; variables?: string[]; channel: ChannelProfile }>()
 const emit = defineEmits<{ update: [patch: { content?: any; config?: any }] }>()
 
 const translations = computed(() => props.block.content?.translations || { ru: '', en: '' })
@@ -14,6 +13,10 @@ const setQuestionText = (lang: 'ru' | 'en', value: string) => {
 }
 
 const buttons = computed(() => props.block.content?.buttons || [])
+
+const maxButtons = computed(() => props.channel.limits.maxButtons)
+const maxButtonLabelLength = computed(() => props.channel.limits.maxButtonLabelLength)
+const canAddButton = computed(() => buttons.value.length < maxButtons.value)
 
 const setButtons = (list: string[]) => {
     emit('update', { content: { ...props.block.content, buttons: list } })
@@ -26,6 +29,7 @@ const updateButton = (index: number, value: string) => {
 }
 
 const addButton = () => {
+    if (!canAddButton.value) return
     setButtons([...buttons.value, ''])
 }
 
@@ -56,6 +60,21 @@ const onDrop = (index: number) => {
 const keyboardMode = computed({
     get: () => props.block.config?.keyboardMode || 'inline',
     set: (val: 'inline' | 'reply') => emit('update', { config: { ...props.block.config, keyboardMode: val } }),
+})
+
+// Reply-клавиатура — это системная клавиатура Telegram, у веб-виджета
+// (и вообще у каналов без соответствующей возможности) такого понятия
+// нет — опция в селекте появляется только если канал её поддерживает
+// (см. src/channels). Сейчас единственный канал — Telegram, у него
+// возможность есть, так что видимо ничего не меняется; смысл — в том,
+// что при появлении другого канала опция сама перестанет предлагаться.
+const supportsReplyKeyboard = computed(() => channelHasCapability(props.channel, 'reply_keyboard'))
+
+// Защита от «застрявшего» невалидного значения: если конфиг блока каким-то
+// образом оказался в режиме, которого канал не поддерживает (например,
+// после переноса бота на другой канал в будущем), тихо откатываем на inline.
+watch(supportsReplyKeyboard, (supported) => {
+    if (!supported && keyboardMode.value === 'reply') keyboardMode.value = 'inline'
 })
 
 const variable = computed({
@@ -89,7 +108,7 @@ const variable = computed({
             <label>Режим клавиатуры</label>
             <select v-model="keyboardMode">
                 <option value="inline">Inline-кнопки под сообщением</option>
-                <option value="reply">Reply-клавиатура</option>
+                <option v-if="supportsReplyKeyboard" value="reply">Reply-клавиатура</option>
             </select>
         </div>
 
@@ -114,13 +133,19 @@ const variable = computed({
                     <span class="drag-handle" title="Перетащить для изменения порядка">⠿</span>
                     <input
                         :value="btn"
+                        :maxlength="maxButtonLabelLength"
                         placeholder="Текст кнопки"
                         @input="updateButton(index, ($event.target as HTMLInputElement).value)"
                     />
                     <button type="button" class="remove-btn" title="Удалить" @click="removeButton(index)">✕</button>
                 </div>
                 <div v-if="!buttons.length" class="empty-hint">Кнопок пока нет</div>
-                <button type="button" class="add-btn" @click="addButton">+ Добавить кнопку</button>
+                <button type="button" class="add-btn" :disabled="!canAddButton" @click="addButton">
+                    + Добавить кнопку
+                </button>
+                <p v-if="!canAddButton" class="field-hint">
+                    Достигнут лимит канала «{{ channel.label }}» — не больше {{ maxButtons }} кнопок в одной группе.
+                </p>
             </div>
         </div>
     </div>
@@ -171,5 +196,7 @@ textarea { resize: vertical; }
     cursor: pointer;
 }
 .add-btn:hover { background: color-mix(in oklch, var(--color-accent) 10%, transparent); }
+.add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.add-btn:disabled:hover { background: none; }
 .empty-hint { font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic; }
 </style>

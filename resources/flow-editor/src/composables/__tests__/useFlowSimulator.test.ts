@@ -280,3 +280,52 @@ describe('createChatSimulator — интерполяция переменных'
         expect(sim.state.messages[0].text).toBe('Привет, {{unknown_var}}!')
     })
 })
+
+describe('createChatSimulator — медиа-блоки (Фаза 1)', () => {
+    const makeMediaSchema = (type: 'image' | 'video' | 'audio' | 'file'): FlowSchema => ({
+        start_group_id: 'g1',
+        groups: { g1: { id: 'g1', title: 'A', position: { x: 0, y: 0 }, block_ids: ['b1'] } },
+        blocks: {
+            b1: {
+                id: 'b1',
+                group_id: 'g1',
+                type,
+                content: {
+                    mediaUrl: 'https://example.com/media.bin',
+                    mediaFileName: 'document.pdf',
+                    translations: { ru: 'Подпись к сообщению' },
+                },
+                outgoing_edge_id: null,
+            },
+        },
+        edges: {},
+    })
+
+    it.each(['image', 'video', 'audio', 'file'] as const)(
+        '%s-блок выводится как сообщение kind: media с подписью',
+        (type) => {
+            const sim = createChatSimulator(makeMediaSchema(type))
+            sim.start()
+
+            expect(sim.state.messages).toHaveLength(1)
+            expect(sim.state.messages[0]).toMatchObject({
+                role: 'bot',
+                kind: 'media',
+                mediaType: type,
+                mediaUrl: 'https://example.com/media.bin',
+                mediaFileName: 'document.pdf',
+                text: 'Подпись к сообщению',
+            })
+            expect(sim.state.finished).toBe(true)
+        }
+    )
+
+    it('пустой mediaUrl не ломает симуляцию — сообщение всё равно выводится', () => {
+        const schema = makeMediaSchema('image')
+        schema.blocks.b1.content = { translations: { ru: 'Без ссылки' } }
+        const sim = createChatSimulator(schema)
+        sim.start()
+
+        expect(sim.state.messages[0]).toMatchObject({ kind: 'media', mediaType: 'image', mediaUrl: '' })
+    })
+})

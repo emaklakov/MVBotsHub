@@ -1,5 +1,6 @@
 import type { Component } from 'vue'
 import type { BlockConfig, BlockContent, FlowBlockType } from '@/types/flow'
+import type { Capability } from '@/channels'
 
 /**
  * Один выход блока на канвасе.
@@ -63,6 +64,14 @@ export interface BlockDefinition {
      * без правок логики сбора переменных.
      */
     producesVariable?: boolean
+    /**
+     * Какие возможности канала (см. src/channels) нужны, чтобы блок имел
+     * смысл — например, будущий блок "Геолокация" укажет
+     * `['geolocation']`. Не указано (как у всех 4 текущих блоков:
+     * text/input/button/condition) — блок универсален и виден в
+     * библиотеке блоков для любого канала.
+     */
+    requiresCapabilities?: Capability[]
 }
 
 export interface BlockCategoryMeta {

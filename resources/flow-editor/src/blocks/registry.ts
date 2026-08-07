@@ -5,11 +5,13 @@ import TextBlock from '@/components/blocks/TextBlock.vue'
 import InputBlock from '@/components/blocks/InputBlock.vue'
 import ButtonBlock from '@/components/blocks/ButtonBlock.vue'
 import ConditionBlock from '@/components/blocks/ConditionBlock.vue'
+import MediaBlock from '@/components/blocks/MediaBlock.vue'
 
 import TextBlockEditor from '@/components/properties/TextBlockEditor.vue'
 import InputBlockEditor from '@/components/properties/InputBlockEditor.vue'
 import ButtonsBlockEditor from '@/components/properties/ButtonsBlockEditor.vue'
 import ConditionBlockEditor from '@/components/properties/ConditionBlockEditor.vue'
+import MediaBlockEditor from '@/components/properties/MediaBlockEditor.vue'
 
 /**
  * Категории в библиотеке блоков (Sidebar). Порядок в массиве — порядок
@@ -88,5 +90,65 @@ export const blockRegistry: Record<FlowBlockType, BlockDefinition> = {
             { handle: 'false', label: 'False', tone: 'error' },
             { handle: 'true', label: 'True', tone: 'success' },
         ],
+    },
+
+    // --- Медиа-блоки (Фаза 1) ------------------------------------------
+    // Все четыре — один и тот же компонент отображения/редактора
+    // (MediaBlock/MediaBlockEditor), различаются только метаданными.
+    // requiresCapabilities: ['file_upload'] — сейчас это ничего не
+    // фильтрует (Telegram — единственный канал и умеет file_upload), но
+    // если появится канал без загрузки файлов, эти блоки сами перестанут
+    // предлагаться в его библиотеке (см. src/channels).
+    image: {
+        type: 'image',
+        category: 'bubbles',
+        label: 'Изображение',
+        hint: 'Фото с необязательной подписью',
+        icon: '🖼️',
+        renderComponent: MediaBlock,
+        editorComponent: MediaBlockEditor,
+        defaultTitle: 'Изображение',
+        defaultContent: () => ({ mediaUrl: '', translations: { ru: '', en: '' } }),
+        defaultConfig: () => ({}),
+        requiresCapabilities: ['file_upload'],
+    },
+    video: {
+        type: 'video',
+        category: 'bubbles',
+        label: 'Видео',
+        hint: 'Видео с необязательной подписью',
+        icon: '🎬',
+        renderComponent: MediaBlock,
+        editorComponent: MediaBlockEditor,
+        defaultTitle: 'Видео',
+        defaultContent: () => ({ mediaUrl: '', translations: { ru: '', en: '' } }),
+        defaultConfig: () => ({}),
+        requiresCapabilities: ['file_upload'],
+    },
+    audio: {
+        type: 'audio',
+        category: 'bubbles',
+        label: 'Аудио',
+        hint: 'Аудиофайл с необязательной подписью',
+        icon: '🎵',
+        renderComponent: MediaBlock,
+        editorComponent: MediaBlockEditor,
+        defaultTitle: 'Аудио',
+        defaultContent: () => ({ mediaUrl: '', translations: { ru: '', en: '' } }),
+        defaultConfig: () => ({}),
+        requiresCapabilities: ['file_upload'],
+    },
+    file: {
+        type: 'file',
+        category: 'bubbles',
+        label: 'Файл',
+        hint: 'Документ произвольного типа',
+        icon: '📎',
+        renderComponent: MediaBlock,
+        editorComponent: MediaBlockEditor,
+        defaultTitle: 'Файл',
+        defaultContent: () => ({ mediaUrl: '', mediaFileName: '', translations: { ru: '', en: '' } }),
+        defaultConfig: () => ({}),
+        requiresCapabilities: ['file_upload'],
     },
 }

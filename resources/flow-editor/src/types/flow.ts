@@ -2,6 +2,16 @@ export interface BlockContent {
     translations?: Record<string, string>
     text?: string
     buttons?: string[]
+    /**
+     * URL медиафайла — для image/video/audio/file (Фаза 1). Сама загрузка
+     * файла на сервер — вне зоны ответственности редактора флоу, здесь
+     * хранится только готовая ссылка (аплоадер — отдельная задача
+     * бэкенда/UI, не блокирует данную фазу: пока ссылка вводится вручную).
+     */
+    mediaUrl?: string
+    /** Отображаемое имя файла — актуально для 'file': Telegram показывает
+     * имя документа получателю, а не URL. */
+    mediaFileName?: string
 }
 
 export type ConditionOperator = '==' | '!=' | 'contains' | 'is_set' | 'is_empty'
@@ -17,7 +27,7 @@ export interface BlockConfig {
     conditionValue?: string
 }
 
-export type FlowBlockType = 'text' | 'input' | 'button' | 'condition'
+export type FlowBlockType = 'text' | 'input' | 'button' | 'condition' | 'image' | 'video' | 'audio' | 'file'
 
 /**
  * Группа — нода на холсте. Содержит один или несколько блоков,

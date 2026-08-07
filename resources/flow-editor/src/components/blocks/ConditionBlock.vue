@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { BlockConfig, ConditionOperator } from '@/types/flow'
+import type { BlockConfig, BlockContent, ConditionOperator, FlowBlockType } from '@/types/flow'
 
-const props = defineProps<{ config?: BlockConfig }>()
+// `content`/`type` объявлены, но не используются этим компонентом — их
+// всегда передаёт общий BlockRenderer одинаково для всех типов блоков
+// (см. src/blocks); без явного объявления пропа Vue протащил бы их как
+// обычные DOM-атрибуты на корневой div (fallthrough attrs).
+const props = defineProps<{ content?: BlockContent; config?: BlockConfig; type?: FlowBlockType }>()
 
 const operatorLabels: Record<ConditionOperator, string> = {
     '==': '=',

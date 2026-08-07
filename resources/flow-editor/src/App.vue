@@ -25,8 +25,16 @@ import {
 } from './composables/useFlowSerializer'
 import type { FlowBlockType } from './types/flow'
 import type { Node, Edge, XYPosition } from '@vue-flow/core'
+import { getChannelProfile, resolveChannelId } from '@/channels'
 
-const props = defineProps<{ botId: string; flowId: string }>()
+const props = defineProps<{ botId: string; flowId: string; channelId?: string }>()
+
+// Пока платформа умеет только Telegram (см. обсуждение архитектуры —
+// веб-виджет сознательно не трогаем), поэтому неизвестное/отсутствующее
+// значение channelId тихо откатывается на канал по умолчанию, а не
+// падает с ошибкой: бэкенд может присылать этот проп не всегда (старые
+// боты) или прислать канал, который фронт ещё не знает.
+const activeChannel = computed(() => getChannelProfile(resolveChannelId(props.channelId)))
 
 const { getDraft, saveDraft, publish } = useFlowApi(props.botId, props.flowId)
 const { toVueFlow, toSchema } = useFlowSerializer()
@@ -156,9 +164,16 @@ const selectedBlock = computed(() => {
     return data?.blocks.find((b) => b.id === selectedBlockId.value) || null
 })
 
-/** Все переменные, которые где-либо в флоу собираются в input-блоках —
- * предлагаются для вставки в текст через TextBlockEditor. */
-const knownVariables = computed(() => collectVariables(nodes.value))
+/** Все переменные, доступные для вставки в текст/условие: собранные из
+ * input/button-блоков по всему флоу (см. collectVariables) плюс
+ * системные переменные активного канала (например, у Telegram —
+ * параметр deep-link start_param), которые платформа подставляет сама,
+ * без отдельного блока «Вопрос». */
+const knownVariables = computed(() => {
+    const names = new Set<string>(activeChannel.value.systemVariables.map((v) => v.name))
+    for (const name of collectVariables(nodes.value)) names.add(name)
+    return Array.from(names)
+})
 
 // --- Тест-режим (превью диалога) ---------------------------------------
 // Схема для превью считается лениво — только пока панель открыта, чтобы
@@ -417,7 +432,7 @@ onUnmounted(() => {
             </div>
         </div>
         <div class="workspace">
-            <Sidebar @add="addBlock" />
+            <Sidebar :channel="activeChannel" @add="addBlock" />
             <div ref="canvasWrapper" class="canvas-wrapper" @dragover="onCanvasDragOver" @drop="onCanvasDrop">
                 <VueFlow v-model:nodes="nodes" v-model:edges="edges" fit-view-on-init :delete-key-code="null">
                     <Background :pattern-color="backgroundPatternColor" :gap="16" />
@@ -435,7 +450,12 @@ onUnmounted(() => {
                     </template>
                 </VueFlow>
             </div>
-            <PropertiesPanel :selected-block="selectedBlock" :variables="knownVariables" @update="updateSelectedBlock" />
+            <PropertiesPanel
+                :selected-block="selectedBlock"
+                :variables="knownVariables"
+                :channel="activeChannel"
+                @update="updateSelectedBlock"
+            />
         </div>
 
         <ChatPreview v-if="showPreview && previewSchema" :schema="previewSchema" @close="showPreview = false" />

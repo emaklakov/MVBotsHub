@@ -2,8 +2,11 @@
 import { computed } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
 import type { ConditionOperator } from '@/types/flow'
+import type { ChannelProfile } from '@/channels'
 
-const props = defineProps<{ block: UiBlock; variables: string[] }>()
+// `channel` объявлен, но пока не используется этим редактором — см.
+// аналогичный комментарий про ChannelProfile в ButtonsBlockEditor.vue.
+const props = defineProps<{ block: UiBlock; variables: string[]; channel?: ChannelProfile }>()
 const emit = defineEmits<{ update: [patch: { config?: any }] }>()
 
 const variable = computed({

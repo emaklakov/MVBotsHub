@@ -16,8 +16,12 @@ async function init() {
 
     const botId = el.dataset.botId || ''
     const flowId = el.dataset.flowId || ''
+    // Необязательный атрибут: пока платформа умеет только Telegram,
+    // бэкенд может его вовсе не присылать — App.vue сам откатится на
+    // канал по умолчанию (см. resolveChannelId в src/channels).
+    const channelId = el.dataset.channel
 
-    createApp(App, { botId, flowId }).mount(el)
+    createApp(App, { botId, flowId, channelId }).mount(el)
 }
 
 init()

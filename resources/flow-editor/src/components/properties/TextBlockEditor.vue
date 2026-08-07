@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
+import { getChannelProfile, defaultChannelId, type ChannelProfile } from '@/channels'
 
-const props = defineProps<{ block: UiBlock; variables: string[] }>()
+const props = defineProps<{ block: UiBlock; variables: string[]; channel?: ChannelProfile }>()
 const emit = defineEmits<{ update: [patch: { content?: any }] }>()
+
+// channel не обязателен только чтобы не ломать точечное использование
+// компонента вне общего PropertiesPanel (например, в будущих тестах) —
+// в реальном рендере App.vue всегда передаёт активный канал.
+const activeChannel = computed(() => props.channel ?? getChannelProfile(defaultChannelId))
+const maxTextLength = computed(() => activeChannel.value.limits.maxTextLength)
 
 type Lang = 'ru' | 'en'
 
@@ -62,6 +69,9 @@ const insertVariable = (name: string) => {
         <div class="field">
             <label>Текст сообщения ({{ activeLang.toUpperCase() }})</label>
             <textarea ref="textareaEl" v-model="currentText" rows="5" placeholder="Введите текст…" />
+            <div class="char-counter" :class="{ over: currentText.length > maxTextLength }">
+                {{ currentText.length }} / {{ maxTextLength }}
+            </div>
         </div>
 
         <div class="field">
@@ -118,4 +128,6 @@ textarea {
 }
 .var-chip:hover { background: color-mix(in oklch, var(--color-success) 22%, var(--color-surface)); }
 .variables-empty { font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic; }
+.char-counter { font-size: var(--font-size-xs); color: var(--color-text-muted); text-align: right; margin-top: 4px; }
+.char-counter.over { color: var(--color-error-text); font-weight: 600; }
 </style>

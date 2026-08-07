@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
     getBlockDefinition,
     listBlockDefinitions,
+    listBlockDefinitionsForChannel,
     defaultBlockTitle,
     defaultBlockContent,
     defaultBlockConfig,
@@ -9,6 +10,7 @@ import {
     blockProducesVariable,
     blockCategories,
 } from '../index'
+import { getChannelProfile } from '@/channels'
 import type { FlowBlockType } from '@/types/flow'
 
 // Все типы, которые реально должны быть зарегистрированы на сегодня.
@@ -16,7 +18,8 @@ import type { FlowBlockType } from '@/types/flow'
 // новый FlowBlockType в types/flow.ts, но забудет завести запись в
 // registry.ts, getBlockDefinition() бросит понятную ошибку в рантайме —
 // а этот тест ловит то же самое ещё на этапе CI, до рантайма.
-const knownTypes: FlowBlockType[] = ['text', 'input', 'button', 'condition']
+const knownTypes: FlowBlockType[] = ['text', 'input', 'button', 'condition', 'image', 'video', 'audio', 'file']
+const mediaTypes: FlowBlockType[] = ['image', 'video', 'audio', 'file']
 
 describe('реестр блоков: полнота', () => {
     it('содержит запись для каждого известного типа блока', () => {
@@ -76,6 +79,16 @@ describe('дефолты через реестр совпадают с ожид�
         expect(defaultBlockContent('condition')).toEqual({})
         expect(defaultBlockConfig('condition')).toEqual({ conditionOperator: '==' })
     })
+
+    it.each(['image', 'video', 'audio'] as const)('%s: mediaUrl + двуязычная подпись, без config', (type) => {
+        expect(defaultBlockContent(type)).toEqual({ mediaUrl: '', translations: { ru: '', en: '' } })
+        expect(defaultBlockConfig(type)).toEqual({})
+    })
+
+    it('file: дополнительно mediaFileName в дефолтном контенте', () => {
+        expect(defaultBlockContent('file')).toEqual({ mediaUrl: '', mediaFileName: '', translations: { ru: '', en: '' } })
+        expect(defaultBlockConfig('file')).toEqual({})
+    })
 })
 
 describe('getBlockOutputs', () => {
@@ -94,6 +107,12 @@ describe('getBlockOutputs', () => {
     it('для отсутствующего блока (undefined type, пустая группа) — один обычный выход', () => {
         expect(getBlockOutputs(undefined)).toEqual([{ handle: null }])
     })
+
+    it('медиа-блоки (image/video/audio/file) — один обычный выход, как обычные bubble-блоки', () => {
+        for (const type of mediaTypes) {
+            expect(getBlockOutputs(type)).toEqual([{ handle: null }])
+        }
+    })
 })
 
 describe('blockProducesVariable', () => {
@@ -102,8 +121,33 @@ describe('blockProducesVariable', () => {
         expect(blockProducesVariable('button')).toBe(true)
     })
 
-    it('text и condition переменную не дают', () => {
+    it('text, condition и медиа-блоки переменную не дают', () => {
         expect(blockProducesVariable('text')).toBe(false)
         expect(blockProducesVariable('condition')).toBe(false)
+        for (const type of mediaTypes) {
+            expect(blockProducesVariable(type)).toBe(false)
+        }
+    })
+})
+
+describe('медиа-блоки требуют возможность file_upload канала (Фаза 1)', () => {
+    it('у каждого медиа-блока задан requiresCapabilities: [\'file_upload\']', () => {
+        for (const type of mediaTypes) {
+            expect(getBlockDefinition(type).requiresCapabilities).toEqual(['file_upload'])
+        }
+    })
+
+    it('Telegram умеет file_upload — все медиа-блоки видны в его библиотеке', () => {
+        const telegram = getChannelProfile('telegram')
+        const availableTypes = listBlockDefinitionsForChannel(telegram).map((d) => d.type)
+        for (const type of mediaTypes) {
+            expect(availableTypes).toContain(type)
+        }
+    })
+
+    it('универсальные блоки (text/input/button/condition) не требуют возможностей канала', () => {
+        for (const type of ['text', 'input', 'button', 'condition'] as const) {
+            expect(getBlockDefinition(type).requiresCapabilities).toBeUndefined()
+        }
     })
 })

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
+import type { ChannelProfile } from '@/channels'
 
-// `variables` объявлен, но не используется этим редактором — сюда его
-// передаёт общий PropertiesPanel одинаково для всех типов блоков
-// (см. src/blocks); без явного объявления пропа Vue протащил бы его
-// как обычный DOM-атрибут на корневой div (fallthrough attrs).
-const props = defineProps<{ block: UiBlock; variables?: string[] }>()
+// `variables`/`channel` объявлены, но не используются этим редактором —
+// сюда их передаёт общий PropertiesPanel одинаково для всех типов блоков
+// (см. src/blocks); без явного объявления пропа Vue протащил бы их
+// как обычные DOM-атрибуты на корневой div (fallthrough attrs).
+const props = defineProps<{ block: UiBlock; variables?: string[]; channel?: ChannelProfile }>()
 const emit = defineEmits<{ update: [patch: { content?: any; config?: any }] }>()
 
 const translations = computed(() => props.block.content?.translations || { ru: '', en: '' })

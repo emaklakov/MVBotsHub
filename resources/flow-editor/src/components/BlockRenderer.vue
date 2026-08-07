@@ -18,7 +18,7 @@ const component = computed(() => getBlockDefinition(props.block.type).renderComp
 
 <template>
     <div class="block-slot" :class="{ selected }" @click.stop="emit('select', block.id)">
-        <component :is="component" :content="block.content" :config="block.config" />
+        <component :is="component" :type="block.type" :content="block.content" :config="block.config" />
     </div>
 </template>
 

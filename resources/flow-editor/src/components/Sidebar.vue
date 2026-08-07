@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { FlowBlockType } from '@/types/flow'
-import { blockCategories, listBlockDefinitions } from '@/blocks'
+import { blockCategories, listBlockDefinitionsForChannel } from '@/blocks'
+import type { ChannelProfile } from '@/channels'
 
 interface LibraryItem {
     type: FlowBlockType
@@ -16,16 +17,21 @@ interface Category {
     items: LibraryItem[]
 }
 
+const props = defineProps<{ channel: ChannelProfile }>()
 const emit = defineEmits<{ add: [type: string] }>()
 
-// Библиотека блоков строится из реестра (src/blocks) — категории и
-// список типов внутри них здесь больше не дублируются. Новый тип блока
-// появится в сайдбаре сам, как только будет добавлен в реестр.
+// Библиотека блоков строится из реестра (src/blocks), отфильтрованного
+// по возможностям активного канала (src/channels) — блок, требующий
+// возможность, которой у канала нет (BlockDefinition.requiresCapabilities),
+// в библиотеке просто не появится. Сейчас (только Telegram) это ничего
+// не отфильтровывает — все 4 блока универсальны, — но именно так в
+// Фазах 1-2 появятся Telegram-специфичные блоки, ничего не сломав при
+// будущем добавлении другого канала.
 const categories = computed<Category[]>(() =>
     blockCategories.map((category) => ({
         key: category.key,
         label: category.label,
-        items: listBlockDefinitions()
+        items: listBlockDefinitionsForChannel(props.channel)
             .filter((def) => def.category === category.key)
             .map((def) => ({ type: def.type, label: def.label, hint: def.hint, icon: def.icon })),
     }))

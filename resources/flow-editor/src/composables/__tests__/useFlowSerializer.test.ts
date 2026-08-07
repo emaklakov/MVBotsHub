@@ -179,6 +179,18 @@ describe('defaultBlockContent / defaultBlockConfig', () => {
         expect(defaultBlockContent('condition')).toEqual({})
         expect(defaultBlockConfig('condition')).toEqual({ conditionOperator: '==' })
     })
+
+    it('image/video/audio получают mediaUrl и переводы ru/en (Фаза 1)', () => {
+        for (const type of ['image', 'video', 'audio'] as const) {
+            expect(defaultBlockContent(type)).toEqual({ mediaUrl: '', translations: { ru: '', en: '' } })
+            expect(defaultBlockConfig(type)).toEqual({})
+        }
+    })
+
+    it('file дополнительно получает mediaFileName', () => {
+        expect(defaultBlockContent('file')).toEqual({ mediaUrl: '', mediaFileName: '', translations: { ru: '', en: '' } })
+        expect(defaultBlockConfig('file')).toEqual({})
+    })
 })
 
 describe('defaultGroupTitle', () => {
@@ -255,6 +267,36 @@ describe('condition-блок: два выхода (True/False) через source
         const result = toSchema(nodes, edges, sampleSchema.start_group_id)
 
         expect(result.edges['edge_1'].source_handle).toBeNull()
+    })
+})
+
+describe('медиа-блок (image/video/audio/file): content с mediaUrl проходит round-trip (Фаза 1)', () => {
+    const mediaSchema: FlowSchema = {
+        start_group_id: 'group_photo',
+        groups: {
+            group_photo: { id: 'group_photo', title: 'Фото', position: { x: 0, y: 0 }, block_ids: ['block_photo'] },
+        },
+        blocks: {
+            block_photo: {
+                id: 'block_photo',
+                group_id: 'group_photo',
+                type: 'image',
+                content: { mediaUrl: 'https://example.com/cat.jpg', translations: { ru: 'Наш офис' } },
+                outgoing_edge_id: null,
+            },
+        },
+        edges: {},
+    }
+
+    it('toVueFlow -> toSchema сохраняет mediaUrl и подпись без изменений', () => {
+        const { nodes, edges } = toVueFlow(mediaSchema)
+        const result = toSchema(nodes, edges, mediaSchema.start_group_id)
+
+        expect(result.blocks['block_photo'].content).toEqual({
+            mediaUrl: 'https://example.com/cat.jpg',
+            translations: { ru: 'Наш офис' },
+        })
+        expect(result.blocks['block_photo'].type).toBe('image')
     })
 })
 

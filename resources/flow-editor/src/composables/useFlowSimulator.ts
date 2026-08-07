@@ -1,12 +1,16 @@
 import { reactive } from 'vue'
-import type { FlowSchema, FlowEdge, BlockContent, BlockConfig, ConditionOperator } from '@/types/flow'
+import type { FlowSchema, FlowEdge, FlowBlockType, BlockContent, BlockConfig, ConditionOperator } from '@/types/flow'
 
 export interface SimMessage {
     id: string
     role: 'bot' | 'user' | 'system'
-    kind: 'text' | 'buttons' | 'note'
+    kind: 'text' | 'buttons' | 'note' | 'media'
     text: string
     options?: string[]
+    /** Только для kind: 'media' (Фаза 1 — image/video/audio/file). */
+    mediaType?: 'image' | 'video' | 'audio' | 'file'
+    mediaUrl?: string
+    mediaFileName?: string
 }
 
 export type SimWaiting =
@@ -30,6 +34,8 @@ function interpolate(text: string, variables: Record<string, string>): string {
 function pickTranslation(content: BlockContent | undefined): string {
     return content?.translations?.ru || ''
 }
+
+const MEDIA_BLOCK_TYPES: ReadonlySet<FlowBlockType> = new Set(['image', 'video', 'audio', 'file'])
 
 const OPERATOR_LABELS: Record<ConditionOperator, string> = {
     '==': '=',
@@ -173,6 +179,18 @@ export function createChatSimulator(schema: FlowSchema) {
                 }
                 currentGroupId = edge.target_group_id
                 currentBlockIndex = 0
+                continue
+            }
+
+            if (MEDIA_BLOCK_TYPES.has(block.type)) {
+                pushMessage({
+                    role: 'bot',
+                    kind: 'media',
+                    text: interpolate(pickTranslation(block.content), state.variables),
+                    mediaType: block.type as 'image' | 'video' | 'audio' | 'file',
+                    mediaUrl: block.content?.mediaUrl || '',
+                    mediaFileName: block.content?.mediaFileName,
+                })
                 continue
             }
         }
