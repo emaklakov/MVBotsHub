@@ -7,6 +7,7 @@ use App\Domain\Bots\Enums\BotChannelType;
 use App\Domain\Bots\Enums\BotStatus;
 use App\Domain\Bots\Enums\WebhookStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,21 @@ use Illuminate\Support\Facades\Crypt;
 
 class Bot extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsUserActivity;
+
+    protected static function logLabel(): string
+    {
+        return 'Бот';
+    }
+
+    /**
+     * Поля, которые никогда не должны попадать в лог изменений
+     */
+    protected static array $logExcludedFields = [
+        'webhook_token',
+        'webhook_secret_token',
+        'token',
+    ];
 
     protected $fillable = [
         'username',

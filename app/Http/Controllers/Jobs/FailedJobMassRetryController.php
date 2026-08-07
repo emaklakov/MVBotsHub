@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Jobs;
 
 use App\Application\Services\LogService;
-use App\Domain\Queue\FailedJob;
+use App\Domain\Queues\FailedJob;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;

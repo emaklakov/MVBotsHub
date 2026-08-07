@@ -6,9 +6,9 @@ namespace App\Providers;
 
 use App\MoonShine\Pages\Admin\Flows\FlowEditor;
 use App\MoonShine\Resources\CRM\Person\PersonResource;
-use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
-use App\MoonShine\Resources\Jobs\Job\JobResource;
-use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
+use App\MoonShine\Resources\Queues\FailedJob\FailedJobResource;
+use App\MoonShine\Resources\Queues\Job\JobResource;
+use App\MoonShine\Resources\Queues\JobLog\JobLogResource;
 use App\MoonShine\Resources\Telegram\Audiences\Audience\AudienceResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;

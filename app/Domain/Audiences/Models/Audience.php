@@ -6,6 +6,7 @@ use App\Domain\Audiences\Enums\AudienceType;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Broadcasts\Models\Broadcast;
 use App\Domain\Conversations\Models\BotSubscriber;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Audience extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsUserActivity;
+
+    protected static function logLabel(): string
+    {
+        return 'Списки рассылки';
+    }
 
     protected $fillable = [
         'bot_id',

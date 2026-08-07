@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Queue;
+namespace App\Domain\Queues;
 
 use Illuminate\Database\Eloquent\Model;
 

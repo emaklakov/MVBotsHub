@@ -3,12 +3,15 @@
 namespace App\Domain\Bots\Models;
 
 use App\Domain\Bots\Enums\BotMemberRole;
+use App\Domain\Users\Traits\LogsUserActivity;
 use App\Domain\Users\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BotMember extends Model
 {
+    use LogsUserActivity;
+
     protected $fillable = [
         'bot_id',
         'user_id',

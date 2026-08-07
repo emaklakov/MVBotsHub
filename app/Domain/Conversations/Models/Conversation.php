@@ -3,6 +3,7 @@
 namespace App\Domain\Conversations\Models;
 
 use App\Domain\Conversations\Enums\ConversationStatus;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Conversation extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsUserActivity;
 
     protected $fillable = [
         'bot_subscriber_id',

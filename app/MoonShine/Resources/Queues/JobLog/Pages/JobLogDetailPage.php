@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Jobs\JobLog\Pages;
+namespace App\MoonShine\Resources\Queues\JobLog\Pages;
 
-use App\Domain\Queue\Enums\JobLogStatus;
+use App\Domain\Queues\Enums\JobLogStatus;
 use App\MoonShine\Resources\Base\BaseDetailPage;
-use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
+use App\MoonShine\Resources\Queues\JobLog\JobLogResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\Date;

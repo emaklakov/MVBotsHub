@@ -4,6 +4,7 @@ namespace App\Domain\Flows\Models;
 
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Flows\Enums\FlowStatus;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Flow extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsUserActivity;
+
+    protected static function logLabel(): string
+    {
+        return 'Поток';
+    }
 
     protected $fillable = [
         'bot_id',

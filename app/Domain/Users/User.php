@@ -40,6 +40,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected static function logLabel(): string
+    {
+        return 'Пользователь';
+    }
+
     /**
      * Get the attributes that should be cast.
      *

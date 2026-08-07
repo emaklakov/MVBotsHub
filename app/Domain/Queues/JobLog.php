@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Domain\Queue;
+namespace App\Domain\Queues;
 
-use App\Domain\Queue\Enums\JobLogStatus;
+use App\Domain\Queues\Enums\JobLogStatus;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JobLog extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsUserActivity;
 
     protected $fillable = [
         'job_id', 'name', 'queue', 'payload',

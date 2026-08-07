@@ -4,18 +4,22 @@ namespace App\Domain\Broadcasts\Models;
 
 use App\Domain\Audiences\Models\Audience;
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
-use App\Domain\Flows\Enums\FlowVersionStatus;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Illuminate\Database\Eloquent\Model;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Flows\Models\FlowVersion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Broadcast extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsUserActivity;
+
+    protected static function logLabel(): string
+    {
+        return 'Рассылка';
+    }
 
     protected $fillable = [
         'bot_id',

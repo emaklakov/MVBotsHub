@@ -2,23 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Jobs\Job\Pages;
+namespace App\MoonShine\Resources\Queues\Job\Pages;
 
-use App\MoonShine\Resources\Base\BaseDetailPage;
-use App\MoonShine\Resources\Jobs\Job\JobResource;
+use App\MoonShine\Resources\Base\BaseIndexPage;
+use App\MoonShine\Resources\Queues\Job\JobResource;
 use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Laravel\Pages\Crud\DetailPage;
+use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\ID;
-use MoonShine\UI\Fields\Json;
 use MoonShine\UI\Fields\Number;
 use MoonShine\UI\Fields\Text;
 
 
 /**
- * @extends DetailPage<JobResource>
+ * @extends IndexPage<JobResource>
  */
-class JobDetailPage extends BaseDetailPage
+class JobIndexPage extends BaseIndexPage
 {
     /**
      * @return list<FieldContract>
@@ -26,13 +25,22 @@ class JobDetailPage extends BaseDetailPage
     protected function fields(): iterable
     {
         return [
-            ID::make(),
+            ID::make()->sortable(),
             Text::make('Очередь', 'queue'),
             Number::make('Попытки', 'attempts'),
-            Json::make('Полезная нагрузка', 'payload'),
             Date::make('Reserved', 'reserved_at')->format('d.m.Y H:i:s'),
             Date::make('Available', 'available_at')->format('d.m.Y H:i:s'),
             Date::make('Создана', 'created_at')->format('d.m.Y H:i:s'),
+        ];
+    }
+
+    /**
+     * @return list<FieldContract>
+     */
+    protected function filters(): iterable
+    {
+        return [
+            Text::make('Очередь', 'queue'),
         ];
     }
 }

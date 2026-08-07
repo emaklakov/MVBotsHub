@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Jobs\Job;
+namespace App\MoonShine\Resources\Queues\Job;
 
-use App\Domain\Queue\Job;
+use App\Domain\Queues\Job;
 use App\MoonShine\Resources\Base\BaseResource;
-use App\MoonShine\Resources\Jobs\Job\Pages\JobDetailPage;
-use App\MoonShine\Resources\Jobs\Job\Pages\JobIndexPage;
+use App\MoonShine\Resources\Queues\Job\Pages\JobDetailPage;
+use App\MoonShine\Resources\Queues\Job\Pages\JobIndexPage;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Laravel\Resources\ModelResource;
 

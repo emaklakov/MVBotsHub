@@ -9,6 +9,7 @@ use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Users\UserLog\UserLogResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
+use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Json;
 use MoonShine\UI\Fields\Text;
@@ -25,10 +26,18 @@ class UserLogDetailPage extends BaseDetailPage
     {
         return [
             ID::make(),
+            Date::make('Дата', 'created_at')->format('d.m.Y H:i:s'),
+            Text::make('Пользователь', 'user.name'),
+            Text::make('IP', 'ip_address'),
             Text::make('Устройство', 'user_agent')
                 ->changePreview(fn (?string $value, Text $field) => DeviceDetector::detect($value)),
             Text::make('User Agent', 'user_agent'),
             Text::make('Описание', 'description'),
+            Text::make('Объект', 'subject_type')
+                ->changePreview(fn ($value, $field) => $value
+                    ? class_basename($value) . ' #' . $field->getData()->subject_id
+                    : '—'),
+            Text::make('Действие', 'action'),
             Json::make('Изменения', 'changes')
                 ->changePreview(function (?array $value) {
                     if (blank($value) || !isset($value['before'], $value['after'])) {

@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Notifications;
 
 use App\Domain\Users\Enums\NotificationPriority;
-use App\Jobs\Users\SendNotificationJob;
+use App\Queues\Users\SendNotificationJob;
 use App\MoonShine\Contracts\Notifications\EnhancedMoonShineNotificationContract;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Collection;

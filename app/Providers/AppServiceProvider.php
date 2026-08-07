@@ -22,7 +22,7 @@ use App\Domain\Bots\Observers\BotObserver;
 use App\Domain\Flows\Contracts\MessageSenderInterface;
 use App\Domain\Flows\Contracts\SessionStoreInterface;
 use App\Domain\Flows\Contracts\VariableResolverInterface;
-use App\Domain\Queue\JobLog;
+use App\Domain\Queues\JobLog;
 use App\Domain\Users\User;
 use App\Http\Controllers\Auth\AuthenticateController;
 use App\Http\Controllers\Users\ProfileController;
@@ -125,7 +125,7 @@ class AppServiceProvider extends ServiceProvider
             return ['uuid' => $payload['uuid'] ?? \Illuminate\Support\Str::uuid()->toString()];
         });
 
-        $excludedLogQueues = ['telegram', 'broadcast'];
+        $excludedLogQueues = ['telegram', 'broadcasts'];
 
         Queue::before(function (JobProcessing $event) use ($excludedLogQueues) {
             if (!in_array($event->job->getQueue(), $excludedLogQueues, true)) {

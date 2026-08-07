@@ -6,6 +6,7 @@ namespace App\Domain\Conversations\Models;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\BotSubscriberStatus;
 use App\Domain\CRM\Models\Person;
+use App\Domain\Users\Traits\LogsUserActivity;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,12 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class BotSubscriber extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsUserActivity;
+
+    protected static function logLabel(): string
+    {
+        return 'Пользователь бота';
+    }
 
     protected $fillable = [
         'bot_id',

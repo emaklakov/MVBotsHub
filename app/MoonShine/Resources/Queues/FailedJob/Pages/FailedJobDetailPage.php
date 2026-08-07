@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Jobs\FailedJob\Pages;
+namespace App\MoonShine\Resources\Queues\FailedJob\Pages;
 
 use App\MoonShine\Resources\Base\BaseDetailPage;
-use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
+use App\MoonShine\Resources\Queues\FailedJob\FailedJobResource;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\UI\Fields\Date;
