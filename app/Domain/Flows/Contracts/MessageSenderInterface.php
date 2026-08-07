@@ -16,8 +16,6 @@ interface MessageSenderInterface
      */
     public function send(SendMessage $sendMessage): void;
 
-    public function requestContact(Bot $bot, int $telegramId): void;
-
     /**
      * Диспатчит всё накопленное с send()/requestContact() одной цепочкой
      * (Bus::chain), гарантируя порядок доставки в рамках одного вызова.

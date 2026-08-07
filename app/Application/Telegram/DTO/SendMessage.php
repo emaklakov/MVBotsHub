@@ -13,6 +13,7 @@ final readonly class SendMessage
         public ?int $conversationId = null,
         public ?array $replyMarkup = null,
         public ?array $inlineKeyboard = null,
+        public bool $replyKeyboardHide = false,
     ) {
         if (trim($text) === '') {
             throw new \InvalidArgumentException('Текст сообщения не может быть пустым');

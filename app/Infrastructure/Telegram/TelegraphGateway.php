@@ -12,6 +12,8 @@ use App\Domain\Broadcasts\Exceptions\RateLimitException;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
+use DefStudio\Telegraph\Keyboard\ReplyButton;
+use DefStudio\Telegraph\Keyboard\ReplyKeyboard;
 use Illuminate\Http\Client\RequestException;
 
 final class TelegraphGateway implements TelegramGatewayInterface
@@ -23,8 +25,16 @@ final class TelegraphGateway implements TelegramGatewayInterface
                 ->chat((string) $sendMessage->chatId)
                 ->html($sendMessage->text);
 
-            if ($sendMessage->replyMarkup) {
-                $telegraph = $telegraph->replyKeyboard($sendMessage->replyMarkup);
+            if ($sendMessage->replyKeyboardHide) {
+                $telegraph = $telegraph->removeReplyKeyboard();
+            } elseif ($sendMessage->replyMarkup) {
+                if (is_array($sendMessage->replyMarkup)) {
+                    $telegraph = $telegraph->replyKeyboard(
+                        $this->buildReplyKeyboard($sendMessage->replyMarkup)
+                    );
+                } else {
+                    $telegraph = $telegraph->replyKeyboard($sendMessage->replyMarkup);
+                }
             } elseif ($sendMessage->inlineKeyboard) {
                 $keyboard = $this->buildInlineKeyboard($sendMessage->inlineKeyboard);
                 $telegraph = $telegraph->keyboard($keyboard);
@@ -61,6 +71,34 @@ final class TelegraphGateway implements TelegramGatewayInterface
                 $exception
             );
         }
+    }
+
+    /**
+     * @param array<int, array<int, array{text: string, request_contact?: bool, request_location?: bool}>> $replyKeyboard
+     */
+    private function buildReplyKeyboard(array $replyKeyboard): ReplyKeyboard
+    {
+        $keyboard = ReplyKeyboard::make();
+
+        foreach ($replyKeyboard as $row) {
+            $buttons = [];
+            foreach ($row as $btn) {
+                $button = ReplyButton::make($btn['text']);
+
+                if (!empty($btn['request_contact'])) {
+                    $button = $button->requestContact();
+                }
+
+                if (!empty($btn['request_location'])) {
+                    $button = $button->requestLocation();
+                }
+
+                $buttons[] = $button;
+            }
+            $keyboard = $keyboard->row($buttons);
+        }
+
+        return $keyboard->resize()->oneTime();
     }
 
     /**

@@ -16,13 +16,19 @@ use App\Domain\Flows\Enums\ExecutionStatus;
 final class InputBlockExecutor implements BlockExecutorInterface
 {
     public function __construct(
-        private readonly MessageSenderInterface    $messenger,
+        private readonly MessageSenderInterface    $messageSender,
         private readonly VariableResolverInterface $variableResolver,
     ) {}
 
     public function supports(BlockType $type): bool
     {
-        return $type === BlockType::INPUT;
+        return in_array($type, [
+            BlockType::INPUT,
+            BlockType::NUMBER,
+            BlockType::EMAIL,
+            BlockType::PHONE,
+            BlockType::DATE,
+        ], true);
     }
 
     public function execute(array $block, ExecutionContext $context): BlockExecutionResult
@@ -38,7 +44,7 @@ final class InputBlockExecutor implements BlockExecutorInterface
 
         $text = $this->variableResolver->resolve($raw, $context->session->context, $context->subscriber);
 
-        $this->messenger->send(new SendMessage($context->bot, $context->subscriber->telegram_id, $text));
+        $this->messageSender->send(new SendMessage($context->bot, $context->subscriber->telegram_id, $text, $context->conversationId));
 
         return new BlockExecutionResult(status: ExecutionStatus::WAITING);
     }

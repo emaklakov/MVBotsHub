@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Telegram;
 
 use App\Application\Telegram\DTO\SendMessage;
-use App\Domain\Bots\Models\Bot;
 use App\Domain\Flows\Contracts\MessageSenderInterface;
-use App\Jobs\Telegram\SendContactRequest;
 use App\Jobs\Telegram\SendTelegramMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Bus;
@@ -29,11 +27,6 @@ final class TelegramMessageSender implements MessageSenderInterface
     public function send(SendMessage $sendMessage): void
     {
         $this->pending[] = new SendTelegramMessage($sendMessage);
-    }
-
-    public function requestContact(Bot $bot, int $telegramId): void
-    {
-        $this->pending[] = new SendContactRequest($bot, $telegramId);
     }
 
     public function flush(): void

@@ -247,7 +247,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default', 'telegram', 'broadcast', 'notifications', 'emails'],
+                'queue' => ['default', 'telegram', 'broadcasts', 'notifications', 'emails'],
                 'balance' => 'auto',
                 'maxProcesses' => 3,
             ],

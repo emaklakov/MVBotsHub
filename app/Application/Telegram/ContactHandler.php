@@ -54,7 +54,7 @@ final class ContactHandler
         // merge(), поэтому effectiveLanguage здесь уже актуален.
         $welcomeText = $this->systemMessages->resolve($bot, SystemMessageKey::WELCOME, $subscriber);
 
-        $this->messageSender->send(new SendMessage($bot, $subscriber->telegram_id, $welcomeText, $conversation->id));
+        $this->messageSender->send(new SendMessage($bot, $subscriber->telegram_id, $welcomeText, $conversation->id, replyKeyboardHide: true));
         $this->messageSender->flush();
     }
 }

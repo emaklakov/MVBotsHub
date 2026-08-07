@@ -29,7 +29,7 @@ final class CommandHandler
         private readonly SystemMessageResolver $systemMessages,
     ) {
         $this->handlers = [
-            'start' => $this->handleStart(...),
+            //'start' => $this->handleStart(...),
         ];
     }
 
@@ -67,12 +67,6 @@ final class CommandHandler
 
     private function handleStart(Bot $bot, BotSubscriber $subscriber, string $parameter): void
     {
-        if ($subscriber->person_id === null) {
-            $this->messageSender->requestContact($bot, $subscriber->telegram_id);
-            $this->messageSender->flush();
-            return;
-        }
-
         $this->messageSender->send(new SendMessage(
             $bot,
             $subscriber->telegram_id,

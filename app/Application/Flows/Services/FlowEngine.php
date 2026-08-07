@@ -15,6 +15,7 @@ use App\Domain\Flows\Dto\ExecutionContext;
 use App\Domain\Flows\Entities\FlowSession;
 use App\Domain\Flows\Enums\ExecutionStatus;
 use App\Domain\Flows\Models\FlowVersion;
+use App\Infrastructure\Telegram\DTO\Contact as TelegramContact;
 
 final class FlowEngine
 {
@@ -26,7 +27,7 @@ final class FlowEngine
         private readonly MessageSenderInterface $messenger,
     ) {}
 
-    public function start(Bot $bot, BotSubscriber $subscriber, FlowVersion $version, array $initialContext = []): void
+    public function start(Bot $bot, BotSubscriber $subscriber, FlowVersion $version, array $initialContext = [], ?int $conversationId = null): void
     {
         $this->sessionStore->completeAllActive($subscriber->id);
 
@@ -54,10 +55,41 @@ final class FlowEngine
             $initialContext
         );
 
-        $this->run($version, $session, $bot, $subscriber);
+        $this->run($version, $session, $bot, $subscriber, $conversationId);
     }
 
-    public function handleInput(Bot $bot, BotSubscriber $subscriber, FlowVersion $version, string $input): void
+    public function handleContact(Bot $bot, BotSubscriber $subscriber, FlowVersion $version, TelegramContact $contact, ?int $conversationId = null): void
+    {
+        $session = $this->sessionStore->findActive($subscriber->id);
+
+        if (!$session) {
+            LogService::logInfo('Нет активной сессии для контакта', ['subscriber_id' => $subscriber->id]);
+            return;
+        }
+
+        $navigator = new FlowSchemaNavigator($version);
+        $currentBlock = $navigator->getBlock($session->currentBlockId);
+
+        // Обрабатываем контакт только если текущий блок ожидает его
+        if (!$currentBlock || ($currentBlock['type'] ?? '') !== 'contact') {
+            return;
+        }
+
+        // Определяем, под какой переменной хранить (из config.variable, fallback = 'contact_phone')
+        $variable = $currentBlock['config']['variable'] ?? 'contact_phone';
+
+        // Сохраняем телефон + дополнительные поля с префиксом по имени переменной
+        $session->context[$variable]                 = $contact->phoneNumber();
+        $session->context[$variable . '_first_name'] = $contact->firstName();
+        $session->context[$variable . '_last_name']  = $contact->lastName() ?? '';
+
+        $this->sessionStore->updateContext($session, $session->context);
+
+        // Переходим к следующему блоку
+        $this->advance($version, $session, $bot, $subscriber, $conversationId);
+    }
+
+    public function handleInput(Bot $bot, BotSubscriber $subscriber, FlowVersion $version, string $input, ?int $conversationId = null): void
     {
         $session = $this->sessionStore->findActive($subscriber->id);
 
@@ -69,7 +101,8 @@ final class FlowEngine
         $navigator = new FlowSchemaNavigator($version);
         $currentBlock = $navigator->getBlock($session->currentBlockId);
 
-        if (!$currentBlock || ($currentBlock['type'] ?? '') !== 'input') {
+        $inputBlockTypes = ['input', 'number', 'email', 'phone', 'date', 'geolocation', 'contact'];
+        if (!$currentBlock || !in_array($currentBlock['type'] ?? '', $inputBlockTypes, true)) {
             return;
         }
 
@@ -79,10 +112,10 @@ final class FlowEngine
         $this->sessionStore->updateContext($session, $session->context);
 
         // Переходим к следующему блоку
-        $this->advance($version, $session, $bot, $subscriber);
+        $this->advance($version, $session, $bot, $subscriber, $conversationId);
     }
 
-    private function run(FlowVersion $version, FlowSession $session, Bot $bot, BotSubscriber $subscriber): void
+    private function run(FlowVersion $version, FlowSession $session, Bot $bot, BotSubscriber $subscriber, ?int $conversationId = null): void
     {
         // flush() гарантированно вызывается один раз в конце прогона —
         // при любом исходе (WAITING/COMPLETED/лимит шагов/исключение),
@@ -109,7 +142,7 @@ final class FlowEngine
                     return;
                 }
 
-                $context = new ExecutionContext($session, $subscriber, $bot, $version);
+                $context = new ExecutionContext($session, $subscriber, $bot, $version, $conversationId);
 
                 $result = $this->registry->execute($block, $context);
 
@@ -130,7 +163,7 @@ final class FlowEngine
         }
     }
 
-    private function advance(FlowVersion $version, FlowSession $session, Bot $bot, BotSubscriber $subscriber): void
+    private function advance(FlowVersion $version, FlowSession $session, Bot $bot, BotSubscriber $subscriber, ?int $conversationId = null): void
     {
         $navigator = new FlowSchemaNavigator($version);
         $advanced = $this->advanceToNext($version, $session, $navigator);
@@ -141,7 +174,7 @@ final class FlowEngine
         }
 
         // Продолжаем выполнение
-        $this->run($version, $session, $bot, $subscriber);
+        $this->run($version, $session, $bot, $subscriber, $conversationId);
     }
 
     private function advanceToNext(FlowVersion $version, FlowSession $session, FlowSchemaNavigator $navigator, ?string $branch = null): bool
@@ -195,6 +228,6 @@ final class FlowEngine
         $this->sessionStore->updatePosition($session, $block['group_id'], $blockId);
 
         // Продолжаем выполнение с новой позиции
-        $this->run($version, $session, $bot, $subscriber);
+        $this->run($version, $session, $bot, $subscriber, null); // We don't have conversationId here, it's called from where?
     }
 }

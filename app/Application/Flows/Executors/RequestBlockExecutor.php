@@ -11,8 +11,9 @@ use App\Domain\Flows\Contracts\VariableResolverInterface;
 use App\Domain\Flows\Dto\BlockExecutionResult;
 use App\Domain\Flows\Dto\ExecutionContext;
 use App\Domain\Flows\Enums\BlockType;
+use App\Domain\Flows\Enums\ExecutionStatus;
 
-final class TextBlockExecutor implements BlockExecutorInterface
+final class RequestBlockExecutor implements BlockExecutorInterface
 {
     public function __construct(
         private readonly MessageSenderInterface    $messageSender,
@@ -21,7 +22,10 @@ final class TextBlockExecutor implements BlockExecutorInterface
 
     public function supports(BlockType $type): bool
     {
-        return $type === BlockType::TEXT;
+        return in_array($type, [
+            BlockType::GEOLOCATION,
+            BlockType::CONTACT,
+        ], true);
     }
 
     public function execute(array $block, ExecutionContext $context): BlockExecutionResult
@@ -29,7 +33,7 @@ final class TextBlockExecutor implements BlockExecutorInterface
         $content = $block['content'] ?? [];
         $language = $context->subscriber->effectiveLanguage;
 
-        // flow-editor хранит переводы в translations, fallback на text
+        // Вопрос перед вводом
         $raw = $content['translations'][$language]
             ?? $content['translations']['ru']
             ?? $content['text']
@@ -37,8 +41,25 @@ final class TextBlockExecutor implements BlockExecutorInterface
 
         $text = $this->variableResolver->resolve($raw, $context->session->context, $context->subscriber);
 
-        $this->messageSender->send(new SendMessage($context->bot, $context->subscriber->telegram_id, $text, $context->conversationId));
+        $type = BlockType::tryFrom(trim($block['type'] ?? ''));
 
-        return new BlockExecutionResult(); // CONTINUE по умолчанию
+        switch ($type) {
+            case BlockType::CONTACT:
+                $this->messageSender->send(new SendMessage(
+                    $context->bot,
+                    $context->subscriber->telegram_id,
+                    $text,
+                    $context->conversationId,
+                    replyMarkup: [
+                        [
+                            ['text' => '📱 Поделиться контактом', 'request_contact' => true],
+                        ],
+                    ],
+                    replyKeyboardHide: false
+                ));
+                break;
+        }
+
+        return new BlockExecutionResult(status: ExecutionStatus::WAITING);
     }
 }

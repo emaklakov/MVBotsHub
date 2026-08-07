@@ -19,5 +19,6 @@ final readonly class ExecutionContext
         public BotSubscriber $subscriber,
         public Bot $bot,
         public FlowVersion $version,
+        public ?int $conversationId = null,
     ) {}
 }

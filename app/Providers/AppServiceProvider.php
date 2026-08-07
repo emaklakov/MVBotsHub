@@ -8,6 +8,7 @@ use App\Application\Flows\BlockExecutorRegistry;
 use App\Application\Flows\Executors\ButtonBlockExecutor;
 use App\Application\Flows\Executors\ConditionBlockExecutor;
 use App\Application\Flows\Executors\InputBlockExecutor;
+use App\Application\Flows\Executors\RequestBlockExecutor;
 use App\Application\Flows\Executors\TextBlockExecutor;
 use App\Application\Flows\Services\FlowEngine;
 use App\Application\Flows\Services\VariableResolver;
@@ -79,6 +80,7 @@ class AppServiceProvider extends ServiceProvider
             $registry->register($app->make(ButtonBlockExecutor::class));
             $registry->register($app->make(InputBlockExecutor::class));
             $registry->register($app->make(ConditionBlockExecutor::class));
+            $registry->register($app->make(RequestBlockExecutor::class));
 //            $registry->register($app->make(JumpBlockExecutor::class));
 //            $registry->register($app->make(ApiCallBlockExecutor::class));
 //            $registry->register($app->make(DelayBlockExecutor::class));

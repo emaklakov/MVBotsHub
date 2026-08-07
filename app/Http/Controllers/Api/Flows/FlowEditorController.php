@@ -82,7 +82,7 @@ class FlowEditorController
             'schema.blocks' => 'present|array',
             'schema.blocks.*.id' => 'required|string',
             'schema.blocks.*.group_id' => 'required|string',
-            'schema.blocks.*.type' => 'required|string|in:text,input,button,condition',
+            'schema.blocks.*.type' => 'required|string|in:text,image,video,audio,input,file,poll,input,button,number,email,phone,date,geolocation,contact,condition',
             'schema.blocks.*.content' => 'nullable',
             'schema.blocks.*.config' => 'nullable',
             'schema.blocks.*.outgoing_edge_id' => 'nullable|string',

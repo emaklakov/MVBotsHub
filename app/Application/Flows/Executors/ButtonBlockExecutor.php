@@ -16,7 +16,7 @@ use App\Domain\Flows\Enums\ExecutionStatus;
 final class ButtonBlockExecutor implements BlockExecutorInterface
 {
     public function __construct(
-        private readonly MessageSenderInterface    $messenger,
+        private readonly MessageSenderInterface    $messageSender,
         private readonly VariableResolverInterface $variableResolver,
     ) {}
 
@@ -53,10 +53,11 @@ final class ButtonBlockExecutor implements BlockExecutorInterface
     {
         $keyboard = array_map(fn(string $btn) => ['text' => $btn], $buttons);
 
-        $this->messenger->send(new SendMessage(
+        $this->messageSender->send(new SendMessage(
             $context->bot,
             $context->subscriber->telegram_id,
             $text,
+            $context->conversationId,
             replyMarkup: array_chunk($keyboard, 2) // ← просто массив рядов, без обёртки
         ));
     }
@@ -71,10 +72,11 @@ final class ButtonBlockExecutor implements BlockExecutorInterface
             ]];
         }
 
-        $this->messenger->send(new SendMessage(
+        $this->messageSender->send(new SendMessage(
             $context->bot,
             $context->subscriber->telegram_id,
             $text,
+            $context->conversationId,
             inlineKeyboard: $inlineKeyboard
         ));
     }

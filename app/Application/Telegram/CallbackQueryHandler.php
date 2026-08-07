@@ -8,6 +8,8 @@ use App\Domain\Bots\Contracts\TelegramGatewayInterface;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\BotSubscriberStatus;
 use App\Domain\Conversations\Enums\ConversationSessionStatus;
+use App\Domain\Conversations\Enums\ConversationStatus;
+use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Models\ConversationSession;
 use App\Infrastructure\Telegram\DTO\CallbackQuery as TelegramCallbackQuery;
 
@@ -17,6 +19,7 @@ final class CallbackQueryHandler
         private readonly FlowSessionRunner $flowSessionRunner,
         private readonly TelegramGatewayInterface $telegramGateway,
         private readonly SubscriberResolver $subscriberResolver,
+        private readonly MessageRecorder $messageRecorder,
     ) {}
 
     public function handle(Bot $bot, TelegramCallbackQuery $callbackQuery): void
@@ -47,10 +50,29 @@ final class CallbackQueryHandler
         $data = $callbackQuery->data();
         $input = is_string($data) ? $data : (string) ($data->first() ?? '');
 
+        $conversation = Conversation::firstOrCreate(
+            [
+                'bot_subscriber_id' => $subscriber->id,
+                'status'            => ConversationStatus::ACTIVE,
+            ],
+            [
+                'bot_id'  => $bot->id,
+                'context' => [],
+            ]
+        );
+
+        $this->messageRecorder->recordInbound(
+            $conversation->id,
+            'text',
+            ['text' => $input],
+            $callbackQuery->message()?->id()
+        );
+
         $this->flowSessionRunner->handleInput(
             $bot,
             $subscriber,
-            $input
+            $input,
+            $conversation->id
         );
     }
 }
