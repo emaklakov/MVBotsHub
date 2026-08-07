@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Telegram;
 
+use App\Application\Bots\Services\SystemMessageResolver;
 use App\Application\Services\LogService;
 use App\Application\Telegram\DTO\SendMessage;
+use App\Domain\Bots\Enums\SystemMessageKey;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Flows\Contracts\MessageSenderInterface;
@@ -24,6 +26,7 @@ final class CommandHandler
 
     public function __construct(
         private readonly MessageSenderInterface $messageSender,
+        private readonly SystemMessageResolver $systemMessages,
     ) {
         $this->handlers = [
             'start' => $this->handleStart(...),
@@ -66,14 +69,16 @@ final class CommandHandler
     {
         if ($subscriber->person_id === null) {
             $this->messageSender->requestContact($bot, $subscriber->telegram_id);
+            $this->messageSender->flush();
             return;
         }
 
         $this->messageSender->send(new SendMessage(
             $bot,
             $subscriber->telegram_id,
-            $bot->settings['welcome_message'] ?? 'С возвращением!'
+            $this->systemMessages->resolve($bot, SystemMessageKey::WELCOME_BACK, $subscriber),
         ));
+        $this->messageSender->flush();
     }
 
     private function handleUnknown(Bot $bot, string $text): void

@@ -9,8 +9,10 @@ use App\MoonShine\Resources\CRM\Person\PersonResource;
 use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
 use App\MoonShine\Resources\Jobs\Job\JobResource;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
+use App\MoonShine\Resources\Telegram\Audiences\Audience\AudienceResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
+use App\MoonShine\Resources\Telegram\Bots\BotMessageTemplate\BotMessageTemplateResource;
 use App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\BroadcastResource;
 use App\MoonShine\Resources\Telegram\Broadcasts\BroadcastRecipient\BroadcastRecipientResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
@@ -52,6 +54,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 BotResource::class,
                 BotSubscriberResource::class,
                 BotMemberResource::class,
+                BotMessageTemplateResource::class,
                 PersonResource::class,
                 ConversationResource::class,
                 FlowResource::class,
@@ -60,6 +63,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 MessageResource::class,
                 BroadcastResource::class,
                 BroadcastRecipientResource::class,
+                AudienceResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

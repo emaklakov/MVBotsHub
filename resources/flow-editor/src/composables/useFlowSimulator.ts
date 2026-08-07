@@ -4,8 +4,11 @@ import type { FlowSchema, FlowEdge, FlowBlockType, BlockContent, BlockConfig, Co
 export interface SimMessage {
     id: string
     role: 'bot' | 'user' | 'system'
-    kind: 'text' | 'buttons' | 'note' | 'media'
+    kind: 'text' | 'buttons' | 'note' | 'media' | 'poll'
     text: string
+    /** Для kind: 'buttons' — доступные варианты; для kind: 'poll'
+     * (Фаза 2) — варианты ответа опроса (статичный список, без выбора —
+     * см. комментарий у 'poll' в blocks/registry.ts). */
     options?: string[]
     /** Только для kind: 'media' (Фаза 1 — image/video/audio/file). */
     mediaType?: 'image' | 'video' | 'audio' | 'file'
@@ -14,8 +17,27 @@ export interface SimMessage {
 }
 
 export type SimWaiting =
-    | { kind: 'input'; blockId: string; variable: string | null; hint?: string }
+    | {
+          kind: 'input'
+          blockId: string
+          variable: string | null
+          hint?: string
+          /** Какой конкретно тип блока ждёт ответа — нужно для валидации
+           * формата (Фаза 2, см. validateInputValue). У обычного 'input'
+           * валидации нет, у number/email/phone/date — есть. */
+          blockType: FlowBlockType
+          config?: BlockConfig
+      }
     | { kind: 'buttons'; blockId: string; variable: string | null; options: string[] }
+    | {
+          /** Запрос через нативную кнопку Telegram (Фаза 2) —
+           * геолокация/контакт. См. submitRequest ниже: это
+           * dev-заглушка для превью, не настоящий доступ к геолокации. */
+          kind: 'request'
+          blockId: string
+          variable: string | null
+          requestType: 'geolocation' | 'contact'
+      }
     | null
 
 export interface SimState {
@@ -36,6 +58,43 @@ function pickTranslation(content: BlockContent | undefined): string {
 }
 
 const MEDIA_BLOCK_TYPES: ReadonlySet<FlowBlockType> = new Set(['image', 'video', 'audio', 'file'])
+
+// 'input' и его валидируемые варианты (Фаза 2) ведут себя в симуляторе
+// одинаково (вопрос → ждём текстовый ответ → переменная), различие
+// только в проверке формата ответа — см. validateInputValue.
+const TEXT_INPUT_BLOCK_TYPES: ReadonlySet<FlowBlockType> = new Set(['input', 'number', 'email', 'phone', 'date'])
+
+const REQUEST_BLOCK_TYPES: ReadonlySet<FlowBlockType> = new Set(['geolocation', 'contact'])
+
+/**
+ * Валидация ответа для number/email/phone/date (Фаза 2). У обычного
+ * 'input' формата нет — всегда null. Возвращает текст ошибки для показа
+ * пользователю, либо null, если ответ принят.
+ */
+function validateInputValue(type: FlowBlockType, value: string, config: BlockConfig | undefined): string | null {
+    switch (type) {
+        case 'number': {
+            if (value === '' || Number.isNaN(Number(value))) return 'Это не похоже на число — попробуйте ещё раз.'
+            const num = Number(value)
+            const { min, max } = config?.validation ?? {}
+            if (min !== undefined && num < min) return `Значение должно быть не меньше ${min}.`
+            if (max !== undefined && num > max) return `Значение должно быть не больше ${max}.`
+            return null
+        }
+        case 'email':
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? null : 'Похоже, это не email — проверьте формат (name@example.com).'
+        case 'phone':
+            return /^\+?[0-9][0-9\s\-()]{5,}$/.test(value)
+                ? null
+                : 'Похоже, это не номер телефона — укажите в международном формате, например +79991234567.'
+        case 'date':
+            return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value))
+                ? null
+                : 'Укажите дату в формате ГГГГ-ММ-ДД, например 2000-01-31.'
+        default:
+            return null
+    }
+}
 
 const OPERATOR_LABELS: Record<ConditionOperator, string> = {
     '==': '=',
@@ -151,9 +210,16 @@ export function createChatSimulator(schema: FlowSchema) {
                 continue
             }
 
-            if (block.type === 'input') {
+            if (TEXT_INPUT_BLOCK_TYPES.has(block.type)) {
                 pushMessage({ role: 'bot', kind: 'text', text: interpolate(pickTranslation(block.content), state.variables) })
-                state.waiting = { kind: 'input', blockId, variable: block.config?.variable || null, hint: block.config?.hint }
+                state.waiting = {
+                    kind: 'input',
+                    blockId,
+                    variable: block.config?.variable || null,
+                    hint: block.config?.hint,
+                    blockType: block.type,
+                    config: block.config,
+                }
                 return
             }
 
@@ -193,6 +259,29 @@ export function createChatSimulator(schema: FlowSchema) {
                 })
                 continue
             }
+
+            if (REQUEST_BLOCK_TYPES.has(block.type)) {
+                pushMessage({ role: 'bot', kind: 'text', text: interpolate(pickTranslation(block.content), state.variables) })
+                state.waiting = {
+                    kind: 'request',
+                    blockId,
+                    variable: block.config?.variable || null,
+                    requestType: block.type as 'geolocation' | 'contact',
+                }
+                return
+            }
+
+            if (block.type === 'poll') {
+                // Опрос не ждёт ответа в рамках диалога (см. комментарий
+                // у 'poll' в blocks/registry.ts) — отправили и продолжили.
+                pushMessage({
+                    role: 'bot',
+                    kind: 'poll',
+                    text: interpolate(pickTranslation(block.content), state.variables),
+                    options: block.content?.buttons ?? [],
+                })
+                continue
+            }
         }
     }
 
@@ -215,8 +304,17 @@ export function createChatSimulator(schema: FlowSchema) {
 
     const submitText = (value: string) => {
         if (!state.waiting || state.waiting.kind !== 'input') return
-        const variable = state.waiting.variable
+        const { variable, blockType, config } = state.waiting
         const trimmed = value.trim()
+
+        const error = validateInputValue(blockType, trimmed, config)
+        if (error) {
+            // Невалидный ответ: показываем причину и остаёмся в режиме
+            // ожидания — как реальный бот переспросил бы, а не завершаем
+            // диалог/переходим дальше с мусорным значением.
+            pushMessage({ role: 'system', kind: 'note', text: error })
+            return
+        }
 
         pushMessage({ role: 'user', kind: 'text', text: trimmed })
         state.waiting = null
@@ -234,5 +332,27 @@ export function createChatSimulator(schema: FlowSchema) {
         advance()
     }
 
-    return { state, start, submitText, submitChoice }
+    // Дев-заглушки для превью: у редактора флоу нет доступа к реальной
+    // геолокации браузера или контактам пользователя (да это и не имело
+    // бы смысла — тестируется сценарий, а не устройство разработчика).
+    // В реальном Telegram эти значения приходят от нативной кнопки
+    // "Отправить геолокацию"/"Отправить контакт".
+    const REQUEST_STUB_VALUES: Record<'geolocation' | 'contact', string> = {
+        geolocation: '55.751244,37.618423',
+        contact: '+79990001122',
+    }
+
+    const submitRequest = () => {
+        if (!state.waiting || state.waiting.kind !== 'request') return
+        const { variable, requestType } = state.waiting
+        const value = REQUEST_STUB_VALUES[requestType]
+        const label = requestType === 'geolocation' ? `📍 Геолокация отправлена (${value})` : `☎️ Контакт отправлен (${value})`
+
+        pushMessage({ role: 'user', kind: 'text', text: label })
+        state.waiting = null
+        if (variable) state.variables[variable] = value
+        advance()
+    }
+
+    return { state, start, submitText, submitChoice, submitRequest }
 }

@@ -104,4 +104,9 @@ class Bot extends Model
     {
         return $this->hasMany(BotSubscriber::class);
     }
+
+    public function messageTemplates(): HasMany
+    {
+        return $this->hasMany(BotMessageTemplate::class);
+    }
 }

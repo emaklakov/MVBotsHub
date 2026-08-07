@@ -2,8 +2,10 @@
 
 namespace App\MoonShine\Components;
 
+use App\Domain\Audiences\Models\Audience;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Bots\Models\BotMember;
+use App\Domain\Bots\Models\BotMessageTemplate;
 use App\Domain\Broadcasts\Models\Broadcast;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
@@ -25,8 +27,10 @@ use App\MoonShine\Resources\CRM\Person\PersonResource;
 use App\MoonShine\Resources\Jobs\FailedJob\FailedJobResource;
 use App\MoonShine\Resources\Jobs\Job\JobResource;
 use App\MoonShine\Resources\Jobs\JobLog\JobLogResource;
+use App\MoonShine\Resources\Telegram\Audiences\Audience\AudienceResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
+use App\MoonShine\Resources\Telegram\Bots\BotMessageTemplate\BotMessageTemplateResource;
 use App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\BroadcastResource;
 use App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\BotSubscriberResource;
 use App\MoonShine\Resources\Telegram\Conversations\Conversation\ConversationResource;
@@ -100,6 +104,9 @@ class MainMenu
                 MenuItem::make(BotMemberResource::class, 'Доступы к ботам')
                     ->icon('eye-low-vision', path: 'icons')
                     ->canSee(fn () => Gate::allows('viewAny', BotMember::class)),
+                MenuItem::make(BotMessageTemplateResource::class, 'Системные сообщения')
+                    ->icon('comment-dots', path: 'icons')
+                    ->canSee(fn () => Gate::allows('viewAny', BotMessageTemplate::class)),
                 MenuItem::make(BotSubscriberResource::class, 'Пользователи бота', 'user-group')
                     ->canSee(fn () => Gate::allows('viewAny', BotSubscriber::class)),
                 MenuItem::make(ConversationResource::class, 'Диалоги')
@@ -114,6 +121,9 @@ class MainMenu
                 MenuItem::make(BroadcastResource::class, 'Рассылки')
                     ->icon('tower-cell', path: 'icons')
                     ->canSee(fn () => Gate::allows('viewAny', Broadcast::class)),
+                MenuItem::make(AudienceResource::class, 'Списки рассылки')
+                    ->icon('users-viewfinder', path: 'icons')
+                    ->canSee(fn () => Gate::allows('viewAny', Audience::class)),
             ])->icon('telegram', path: 'icons'),
         ];
     }

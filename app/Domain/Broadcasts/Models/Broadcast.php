@@ -2,6 +2,7 @@
 
 namespace App\Domain\Broadcasts\Models;
 
+use App\Domain\Audiences\Models\Audience;
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\Domain\Flows\Enums\FlowVersionStatus;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ class Broadcast extends Model
 
     protected $fillable = [
         'bot_id',
+        'audience_id',
         'flow_version_id',
         'name',
         'status',
@@ -42,6 +44,11 @@ class Broadcast extends Model
     public function bot(): BelongsTo
     {
         return $this->belongsTo(Bot::class);
+    }
+
+    public function audience(): BelongsTo
+    {
+        return $this->belongsTo(Audience::class);
     }
 
     public function flowVersion(): BelongsTo

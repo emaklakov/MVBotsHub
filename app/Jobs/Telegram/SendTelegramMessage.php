@@ -5,17 +5,18 @@ namespace App\Jobs\Telegram;
 use App\Application\Services\LogService;
 use App\Application\Telegram\DTO\SendMessage;
 use App\Application\Telegram\MessageRecorder;
+use App\Domain\Bots\Contracts\HasBotRateLimitKey;
 use App\Domain\Bots\Contracts\TelegramGatewayInterface;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\RateLimited;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 
-class SendTelegramMessage implements ShouldQueue, ShouldBeUnique
+class SendTelegramMessage implements ShouldQueue, HasBotRateLimitKey
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -26,22 +27,36 @@ class SendTelegramMessage implements ShouldQueue, ShouldBeUnique
         private readonly SendMessage $sendMessage,
     ) {}
 
-    /**
-     * Уникальный ключ: защита от дублирования одного и того же сообщения.
-     */
-    public function uniqueId(): string
+    public function botId(): int
     {
-        return sprintf(
-            'telegram-msg:%d:%s:%s',
-            $this->sendMessage->bot->id,
-            $this->sendMessage->chatId,
-            md5($this->sendMessage->text)
-        );
+        return $this->sendMessage->bot->id;
     }
 
+    /**
+     * Не более одной джобы на chat_id выполняется одновременно — это то,
+     * что реально гарантирует порядок доставки при параллельных воркерах
+     * очереди 'telegram' (см. config/horizon.php, maxProcesses => 20).
+     * Внутри одного прогона FlowEngine порядок уже обеспечен Bus::chain
+     * в TelegramMessageSender::flush(), а этот лок защищает от гонки
+     * между РАЗНЫМИ источниками отправки в один и тот же чат — например,
+     * отложенным ProcessFlowStep и новым входящим сообщением пользователя.
+     *
+     * RateLimited('telegram') троттлится по botId() (см. AppServiceProvider) —
+     * Telegram лимитирует запросы по токену бота, а не по IP сервера, поэтому
+     * рассылка одного бота не должна съедать лимит другого бота на том же сервере.
+     *
+     * ShouldBeUnique с ключом по хэшу текста сюда намеренно не возвращён:
+     * он молча дропал легитимные повторные отправки одного и того же
+     * текста (например, повторный промпт при невалидном вводе).
+     */
     public function middleware(): array
     {
-        return [new RateLimited('telegram')];
+        $chatKey = "telegram-chat:{$this->sendMessage->bot->id}:{$this->sendMessage->chatId}";
+
+        return [
+            (new WithoutOverlapping($chatKey))->releaseAfter(2)->expireAfter(180),
+            new RateLimited('telegram'),
+        ];
     }
 
     public function handle(

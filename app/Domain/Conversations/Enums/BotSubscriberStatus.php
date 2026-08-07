@@ -2,18 +2,20 @@
 
 namespace App\Domain\Conversations\Enums;
 
-enum SubscriberStatus: string
+enum BotSubscriberStatus: string
 {
     case ACTIVE = 'active';
     case BLOCKED = 'blocked';
     case MERGED = 'merged';
+    case DISABLED = 'disabled';
 
     public function toString(): string
     {
         return match ($this) {
             self::ACTIVE => 'Активен',
-            self::BLOCKED => 'Заблокирован',
+            self::BLOCKED => 'Заблокировал',
             self::MERGED => 'Объединён',
+            self::DISABLED => 'Отключен',
         };
     }
 
@@ -22,7 +24,7 @@ enum SubscriberStatus: string
         return match ($this) {
             self::ACTIVE => 'green',
             self::BLOCKED => 'red',
-            self::MERGED => 'yellow',
+            self::DISABLED => 'grey',
         };
     }
 
@@ -32,6 +34,7 @@ enum SubscriberStatus: string
             self::ACTIVE => 'play-circle',
             self::BLOCKED => 'stop-circle',
             self::MERGED => 'x-circle',
+            self::DISABLED => 'stop-circle',
         };
     }
 }

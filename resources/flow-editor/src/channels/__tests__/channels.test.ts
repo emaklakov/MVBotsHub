@@ -15,6 +15,12 @@ describe('channelRegistry / getChannelProfile', () => {
         expect(telegram.limits.maxTextLength).toBe(4096)
         expect(telegram.limits.maxCaptionLength).toBe(1024)
         expect(telegram.limits.callbackDataMaxBytes).toBe(64)
+        expect(telegram.limits.maxPollQuestionLength).toBe(300)
+        expect(telegram.limits.maxPollOptions).toBe(10)
+    })
+
+    it('telegram умеет poll (Фаза 2)', () => {
+        expect(getChannelProfile('telegram').capabilities).toContain('poll')
     })
 
     it('бросает понятную ошибку для незарегистрированного канала', () => {

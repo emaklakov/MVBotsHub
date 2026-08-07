@@ -6,6 +6,7 @@ namespace App\Application\Telegram;
 
 use App\Domain\Bots\Contracts\TelegramGatewayInterface;
 use App\Domain\Bots\Models\Bot;
+use App\Domain\Conversations\Enums\BotSubscriberStatus;
 use App\Domain\Conversations\Enums\ConversationSessionStatus;
 use App\Domain\Conversations\Models\ConversationSession;
 use App\Infrastructure\Telegram\DTO\CallbackQuery as TelegramCallbackQuery;
@@ -29,6 +30,10 @@ final class CallbackQueryHandler
         $this->telegramGateway->answerCallbackQuery($bot, $callbackQuery->id());
 
         $subscriber = $this->subscriberResolver->resolve($bot, $callbackQuery->from());
+
+        if($subscriber->status != BotSubscriberStatus::ACTIVE) {
+            return;
+        }
 
         $session = ConversationSession::query()
             ->where('bot_subscriber_id', $subscriber->id)

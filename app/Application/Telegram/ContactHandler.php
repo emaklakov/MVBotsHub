@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Telegram;
 
+use App\Application\Bots\Services\SystemMessageResolver;
 use App\Application\Conversations\Services\PhoneMergeService;
 use App\Application\Telegram\DTO\SendMessage;
+use App\Domain\Bots\Enums\SystemMessageKey;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
@@ -18,6 +20,7 @@ final class ContactHandler
     public function __construct(
         private readonly PhoneMergeService $phoneMergeService,
         private readonly MessageSenderInterface $messageSender,
+        private readonly SystemMessageResolver $systemMessages,
     ) {}
 
     public function handle(Bot $bot, BotSubscriber $subscriber, TelegramContact $contact): void
@@ -30,9 +33,12 @@ final class ContactHandler
         ]);
 
         if($contact->userId() != $subscriber->telegram_id) {
-            $erroText = $bot->settings['not_your_contact_message'] ?? 'Вы поделились не своим номером';
+            // Язык ещё не привязан к Person на этом этапе (merge ниже не выполнялся),
+            // резолвер откатится на subscriber->language / bot->settings['language'] / fallback.
+            $errorText = $this->systemMessages->resolve($bot, SystemMessageKey::NOT_YOUR_CONTACT, $subscriber);
 
-            $this->messageSender->send(new SendMessage($bot, $subscriber->telegram_id, $erroText, $conversation->id));
+            $this->messageSender->send(new SendMessage($bot, $subscriber->telegram_id, $errorText, $conversation->id));
+            $this->messageSender->flush();
 
             return;
         }
@@ -43,8 +49,12 @@ final class ContactHandler
             $bot
         );
 
-        $welcomeText = $bot->settings['welcome_message'] ?? 'Вы успешно авторизованы.';
+        // merge() обновляет $subscriber->language в этой же инстанции (перенос от
+        // старого подписчика/Person или дефолт бота) — resolve() вызывается ПОСЛЕ
+        // merge(), поэтому effectiveLanguage здесь уже актуален.
+        $welcomeText = $this->systemMessages->resolve($bot, SystemMessageKey::WELCOME, $subscriber);
 
         $this->messageSender->send(new SendMessage($bot, $subscriber->telegram_id, $welcomeText, $conversation->id));
+        $this->messageSender->flush();
     }
 }

@@ -18,8 +18,26 @@ import type { FlowBlockType } from '@/types/flow'
 // новый FlowBlockType в types/flow.ts, но забудет завести запись в
 // registry.ts, getBlockDefinition() бросит понятную ошибку в рантайме —
 // а этот тест ловит то же самое ещё на этапе CI, до рантайма.
-const knownTypes: FlowBlockType[] = ['text', 'input', 'button', 'condition', 'image', 'video', 'audio', 'file']
+const knownTypes: FlowBlockType[] = [
+    'text',
+    'input',
+    'button',
+    'condition',
+    'image',
+    'video',
+    'audio',
+    'file',
+    'number',
+    'email',
+    'phone',
+    'date',
+    'geolocation',
+    'contact',
+    'poll',
+]
 const mediaTypes: FlowBlockType[] = ['image', 'video', 'audio', 'file']
+const validatedInputTypes: FlowBlockType[] = ['number', 'email', 'phone', 'date']
+const requestTypes: FlowBlockType[] = ['geolocation', 'contact']
 
 describe('реестр блоков: полнота', () => {
     it('содержит запись для каждого известного типа блока', () => {
@@ -89,6 +107,21 @@ describe('дефолты через реестр совпадают с ожид�
         expect(defaultBlockContent('file')).toEqual({ mediaUrl: '', mediaFileName: '', translations: { ru: '', en: '' } })
         expect(defaultBlockConfig('file')).toEqual({})
     })
+
+    it.each(validatedInputTypes)('%s: как input — пустой content, config.variable (Фаза 2)', (type) => {
+        expect(defaultBlockContent(type)).toEqual({})
+        expect(defaultBlockConfig(type)).toEqual({ variable: '' })
+    })
+
+    it.each(requestTypes)('%s: content с translations, config.variable (Фаза 2)', (type) => {
+        expect(defaultBlockContent(type)).toEqual({ translations: { ru: '', en: '' } })
+        expect(defaultBlockConfig(type)).toEqual({ variable: '' })
+    })
+
+    it('poll: content с translations и пустым списком вариантов, config пуст', () => {
+        expect(defaultBlockContent('poll')).toEqual({ translations: { ru: '', en: '' }, buttons: [] })
+        expect(defaultBlockConfig('poll')).toEqual({})
+    })
 })
 
 describe('getBlockOutputs', () => {
@@ -113,6 +146,12 @@ describe('getBlockOutputs', () => {
             expect(getBlockOutputs(type)).toEqual([{ handle: null }])
         }
     })
+
+    it('все новые блоки Фазы 2 (валидируемые input, request, poll) — один обычный выход', () => {
+        for (const type of [...validatedInputTypes, ...requestTypes, 'poll' as const]) {
+            expect(getBlockOutputs(type)).toEqual([{ handle: null }])
+        }
+    })
 })
 
 describe('blockProducesVariable', () => {
@@ -127,6 +166,16 @@ describe('blockProducesVariable', () => {
         for (const type of mediaTypes) {
             expect(blockProducesVariable(type)).toBe(false)
         }
+    })
+
+    it('валидируемые input-блоки и request-блоки дают переменную (Фаза 2)', () => {
+        for (const type of [...validatedInputTypes, ...requestTypes]) {
+            expect(blockProducesVariable(type)).toBe(true)
+        }
+    })
+
+    it('poll переменную не даёт — не блокирует диалог (Фаза 2)', () => {
+        expect(blockProducesVariable('poll')).toBe(false)
     })
 })
 
@@ -145,9 +194,26 @@ describe('медиа-блоки требуют возможность file_uploa
         }
     })
 
-    it('универсальные блоки (text/input/button/condition) не требуют возможностей канала', () => {
-        for (const type of ['text', 'input', 'button', 'condition'] as const) {
+    it('универсальные блоки (text/input/button/condition + валидируемые input Фазы 2) не требуют возможностей канала', () => {
+        for (const type of ['text', 'input', 'button', 'condition', ...validatedInputTypes] as const) {
             expect(getBlockDefinition(type).requiresCapabilities).toBeUndefined()
         }
+    })
+})
+
+describe('request-блоки требуют свою нативную возможность канала (Фаза 2)', () => {
+    it('geolocation требует возможность geolocation, contact — contact_share', () => {
+        expect(getBlockDefinition('geolocation').requiresCapabilities).toEqual(['geolocation'])
+        expect(getBlockDefinition('contact').requiresCapabilities).toEqual(['contact_share'])
+    })
+
+    it('poll требует возможность poll', () => {
+        expect(getBlockDefinition('poll').requiresCapabilities).toEqual(['poll'])
+    })
+
+    it('Telegram умеет всё это — все три блока видны в его библиотеке', () => {
+        const telegram = getChannelProfile('telegram')
+        const availableTypes = listBlockDefinitionsForChannel(telegram).map((d) => d.type)
+        expect(availableTypes).toEqual(expect.arrayContaining(['geolocation', 'contact', 'poll']))
     })
 })

@@ -4,7 +4,7 @@ namespace App\Application\Conversations\Services;
 
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Enums\ConversationStatus;
-use App\Domain\Conversations\Enums\SubscriberStatus;
+use App\Domain\Conversations\Enums\BotSubscriberStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Domain\Conversations\Models\Conversation;
 use App\Domain\Conversations\Models\Message;
@@ -58,7 +58,7 @@ class PhoneMergeService
 
                 // Старый подписчик → merged
                 $oldSubscriber->update([
-                    'status' => SubscriberStatus::MERGED,
+                    'status' => BotSubscriberStatus::MERGED,
                     'merged_into_id' => $newSubscriber->id,
                 ]);
 

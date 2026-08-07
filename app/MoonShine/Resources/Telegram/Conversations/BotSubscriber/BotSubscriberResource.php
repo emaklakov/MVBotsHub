@@ -13,6 +13,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Support\Enums\Action;
+use MoonShine\Support\Enums\PageType;
 use MoonShine\Support\ListOf;
 
 /**
@@ -20,6 +21,8 @@ use MoonShine\Support\ListOf;
  */
 class BotSubscriberResource extends BaseResource
 {
+    protected ?PageType $redirectAfterSave = PageType::DETAIL;
+
     protected string $model = BotSubscriber::class;
 
     protected string $title = 'Пользователи бота';
@@ -29,7 +32,7 @@ class BotSubscriberResource extends BaseResource
         return parent::activeActions()
             ->except(
                 Action::CREATE,
-                Action::UPDATE
+                //Action::UPDATE
             );
     }
 

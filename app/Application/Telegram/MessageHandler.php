@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Telegram;
 
 use App\Domain\Bots\Models\Bot;
+use App\Domain\Conversations\Enums\BotSubscriberStatus;
 use App\Infrastructure\Telegram\DTO\Message as TelegramMessage;
 use Illuminate\Support\Str;
 
@@ -28,6 +29,10 @@ final class MessageHandler
 
         // Заполняем данные по пользователю
         $subscriber = $this->subscriberResolver->resolve($bot, $from);
+
+        if($subscriber->status != BotSubscriberStatus::ACTIVE) {
+            return;
+        }
 
         // Обрабатываем отправленный контакт
         if ($contact = $message->contact()) {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Telegram\Conversations\BotSubscriber\Pages;
 
-use App\Domain\Conversations\Enums\SubscriberStatus;
+use App\Domain\Conversations\Enums\BotSubscriberStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\MoonShine\Resources\Base\BaseIndexPage;
 use App\MoonShine\Resources\CRM\Person\PersonResource;
@@ -50,7 +50,7 @@ class BotSubscriberIndexPage extends BaseIndexPage
             Text::make('Имя пользователя', 'telegram_username'),
             BelongsTo::make('Телефон', 'person', resource: PersonResource::class, formatted: 'phone'),
             Text::make('Язык', 'language'),
-            Enum::make('Статус', 'status')->attach(SubscriberStatus::class),
+            Enum::make('Статус', 'status')->attach(BotSubscriberStatus::class),
             Date::make('Последняя активность', 'last_activity_at')
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')

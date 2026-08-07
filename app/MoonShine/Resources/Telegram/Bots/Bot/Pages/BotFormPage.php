@@ -62,15 +62,9 @@ class BotFormPage extends BaseFormPage
                         'autocomplete' => 'off',
                     ]),
                 Json::make('Настройки', 'settings')
-                    ->fields([
-                        Position::make(),
-                        Text::make('Имя', 'name'),
-                        Text::make('Ключ', 'key'),
-                        Text::make('Значение', 'value'),
-                        Json::make('Данные', 'data')
-                            ->keyValue(),
-                        Switcher::make('Включено', 'is_active'),
-                    ])
+                    ->keyValue('Ключ', 'Значение')
+                    ->creatable()   // кнопка «Добавить»
+                    ->removable()   // кнопка «Удалить»
                     ->default([]),
                 Enum::make('Статус', 'status')->attach(BotStatus::class)
                     ->default(BotStatus::DISABLED)

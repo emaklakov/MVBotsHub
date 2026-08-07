@@ -11,6 +11,7 @@ use App\Domain\Bots\Models\Bot;
 use App\MoonShine\Resources\Base\BaseDetailPage;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Bots\BotMember\BotMemberResource;
+use App\MoonShine\Resources\Telegram\Bots\BotMessageTemplate\BotMessageTemplateResource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use MoonShine\Contracts\Core\DependencyInjection\CrudRequestContract;
@@ -51,21 +52,17 @@ class BotDetailPage extends BaseDetailPage
             Preview::make('Статус токена', 'bot_token_status', fn($item) => $item->maskedTokenPreview())
                 ->badge(fn($value) => $value == 'set' ? 'green' : 'gray'),
             Enum::make('Webhook', 'webhook_status')->attach(WebhookStatus::class),
-            Json::make('Настройки', 'settings')->fields([
-                Position::make(),
-                Text::make('Имя', 'name'),
-                Text::make('Ключ', 'key'),
-                Text::make('Значение', 'value'),
-                Json::make('Данные', 'data')
-                    ->keyValue(),
-                Switcher::make('Включено', 'is_active'),
-            ])
+            Json::make('Настройки', 'settings')
+                ->keyValue('Ключ', 'Значение')
                 ->default([]),
             Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
                 ->format('d.m.Y H:i:s'),
             Date::make(__('moonshine::ui.resource.updated_at'), 'updated_at')
                 ->format('d.m.Y H:i:s'),
             HasMany::make('Доступы к боту', 'members', resource: BotMemberResource::class)
+                ->creatable()
+                ->tabMode(),
+            HasMany::make('Системные сообщения ботов', 'messageTemplates', resource: BotMessageTemplateResource::class)
                 ->creatable()
                 ->tabMode(),
         ];

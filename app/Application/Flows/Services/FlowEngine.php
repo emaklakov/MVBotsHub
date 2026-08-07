@@ -9,6 +9,7 @@ use App\Application\Flows\FlowSchemaNavigator;
 use App\Application\Services\LogService;
 use App\Domain\Bots\Models\Bot;
 use App\Domain\Conversations\Models\BotSubscriber;
+use App\Domain\Flows\Contracts\MessageSenderInterface;
 use App\Domain\Flows\Contracts\SessionStoreInterface;
 use App\Domain\Flows\Dto\ExecutionContext;
 use App\Domain\Flows\Entities\FlowSession;
@@ -22,6 +23,7 @@ final class FlowEngine
     public function __construct(
         private readonly SessionStoreInterface $sessionStore,
         private readonly BlockExecutorRegistry $registry,
+        private readonly MessageSenderInterface $messenger,
     ) {}
 
     public function start(Bot $bot, BotSubscriber $subscriber, FlowVersion $version, array $initialContext = []): void
@@ -82,41 +84,49 @@ final class FlowEngine
 
     private function run(FlowVersion $version, FlowSession $session, Bot $bot, BotSubscriber $subscriber): void
     {
-        $steps = 0;
+        // flush() гарантированно вызывается один раз в конце прогона —
+        // при любом исходе (WAITING/COMPLETED/лимит шагов/исключение),
+        // чтобы всё, что накопил $this->messenger->send() внутри
+        // executors, ушло одной строго упорядоченной Bus::chain-цепочкой.
+        try {
+            $steps = 0;
 
-        while (true) {
-            if (++$steps > self::MAX_STEPS_PER_RUN) {
-                LogService::logWarning('Достигнут предельный лимит шагов потока', [
-                    'session_id' => $session->id,
-                    'steps' => $steps,
-                ]);
-                $this->sessionStore->complete($session->id);
-                return;
+            while (true) {
+                if (++$steps > self::MAX_STEPS_PER_RUN) {
+                    LogService::logWarning('Достигнут предельный лимит шагов потока', [
+                        'session_id' => $session->id,
+                        'steps' => $steps,
+                    ]);
+                    $this->sessionStore->complete($session->id);
+                    return;
+                }
+
+                $navigator = new FlowSchemaNavigator($version);
+                $block = $navigator->getBlock($session->currentBlockId);
+
+                if (!$block) {
+                    $this->sessionStore->complete($session->id);
+                    return;
+                }
+
+                $context = new ExecutionContext($session, $subscriber, $bot, $version);
+
+                $result = $this->registry->execute($block, $context);
+
+                if ($result->status === ExecutionStatus::WAITING) {
+                    return;
+                }
+
+                // Переходим дальше
+                $advanced = $this->advanceToNext($version, $session, $navigator, $result->branch);
+
+                if (!$advanced) {
+                    $this->sessionStore->complete($session->id);
+                    return;
+                }
             }
-
-            $navigator = new FlowSchemaNavigator($version);
-            $block = $navigator->getBlock($session->currentBlockId);
-
-            if (!$block) {
-                $this->sessionStore->complete($session->id);
-                return;
-            }
-
-            $context = new ExecutionContext($session, $subscriber, $bot, $version);
-
-            $result = $this->registry->execute($block, $context);
-
-            if ($result->status === ExecutionStatus::WAITING) {
-                return;
-            }
-
-            // Переходим дальше
-            $advanced = $this->advanceToNext($version, $session, $navigator, $result->branch);
-
-            if (!$advanced) {
-                $this->sessionStore->complete($session->id);
-                return;
-            }
+        } finally {
+            $this->messenger->flush();
         }
     }
 

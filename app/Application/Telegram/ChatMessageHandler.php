@@ -44,6 +44,8 @@ final class ChatMessageHandler
                 "Echo: {$content['text']}",
                 $conversation->id
             ));
+
+            $this->messageSender->flush();
         }
     }
 

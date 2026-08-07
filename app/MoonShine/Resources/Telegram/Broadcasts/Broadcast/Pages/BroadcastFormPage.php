@@ -7,6 +7,7 @@ namespace App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\Pages;
 use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\Domain\Flows\Enums\FlowVersionStatus;
 use App\MoonShine\Resources\Base\BaseFormPage;
+use App\MoonShine\Resources\Telegram\Audiences\Audience\AudienceResource;
 use App\MoonShine\Resources\Telegram\Bots\Bot\BotResource;
 use App\MoonShine\Resources\Telegram\Broadcasts\Broadcast\BroadcastResource;
 use App\MoonShine\Resources\Telegram\Flows\FlowVersion\FlowVersionResource;
@@ -35,6 +36,9 @@ class BroadcastFormPage extends BaseFormPage
                 ID::make(),
                 Text::make('Название', 'name')->required(),
                 BelongsTo::make('Бот', 'bot', resource: BotResource::class, formatted: 'username')->nullable()->required(),
+                BelongsTo::make('Список рассылки', 'audience', resource: AudienceResource::class, formatted: 'name')
+                    ->nullable()
+                    ->hint('Пусто — все активные подписчики бота'),
                 BelongsTo::make('Поток', 'flowVersion', resource: FlowVersionResource::class, formatted: fn ($item) => $item->flow?->name.' ('.$item->version_number.')')
                     ->valuesQuery(fn ($query) => $query->where('status', FlowVersionStatus::PUBLISHED))
                     ->nullable()

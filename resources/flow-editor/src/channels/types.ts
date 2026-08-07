@@ -25,6 +25,7 @@ export type Capability =
     | 'web_app_button' // Telegram Mini App
     | 'custom_html' // форматированный текст сверх Markdown-подмножества Bot API
     | 'typing_indicator'
+    | 'poll' // sendPoll — асинхронные голоса, не блокирует диалог (Фаза 2)
 
 /**
  * Известные на сегодня каналы. Единственное значение — 'telegram': по
@@ -49,6 +50,9 @@ export interface ChannelLimits {
     /** Актуально для Telegram (callback_data ≤ 64 байт); канал без
      * такого технического ограничения может поле не указывать. */
     callbackDataMaxBytes?: number
+    /** Лимиты опроса (sendPoll) — не указаны, если канал 'poll' не умеет. */
+    maxPollQuestionLength?: number
+    maxPollOptions?: number
 }
 
 /** Переменная, которую платформа подставляет сама при старте диалога

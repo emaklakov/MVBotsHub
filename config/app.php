@@ -124,6 +124,7 @@ return [
     */
 
     'TELEGRAM_CHAT_SUPPORT' => env('TELEGRAM_CHAT_SUPPORT'),
+    'TELEGRAM_BOT_SUPPORT' => env('TELEGRAM_BOT_SUPPORT'),
 
     /*
     |--------------------------------------------------------------------------

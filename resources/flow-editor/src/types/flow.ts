@@ -25,15 +25,43 @@ export interface BlockConfig {
     conditionVariable?: string
     conditionOperator?: ConditionOperator
     conditionValue?: string
+    /**
+     * Только для type: 'number' (Фаза 2) — необязательные границы
+     * допустимого значения, проверяются и в редакторе (мягкая подсказка),
+     * и в симуляторе диалога (жёсткая валидация ответа).
+     */
+    validation?: { min?: number; max?: number }
 }
 
-export type FlowBlockType = 'text' | 'input' | 'button' | 'condition' | 'image' | 'video' | 'audio' | 'file'
+export type FlowBlockType =
+    | 'text'
+    | 'input'
+    | 'button'
+    | 'condition'
+    | 'image'
+    | 'video'
+    | 'audio'
+    | 'file'
+    // --- Фаза 2 ---------------------------------------------------------
+    // Валидируемые варианты 'input' — тот же вопрос+переменная, но с
+    // проверкой формата ответа (см. useFlowSimulator.ts/validateInputValue).
+    | 'number'
+    | 'email'
+    | 'phone'
+    | 'date'
+    // Запрос через нативную кнопку Telegram (Bot API request_location /
+    // request_contact) — доступны только каналам с соответствующей
+    // возможностью (см. src/channels).
+    | 'geolocation'
+    | 'contact'
+    // Опрос (sendPoll). В отличие от 'button' не ждёт ответа в рамках
+    // текущего сообщения — Telegram доставляет голоса асинхронно через
+    // отдельные апдейты, поэтому это bubble-блок (см. blocks/registry.ts).
+    | 'poll'
 
 /**
- * Группа — нода на холсте. Содержит один или несколько блоков,
- * идущих друг за другом сверху вниз (в MVP — ровно один, полноценный
- * контейнер с несколькими блоками появится в Фазе 2, когда будет готов
- * визуальный компонент группы на канвасе).
+ * Группа — нода на холсте. Содержит один или несколько блоков, идущих
+ * друг за другом сверху вниз (см. GroupNode.vue — рендерит весь список).
  */
 export interface FlowGroup {
     id: string

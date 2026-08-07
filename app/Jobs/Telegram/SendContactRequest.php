@@ -3,6 +3,7 @@
 namespace App\Jobs\Telegram;
 
 use App\Application\Services\LogService;
+use App\Domain\Bots\Contracts\HasBotRateLimitKey;
 use App\Domain\Bots\Models\Bot;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Keyboard\ReplyButton;
@@ -13,10 +14,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\RateLimited;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 
-class SendContactRequest implements ShouldQueue
+class SendContactRequest implements ShouldQueue, HasBotRateLimitKey
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -28,9 +30,25 @@ class SendContactRequest implements ShouldQueue
         public int|string $chatId,
     ) {}
 
+    public function botId(): int
+    {
+        return $this->bot->id;
+    }
+
+    /**
+     * Тот же ключ блокировки, что и у SendTelegramMessage — запрос контакта
+     * это тоже сообщение в чат, и оно должно занимать очередь чата наравне
+     * с остальными, а не выполняться в обход общего порядка. RateLimited
+     * троттлится по botId() — см. AppServiceProvider.
+     */
     public function middleware(): array
     {
-        return [new RateLimited('telegram')];
+        $chatKey = "telegram-chat:{$this->bot->id}:{$this->chatId}";
+
+        return [
+            (new WithoutOverlapping($chatKey))->releaseAfter(2)->expireAfter(180),
+            new RateLimited('telegram'),
+        ];
     }
 
     public function handle(): void

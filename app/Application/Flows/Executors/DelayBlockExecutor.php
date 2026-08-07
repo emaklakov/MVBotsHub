@@ -29,7 +29,12 @@ final class DelayBlockExecutor implements BlockExecutorInterface
         $nextId = $block['next_id'] ?? null;
 
         if ($nextId) {
-            ProcessFlowStep::dispatch($context->session->id, $nextId)
+            ProcessFlowStep::dispatch(
+                $context->session->id,
+                $nextId,
+                $context->bot->id,
+                $context->subscriber->telegram_id,
+            )
                 ->delay(now()->addSeconds($seconds))
                 ->onQueue('telegram');
         } else {

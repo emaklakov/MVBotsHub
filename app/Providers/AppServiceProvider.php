@@ -13,7 +13,12 @@ use App\Application\Flows\Services\FlowEngine;
 use App\Application\Flows\Services\VariableResolver;
 use App\Application\Telegram\MessageRecorder;
 use App\Application\Telegram\TelegramMessageSender;
+use App\Domain\Bots\Contracts\HasBotRateLimitKey;
 use App\Domain\Bots\Contracts\TelegramGatewayInterface;
+use App\Domain\Bots\Models\Bot;
+use App\Domain\Bots\Models\BotMessageTemplate;
+use App\Domain\Bots\Observers\BotMessageTemplateObserver;
+use App\Domain\Bots\Observers\BotObserver;
 use App\Domain\Flows\Contracts\MessageSenderInterface;
 use App\Domain\Flows\Contracts\SessionStoreInterface;
 use App\Domain\Flows\Contracts\VariableResolverInterface;
@@ -51,6 +56,16 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(ProgressTracker::class);
+
+        // BroadcastDispatcher -> FlowEngine -> MessageSenderInterface: вся эта
+        // цепочка биндится как scoped, а не singleton. TelegramMessageSender
+        // копит $pending за один прогон FlowEngine::run() и должен сбрасываться
+        // между джобами очереди — воркер Horizon это долгоживущий процесс,
+        // и singleton-биндинг привёл бы к тому, что сообщения одной джобы
+        // "утекали" бы в flush() другой (или зависали бы в $pending навсегда,
+        // если джоба падает с исключением до finally-flush в FlowEngine::run()).
+        // Laravel сбрасывает scoped-инстансы автоматически между обработкой
+        // джоб в очереди (Worker::runJob() -> forgetScopedInstances()).
         $this->app->singleton(BroadcastDispatcher::class);
 
         $this->app->singleton(SessionStoreInterface::class, EloquentSessionStore::class);
@@ -84,6 +99,9 @@ class AppServiceProvider extends ServiceProvider
             \URL::forceScheme('https');
         }
 
+        Bot::observe(BotObserver::class);
+        BotMessageTemplate::observe(BotMessageTemplateObserver::class);
+
         Password::defaults(function () {
             return Password::min(8)
                 ->mixedCase()
@@ -95,9 +113,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('super-admin') ? true : null;
         });
 
-        // Общий throttle для всех ботов приложения (Telegram лимитирует по IP)
-        RateLimiter::for('telegram', function () {
-            return Limit::perSecond(28);
+        // Telegram лимитирует запросы ПО ТОКЕНУ БОТА (~30 msg/sec на бота),
+        // а не по IP сервера — поэтому ключ лимитера строится по botId()
+        // джобы (см. Domain\Bots\Contracts\HasBotRateLimitKey). Рассылка
+        // одного бота на этом сервере не съедает лимит другого бота.
+        RateLimiter::for('telegram', function (HasBotRateLimitKey $job) {
+            return Limit::perSecond(25)->by($job->botId());
         });
 
         Queue::createPayloadUsing(function ($connection, $queue, $payload) {

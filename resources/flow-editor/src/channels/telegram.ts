@@ -21,6 +21,7 @@ export const telegramChannel: ChannelProfile = {
         'geolocation',
         'contact_share',
         'web_app_button',
+        'poll',
     ],
     limits: {
         maxTextLength: 4096,
@@ -30,6 +31,12 @@ export const telegramChannel: ChannelProfile = {
         maxButtons: 40,
         maxButtonLabelLength: 64,
         callbackDataMaxBytes: 64,
+        // Официально задокументировано у Bot API (Poll.question): 1-300
+        // символов. Число вариантов исторически было 2-10 (недавно
+        // минимум снизили до 1) — верхнюю границу 10 берём как реальный
+        // практический потолок.
+        maxPollQuestionLength: 300,
+        maxPollOptions: 10,
     },
     systemVariables: [
         {

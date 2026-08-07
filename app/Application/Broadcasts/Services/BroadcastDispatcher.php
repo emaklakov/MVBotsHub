@@ -13,10 +13,11 @@ use App\Domain\Broadcasts\Enums\BroadcastStatus;
 use App\Domain\Broadcasts\Exceptions\RateLimitException;
 use App\Domain\Broadcasts\Models\Broadcast;
 use App\Domain\Broadcasts\Models\BroadcastRecipient;
-use App\Domain\Conversations\Enums\SubscriberStatus;
+use App\Domain\Conversations\Enums\BotSubscriberStatus;
 use App\Domain\Conversations\Models\BotSubscriber;
 use App\Jobs\Telegram\SendBroadcastMessage;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\DB;
 
 final class BroadcastDispatcher
@@ -28,7 +29,12 @@ final class BroadcastDispatcher
 
     /**
      * Запустить рассылку для ВСЕХ pending-получателей.
-     * Вызывается из админки (BroadcastDetailPage).
+     * Вызывается из админки (BroadcastDetailPage) либо из
+     * DispatchScheduledBroadcasts (см. Console/Commands/Broadcasts).
+     *
+     * lazyById вместо pluck() — при аудитории в десятки/сотни тысяч
+     * pluck() создал бы коллекцию всех id целиком в памяти вызывающего
+     * процесса (обычно HTTP-запрос из админки, у него есть таймаут).
      */
     public function dispatchAll(Broadcast $broadcast): void
     {
@@ -38,14 +44,15 @@ final class BroadcastDispatcher
 
         $broadcast->update(['status' => BroadcastStatus::PROCESSING, 'started_at' => now()]);
 
-        $recipients = BroadcastRecipient::where('broadcast_id', $broadcast->id)
+        BroadcastRecipient::query()
+            ->where('broadcast_id', $broadcast->id)
             ->where('status', BroadcastRecipientStatus::PENDING)
-            ->pluck('bot_subscriber_id');
-
-        foreach ($recipients as $subscriberId) {
-            SendBroadcastMessage::dispatch($broadcast->id, $subscriberId)
-                ->onQueue('broadcasts');
-        }
+            ->select('id', 'bot_subscriber_id')
+            ->lazyById(500, column: 'id')
+            ->each(fn (BroadcastRecipient $recipient) =>
+            SendBroadcastMessage::dispatch($broadcast->id, $recipient->bot_subscriber_id, $broadcast->bot_id)
+                ->onQueue('broadcasts')
+            );
     }
 
     /**
@@ -70,7 +77,7 @@ final class BroadcastDispatcher
 
         $subscriber = BotSubscriber::with('bot')->find($subscriberId);
 
-        if (!$subscriber || $subscriber->status !== SubscriberStatus::ACTIVE) {
+        if (!$subscriber || $subscriber->status !== BotSubscriberStatus::ACTIVE) {
             $this->markFailed($recipient, 'Пользователь неактивен или не найден');
             return;
         }
@@ -99,11 +106,14 @@ final class BroadcastDispatcher
 
     /**
      * Повторить отправку для failed-получателей.
+     * Заблокировавших бота подписчиков исключаем — им ретраить бессмысленно,
+     * их BroadcastRecipient остаётся в failed навсегда.
      */
     public function retryFailed(Broadcast $broadcast): void
     {
-        $recipients = BroadcastRecipient::where('broadcast_id', $broadcast->id)
+        BroadcastRecipient::where('broadcast_id', $broadcast->id)
             ->where('status', BroadcastRecipientStatus::FAILED)
+            ->whereHas('subscriber', fn ($q) => $q->where('status', BotSubscriberStatus::ACTIVE))
             ->update(['status' => BroadcastRecipientStatus::PENDING]);
 
         $this->dispatchAll($broadcast);
@@ -135,6 +145,12 @@ final class BroadcastDispatcher
         $this->progressTracker->markFailed($recipient->broadcast_id);
     }
 
+    /**
+     * Разделяет постоянные ошибки Telegram (ретраить бессмысленно — чат
+     * никогда не примет сообщение) от временных (сетевые сбои, 5xx —
+     * должны штатно ретраиться джобой). 429 обрабатывается отдельно
+     * и выше по стеку не долетает как RequestException.
+     */
     private function handleRequestException(RequestException $e, BroadcastRecipient $recipient): void
     {
         $response = $e->response;
@@ -150,6 +166,46 @@ final class BroadcastDispatcher
             throw new RateLimitException($retryAfter);
         }
 
+        if ($this->isPermanentDeliveryFailure($response)) {
+            $this->blockSubscriber($recipient);
+            $this->markFailed($recipient, $this->describePermanentFailure($response));
+            return;
+        }
+
+        // Временная ошибка (5xx, неизвестный 4xx) — пусть Job ретраит штатно
+        // (SendBroadcastMessage: tries=3, backoff=[5,15,60]).
         $this->markFailed($recipient, $e->getMessage());
+        throw $e;
+    }
+
+    /**
+     * 403 — пользователь заблокировал бота. 400 "chat not found" —
+     * аккаунт удалён/чат недоступен. В обоих случаях ретраить бессмысленно:
+     * чат никогда не станет снова доступен сам по себе.
+     */
+    private function isPermanentDeliveryFailure(Response $response): bool
+    {
+        if ($response->status() === 403) {
+            return true;
+        }
+
+        return $response->status() === 400
+            && str_contains((string) $response->json('description', ''), 'chat not found');
+    }
+
+    private function describePermanentFailure(Response $response): string
+    {
+        return $response->status() === 403
+            ? 'Пользователь заблокировал бота'
+            : 'Чат не найден (аккаунт удалён)';
+    }
+
+    private function blockSubscriber(BroadcastRecipient $recipient): void
+    {
+        $subscriber = $recipient->subscriber;
+
+        if ($subscriber && $subscriber->status !== BotSubscriberStatus::BLOCKED) {
+            $subscriber->update(['status' => BotSubscriberStatus::BLOCKED]);
+        }
     }
 }

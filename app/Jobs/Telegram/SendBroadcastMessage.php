@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -28,6 +29,7 @@ final class SendBroadcastMessage implements ShouldQueue, ShouldBeUnique
     public function __construct(
         private readonly int $broadcastId,
         private readonly int $subscriberId,
+        private readonly int $botId,
     ) {}
 
     /**
@@ -36,6 +38,13 @@ final class SendBroadcastMessage implements ShouldQueue, ShouldBeUnique
     public function uniqueId(): string
     {
         return "broadcast:{$this->broadcastId}:subscriber:{$this->subscriberId}";
+    }
+
+    public function middleware(): array
+    {
+        return [
+            (new RateLimited('telegram-broadcast:' . $this->botId))
+        ];
     }
 
     public function handle(BroadcastDispatcher $dispatcher): void
