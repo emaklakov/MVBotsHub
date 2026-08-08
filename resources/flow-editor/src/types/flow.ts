@@ -1,7 +1,28 @@
+/**
+ * Кнопка (type: 'button') или вариант ответа опроса (type: 'poll').
+ * У опроса callbackData не используется вовсе — Telegram не поддерживает
+ * callback_data у вариантов sendPoll, это чисто concept кнопок.
+ */
+export interface ButtonItem {
+    label: string
+    /**
+     * Только для inline-кнопок (BlockConfig.keyboardMode === 'inline') —
+     * Bot API callback_data, приходит в обработчик при нажатии отдельно
+     * от label (полезно, когда текст кнопки локализован или содержит
+     * эмодзи, а логике флоу нужен стабильный идентификатор). До 64 байт
+     * (ChannelLimits.callbackDataMaxBytes). Reply-клавиатура физически не
+     * имеет callback_data у Bot API — нажатие такой кнопки просто
+     * отправляет её текст обычным сообщением, поэтому здесь это поле
+     * бессмысленно и в редакторе не показывается при keyboardMode: 'reply'.
+     * Не задан — симулятор и бэкенд используют label как значение ответа.
+     */
+    callbackData?: string
+}
+
 export interface BlockContent {
     translations?: Record<string, string>
     text?: string
-    buttons?: string[]
+    buttons?: ButtonItem[]
     /**
      * URL медиафайла — для image/video/audio/file (Фаза 1). Сама загрузка
      * файла на сервер — вне зоны ответственности редактора флоу, здесь

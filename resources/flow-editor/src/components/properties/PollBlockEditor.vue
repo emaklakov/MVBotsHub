@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
+import type { ButtonItem } from '@/types/flow'
 import type { ChannelProfile } from '@/channels'
 
 const props = defineProps<{ block: UiBlock; variables?: string[]; channel: ChannelProfile }>()
@@ -13,7 +14,7 @@ const setQuestionText = (lang: 'ru' | 'en', value: string) => {
     emit('update', { content: { ...props.block.content, translations: { ...translations.value, [lang]: value } } })
 }
 
-const options = computed(() => props.block.content?.buttons || [])
+const options = computed<ButtonItem[]>(() => props.block.content?.buttons || [])
 
 // Poll — не то же самое, что кнопки под сообщением: у Telegram
 // собственный практический потолок вариантов (см. src/channels/telegram.ts),
@@ -24,19 +25,22 @@ const options = computed(() => props.block.content?.buttons || [])
 const maxOptions = computed(() => props.channel.limits.maxPollOptions ?? 10)
 const canAddOption = computed(() => options.value.length < maxOptions.value)
 
-const setOptions = (list: string[]) => {
+const setOptions = (list: ButtonItem[]) => {
     emit('update', { content: { ...props.block.content, buttons: list } })
 }
 
 const updateOption = (index: number, value: string) => {
     const list = [...options.value]
-    list[index] = value
+    // У варианта опроса нет callback_data (Bot API его не поддерживает
+    // для sendPoll — см. ButtonItem в types/flow.ts), поэтому здесь
+    // всегда просто { label }, в отличие от ButtonsBlockEditor.
+    list[index] = { label: value }
     setOptions(list)
 }
 
 const addOption = () => {
     if (!canAddOption.value) return
-    setOptions([...options.value, ''])
+    setOptions([...options.value, { label: '' }])
 }
 
 const removeOption = (index: number) => {
@@ -97,7 +101,7 @@ const onDrop = (index: number) => {
                 >
                     <span class="drag-handle" title="Перетащить для изменения порядка">⠿</span>
                     <input
-                        :value="opt"
+                        :value="opt.label"
                         placeholder="Вариант ответа"
                         @input="updateOption(index, ($event.target as HTMLInputElement).value)"
                     />

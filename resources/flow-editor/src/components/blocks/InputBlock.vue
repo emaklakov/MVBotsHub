@@ -1,14 +1,24 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { BlockContent, BlockConfig, FlowBlockType } from '@/types/flow'
 
-// `type` объявлен, но не используется этим компонентом — см. аналогичный
-// комментарий в ConditionBlock.vue.
-defineProps<{ content?: BlockContent; config?: BlockConfig; type?: FlowBlockType }>()
+const props = defineProps<{ content?: BlockContent; config?: BlockConfig; type?: FlowBlockType }>()
+
+// Валидируемые варианты 'input' (Фаза 2) — тот же компонент, только
+// другая иконка, чтобы визуально отличать их на канвасе.
+const ICONS: Partial<Record<FlowBlockType, string>> = {
+    input: '✏️',
+    number: '🔢',
+    email: '📧',
+    phone: '📱',
+    date: '📅',
+}
+const icon = computed(() => (props.type ? ICONS[props.type] ?? '✏️' : '✏️'))
 </script>
 
 <template>
     <div class="block input-block">
-        <span class="block-icon" aria-hidden="true">✏️</span>
+        <span class="block-icon" aria-hidden="true">{{ icon }}</span>
         <span class="block-text">
             {{ content?.translations?.ru || 'Вопрос без текста' }}
             <span class="var-tag" v-if="config?.variable">→ {{ config.variable }}</span>

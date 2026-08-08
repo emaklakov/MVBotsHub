@@ -9,7 +9,7 @@ defineProps<{ content?: BlockContent; config?: BlockConfig; type?: FlowBlockType
 <template>
     <div class="block text-block">
         <span class="block-icon" aria-hidden="true">💬</span>
-        <span class="block-text">{{ content?.translations?.ru || 'Пустой текст…' }}</span>
+        <span class="block-text">{{ content?.translations?.basic || 'Пустой текст…' }}</span>
     </div>
 </template>
 

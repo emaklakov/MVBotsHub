@@ -85,6 +85,15 @@ const mediaMissingLabel = (type?: 'image' | 'video' | 'audio' | 'file') =>
                         <div v-if="msg.text" class="media-caption">{{ msg.text }}</div>
                     </div>
                 </div>
+                <div v-else-if="msg.kind === 'poll'" class="message-row role-bot">
+                    <div class="bubble poll-bubble">
+                        <div class="poll-question">📊 {{ msg.text || 'Опрос' }}</div>
+                        <div class="poll-options">
+                            <span v-for="opt in msg.options" :key="opt.value" class="poll-option">{{ opt.label }}</span>
+                            <span v-if="!msg.options?.length" class="poll-option muted">Вариантов нет</span>
+                        </div>
+                    </div>
+                </div>
                 <div v-else class="message-row" :class="`role-${msg.role}`">
                     <div class="bubble">{{ msg.text }}</div>
                 </div>
@@ -92,7 +101,7 @@ const mediaMissingLabel = (type?: 'image' | 'video' | 'audio' | 'file') =>
                     v-if="msg.kind === 'buttons' && isLastMessage(msg.id) && sim.state.waiting?.kind === 'buttons'"
                     class="choice-buttons"
                 >
-                    <button v-for="opt in msg.options" :key="opt" type="button" @click="handleChoice(opt)">{{ opt }}</button>
+                    <button v-for="opt in msg.options" :key="opt.value" type="button" @click="handleChoice(opt.value)">{{ opt.label }}</button>
                 </div>
             </template>
 
@@ -109,6 +118,11 @@ const mediaMissingLabel = (type?: 'image' | 'video' | 'audio' | 'file') =>
             <button type="button" class="send-btn" @click="handleSendText">→</button>
         </div>
         <div v-else-if="sim.state.waiting?.kind === 'buttons'" class="composer-hint">Выберите один из вариантов выше ⤴</div>
+        <div v-else-if="sim.state.waiting?.kind === 'request'" class="composer composer-request">
+            <button type="button" class="request-btn" @click="sim.submitRequest()">
+                {{ sim.state.waiting.requestType === 'geolocation' ? '📍 Отправить геолокацию (тест)' : '☎️ Отправить контакт (тест)' }}
+            </button>
+        </div>
     </div>
 </template>
 
@@ -188,6 +202,32 @@ const mediaMissingLabel = (type?: 'image' | 'video' | 'audio' | 'file') =>
 .media-file-link:hover { background: var(--color-surface-50); }
 .media-missing { font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic; padding: 4px 0; }
 .media-caption { font-size: var(--font-size-base); line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+
+.poll-bubble { background: var(--color-surface); border: 1px solid var(--color-stroke); color: var(--color-text); border-bottom-left-radius: 2px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.poll-question { font-size: var(--font-size-base); font-weight: 600; }
+.poll-options { display: flex; flex-direction: column; gap: 4px; }
+.poll-option {
+    padding: 6px 10px;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+.poll-option.muted { color: var(--color-text-muted); font-style: italic; }
+
+.composer-request { justify-content: center; }
+.request-btn {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid color-mix(in oklch, var(--color-accent) 45%, transparent);
+    background: color-mix(in oklch, var(--color-accent) 10%, var(--color-surface));
+    color: var(--color-accent-text);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+}
+.request-btn:hover { background: color-mix(in oklch, var(--color-accent) 20%, var(--color-surface)); }
 
 .note {
     align-self: center;

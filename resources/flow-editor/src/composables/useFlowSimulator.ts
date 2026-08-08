@@ -1,5 +1,19 @@
 import { reactive } from 'vue'
-import type { FlowSchema, FlowEdge, FlowBlockType, BlockContent, BlockConfig, ConditionOperator } from '@/types/flow'
+import type { FlowSchema, FlowEdge, FlowBlockType, BlockContent, BlockConfig, ButtonItem, ConditionOperator } from '@/types/flow'
+
+/** Кнопка/вариант опроса в представлении симулятора: label — то, что
+ * показываем в UI, value — то, что реально уходит в переменную/echo
+ * (callback_data кнопки, если задан, иначе label — см. ButtonItem в
+ * types/flow.ts). У опроса value всегда равен label, т.к. callback_data
+ * у вариантов sendPoll не бывает. */
+export interface SimButtonOption {
+    label: string
+    value: string
+}
+
+function toSimOptions(buttons: ButtonItem[] | undefined): SimButtonOption[] {
+    return (buttons ?? []).map((b) => ({ label: b.label, value: b.callbackData || b.label }))
+}
 
 export interface SimMessage {
     id: string
@@ -9,7 +23,7 @@ export interface SimMessage {
     /** Для kind: 'buttons' — доступные варианты; для kind: 'poll'
      * (Фаза 2) — варианты ответа опроса (статичный список, без выбора —
      * см. комментарий у 'poll' в blocks/registry.ts). */
-    options?: string[]
+    options?: SimButtonOption[]
     /** Только для kind: 'media' (Фаза 1 — image/video/audio/file). */
     mediaType?: 'image' | 'video' | 'audio' | 'file'
     mediaUrl?: string
@@ -28,7 +42,7 @@ export type SimWaiting =
           blockType: FlowBlockType
           config?: BlockConfig
       }
-    | { kind: 'buttons'; blockId: string; variable: string | null; options: string[] }
+    | { kind: 'buttons'; blockId: string; variable: string | null; options: SimButtonOption[] }
     | {
           /** Запрос через нативную кнопку Telegram (Фаза 2) —
            * геолокация/контакт. См. submitRequest ниже: это
@@ -224,7 +238,7 @@ export function createChatSimulator(schema: FlowSchema) {
             }
 
             if (block.type === 'button') {
-                const options = block.content?.buttons ?? []
+                const options = toSimOptions(block.content?.buttons)
                 pushMessage({
                     role: 'bot',
                     kind: 'buttons',
@@ -278,7 +292,7 @@ export function createChatSimulator(schema: FlowSchema) {
                     role: 'bot',
                     kind: 'poll',
                     text: interpolate(pickTranslation(block.content), state.variables),
-                    options: block.content?.buttons ?? [],
+                    options: toSimOptions(block.content?.buttons),
                 })
                 continue
             }
@@ -322,13 +336,22 @@ export function createChatSimulator(schema: FlowSchema) {
         advance()
     }
 
-    const submitChoice = (option: string) => {
+    /**
+     * `value` — то же, что SimButtonOption.value (callback_data кнопки,
+     * если задан, иначе label). Ищем совпадающий option в текущем
+     * ожидании, чтобы показать в эхо-сообщении пользователя человекочитаемый
+     * label, а не сырой callback_data — так же, как настоящий Telegram-клиент
+     * показывает текст кнопки, а не то, что реально уходит боту.
+     */
+    const submitChoice = (value: string) => {
         if (!state.waiting || state.waiting.kind !== 'buttons') return
-        const variable = state.waiting.variable
+        const { variable, options } = state.waiting
+        const matched = options.find((o) => o.value === value)
+        const label = matched?.label ?? value
 
-        pushMessage({ role: 'user', kind: 'text', text: option })
+        pushMessage({ role: 'user', kind: 'text', text: label })
         state.waiting = null
-        if (variable) state.variables[variable] = option
+        if (variable) state.variables[variable] = value
         advance()
     }
 

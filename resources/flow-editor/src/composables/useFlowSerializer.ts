@@ -1,4 +1,4 @@
-import type { FlowSchema, FlowGroup, FlowBlock, FlowEdge, FlowBlockType, BlockContent, BlockConfig } from '@/types/flow'
+import type { FlowSchema, FlowGroup, FlowBlock, FlowEdge, FlowBlockType, BlockContent, BlockConfig, ButtonItem } from '@/types/flow'
 import type { Node, Edge } from '@vue-flow/core'
 import {
     defaultBlockTitle,
@@ -79,6 +79,30 @@ export function emptySchema(): FlowSchema {
     return { start_group_id: null, groups: {}, blocks: {}, edges: {} }
 }
 
+/**
+ * Приводит content.buttons к текущему формату (ButtonItem[]).
+ *
+ * До добавления callback_data кнопки/варианты опроса хранились как
+ * простой string[] — уже сохранённые в БД флоу могут быть в этом старом
+ * формате. Не мигрировать данные назад (это задача бэкенда/миграции БД),
+ * а просто нормализовать на лету при загрузке в редактор — так старые
+ * боты продолжают открываться без ручной миграции.
+ */
+function normalizeButtonContent(content: BlockContent | undefined): BlockContent | undefined {
+    // content.buttons типизирован как ButtonItem[] (текущий формат), но
+    // рантайм-данные из уже сохранённых флоу могут быть старым string[] —
+    // расширяем тип явно, иначе TS считает typeof b === 'string' заведомо
+    // невозможным сравнением (ButtonItem и string не пересекаются).
+    const buttons = content?.buttons as Array<ButtonItem | string> | undefined
+    if (!buttons?.length) return content
+    const needsMigration = buttons.some((b) => typeof b === 'string')
+    if (!needsMigration) return content
+    return {
+        ...content,
+        buttons: buttons.map((b) => (typeof b === 'string' ? { label: b } : b)),
+    }
+}
+
 export function useFlowSerializer() {
     /**
      * Схема -> VueFlow. Каждая группа схемы становится одной нодой холста
@@ -104,7 +128,7 @@ export function useFlowSerializer() {
             const blocks: UiBlock[] = group.block_ids
                 .map((blockId) => blocksMap[blockId])
                 .filter((b): b is FlowBlock => Boolean(b))
-                .map((b) => ({ id: b.id, type: b.type, content: b.content, config: b.config }))
+                .map((b) => ({ id: b.id, type: b.type, content: normalizeButtonContent(b.content), config: b.config }))
 
             nodes.push({
                 id: group.id,

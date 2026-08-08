@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { UiBlock } from '../../composables/useFlowSerializer'
+import type { ButtonItem } from '@/types/flow'
 import { channelHasCapability, type ChannelProfile } from '@/channels'
 
 const props = defineProps<{ block: UiBlock; variables?: string[]; channel: ChannelProfile }>()
@@ -12,25 +13,34 @@ const setQuestionText = (lang: 'ru' | 'en', value: string) => {
     emit('update', { content: { ...props.block.content, translations: { ...translations.value, [lang]: value } } })
 }
 
-const buttons = computed(() => props.block.content?.buttons || [])
+const buttons = computed<ButtonItem[]>(() => props.block.content?.buttons || [])
 
 const maxButtons = computed(() => props.channel.limits.maxButtons)
 const maxButtonLabelLength = computed(() => props.channel.limits.maxButtonLabelLength)
 const canAddButton = computed(() => buttons.value.length < maxButtons.value)
 
-const setButtons = (list: string[]) => {
+const setButtons = (list: ButtonItem[]) => {
     emit('update', { content: { ...props.block.content, buttons: list } })
 }
 
-const updateButton = (index: number, value: string) => {
+const updateLabel = (index: number, value: string) => {
     const list = [...buttons.value]
-    list[index] = value
+    list[index] = { ...list[index], label: value }
+    setButtons(list)
+}
+
+const updateCallbackData = (index: number, value: string) => {
+    const list = [...buttons.value]
+    // Пустая строка — то же самое, что "не задано": симулятор/бэкенд
+    // в этом случае используют label как значение ответа (см. комментарий
+    // у ButtonItem.callbackData в types/flow.ts).
+    list[index] = { ...list[index], callbackData: value || undefined }
     setButtons(list)
 }
 
 const addButton = () => {
     if (!canAddButton.value) return
-    setButtons([...buttons.value, ''])
+    setButtons([...buttons.value, { label: '' }])
 }
 
 const removeButton = (index: number) => {
@@ -61,6 +71,28 @@ const keyboardMode = computed({
     get: () => props.block.config?.keyboardMode || 'inline',
     set: (val: 'inline' | 'reply') => emit('update', { config: { ...props.block.config, keyboardMode: val } }),
 })
+
+// callback_data — исключительно Bot API-концепция inline-клавиатуры:
+// нажатие reply-кнопки просто отправляет её текст обычным сообщением, у
+// него физически нет отдельного payload. Поэтому поле показываем только
+// при keyboardMode: 'inline' — значения, оставшиеся в данных после
+// переключения на reply, не удаляем (не наше право терять данные молча),
+// но и не показываем/не используем, пока канал в inline-режиме.
+const showCallbackData = computed(() => keyboardMode.value === 'inline')
+
+// Bot API считает лимit 64 БАЙТА, а не символа — кириллица/эмодзи в
+// callback_data съедают по 2-4 байта на символ, поэтому просто
+// maxlength на инпуте здесь недостаточен, считаем реальный размер в UTF-8.
+function utf8ByteLength(value: string): number {
+    return new TextEncoder().encode(value).length
+}
+
+const callbackDataMaxBytes = computed(() => props.channel.limits.callbackDataMaxBytes)
+
+function isCallbackDataOverLimit(value: string | undefined): boolean {
+    if (!value || callbackDataMaxBytes.value === undefined) return false
+    return utf8ByteLength(value) > callbackDataMaxBytes.value
+}
 
 // Reply-клавиатура — это системная клавиатура Telegram, у веб-виджета
 // (и вообще у каналов без соответствующей возможности) такого понятия
@@ -115,7 +147,11 @@ const variable = computed({
         <div class="field">
             <label>Переменная (необязательно)</label>
             <input v-model="variable" placeholder="user_language" />
-            <p class="field-hint">Выбор пользователя сохранится в эту переменную — можно использовать в условии или в тексте других блоков.</p>
+            <p class="field-hint">
+                Выбор пользователя сохранится в эту переменную —
+                {{ showCallbackData ? 'значение callback_data кнопки (или её текст, если он не задан)' : 'текст выбранной кнопки' }},
+                можно использовать в условии или в тексте других блоков.
+            </p>
         </div>
 
         <div class="field">
@@ -125,18 +161,34 @@ const variable = computed({
                     v-for="(btn, index) in buttons"
                     :key="index"
                     class="button-row"
+                    :class="{ 'has-callback': showCallbackData }"
                     draggable="true"
                     @dragstart="onDragStart(index)"
                     @dragover.prevent
                     @drop="onDrop(index)"
                 >
                     <span class="drag-handle" title="Перетащить для изменения порядка">⠿</span>
-                    <input
-                        :value="btn"
-                        :maxlength="maxButtonLabelLength"
-                        placeholder="Текст кнопки"
-                        @input="updateButton(index, ($event.target as HTMLInputElement).value)"
-                    />
+                    <div class="button-row-fields">
+                        <input
+                            :value="btn.label"
+                            :maxlength="maxButtonLabelLength"
+                            placeholder="Текст кнопки"
+                            @input="updateLabel(index, ($event.target as HTMLInputElement).value)"
+                        />
+                        <template v-if="showCallbackData">
+                            <input
+                                :value="btn.callbackData || ''"
+                                placeholder="callback_data (необязательно, по умолчанию — текст кнопки)"
+                                class="callback-data-input"
+                                :class="{ over: isCallbackDataOverLimit(btn.callbackData) }"
+                                @input="updateCallbackData(index, ($event.target as HTMLInputElement).value)"
+                            />
+                            <p v-if="isCallbackDataOverLimit(btn.callbackData)" class="field-hint over">
+                                callback_data длиннее {{ callbackDataMaxBytes }} байт (лимит Bot API) —
+                                {{ utf8ByteLength(btn.callbackData || '') }} байт.
+                            </p>
+                        </template>
+                    </div>
                     <button type="button" class="remove-btn" title="Удалить" @click="removeButton(index)">✕</button>
                 </div>
                 <div v-if="!buttons.length" class="empty-hint">Кнопок пока нет</div>
@@ -168,11 +220,14 @@ input, textarea, select {
 textarea { resize: vertical; }
 
 .field-hint { margin: 4px 0 0; font-size: var(--font-size-xs); color: var(--color-text-muted); }
-.button-list { display: flex; flex-direction: column; gap: var(--space-1); }
-.button-row { display: flex; align-items: center; gap: var(--space-1); cursor: grab; }
+.field-hint.over { color: var(--color-error-text); font-weight: 600; }
+.button-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.button-row { display: flex; align-items: flex-start; gap: var(--space-1); cursor: grab; }
 .button-row:active { cursor: grabbing; }
-.button-row input { flex: 1; }
-.drag-handle { color: var(--color-text-muted); font-size: var(--font-size-md); flex-shrink: 0; }
+.button-row-fields { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.drag-handle { color: var(--color-text-muted); font-size: var(--font-size-md); flex-shrink: 0; margin-top: 6px; }
+.callback-data-input { font-family: var(--font-mono, monospace); font-size: var(--font-size-sm); }
+.callback-data-input.over { border-color: var(--color-error); }
 .remove-btn {
     flex-shrink: 0;
     width: 24px;
@@ -183,6 +238,7 @@ textarea { resize: vertical; }
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: var(--font-size-xs);
+    margin-top: 2px;
 }
 .remove-btn:hover { background: color-mix(in oklch, var(--color-error) 20%, var(--color-surface)); }
 .add-btn {

@@ -12,12 +12,12 @@ const emit = defineEmits<{ update: [patch: { content?: any }] }>()
 const activeChannel = computed(() => props.channel ?? getChannelProfile(defaultChannelId))
 const maxTextLength = computed(() => activeChannel.value.limits.maxTextLength)
 
-type Lang = 'ru' | 'en'
+type Lang = 'basic' | 'ru' | 'en'
 
-const activeLang = ref<Lang>('ru')
+const activeLang = ref<Lang>('basic')
 const textareaEl = ref<HTMLTextAreaElement | null>(null)
 
-const translations = computed(() => props.block.content?.translations || { ru: '', en: '' })
+const translations = computed(() => props.block.content?.translations || { basic: '', ru: '', en: '' })
 
 const setText = (lang: Lang, value: string) => {
     emit('update', { content: { ...props.block.content, translations: { ...translations.value, [lang]: value } } })
@@ -62,6 +62,7 @@ const insertVariable = (name: string) => {
 <template>
     <div class="text-editor">
         <div class="lang-tabs">
+            <button type="button" :class="{ active: activeLang === 'basic' }" @click="activeLang = 'basic'">Основной</button>
             <button type="button" :class="{ active: activeLang === 'ru' }" @click="activeLang = 'ru'">RU</button>
             <button type="button" :class="{ active: activeLang === 'en' }" @click="activeLang = 'en'">EN</button>
         </div>
